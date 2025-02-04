@@ -1,4 +1,4 @@
-package com.example.lovekeeper.common.base.exception.advice;
+package com.example.lovekeeper.common.base.exception;
 
 import java.nio.file.AccessDeniedException;
 import java.util.LinkedHashMap;
@@ -18,10 +18,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.example.lovekeeper.common.base.BaseResponse;
-import com.example.lovekeeper.common.base.exception.RestApiException;
 import com.example.lovekeeper.common.base.exception.code.BaseCode;
 import com.example.lovekeeper.common.base.exception.code.status.GlobalErrorStatus;
+import com.example.lovekeeper.common.response.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
