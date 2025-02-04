@@ -1,4 +1,4 @@
-package com.example.lovekeeper.common.base;
+package com.example.lovekeeper.common.response;
 
 import java.time.LocalDateTime;
 
