@@ -36,6 +36,9 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	PARTNER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER032", "상대방을 찾을 수 없습니다."),
 	INVALID_PARTNER_STATUS(HttpStatus.BAD_REQUEST, "MEMBER033", "유효하지 않은 상대방 상태입니다."),
 	CANNOT_INVITE_SELF(HttpStatus.BAD_REQUEST, "MEMBER034", "자기 자신을 초대할 수 없습니다."),
+	CANNOT_CONNECT_WITH_SELF(HttpStatus.BAD_REQUEST, "MEMBER035", "자기 자신과 커플이 될 수 없습니다."),
+	INVITE_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER036", "초대 코드를 찾을 수 없습니다."),
+	ALREADY_COUPLE(HttpStatus.CONFLICT, "MEMBER037", "이미 커플인 회원입니다."),
 
 	// 회원 수정/탈퇴 관련 (MEMBER041 ~ MEMBER050)
 	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER041", "비밀번호가 일치하지 않습니다."),
