@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lovekeeper?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
-    username: root
-    password: ehdfprl77
+    url: jdbc:mysql://dev-db-server:3306/lovekeeper?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: dev_user
+    password: dev_password
 
   mail:
     host: smtp.gmail.com
@@ -20,4 +20,4 @@ jwt:
   refresh-token-validity-in-milliseconds: 604800000   # 7일
 
 server:
-  port: 8080
+  port: 8081

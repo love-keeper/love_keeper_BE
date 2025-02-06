@@ -66,3 +66,16 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// JAR 빌드 태스크
+task buildJar(type: Jar) {
+    archiveBaseName.set('my-app')
+    archiveVersion.set('1.0.0')
+    from sourceSets.main.output
+}
+
+// Docker 빌드 태스크
+task dockerBuild(type: Exec) {
+    dependsOn buildJar
+    commandLine 'sh', '-c', 'docker build -t my-app:1.0.0 .'
+}
