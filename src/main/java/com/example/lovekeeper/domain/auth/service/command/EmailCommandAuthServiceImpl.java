@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailCommandAuthServiceImpl implements EmailCommandAuthService {
 
-	// 인증 코드 유효 시간 (예: 3분 = 180000 ms)
 	private static final long CODE_EXPIRE_TIME_MS = 300000;
 	private final JavaMailSender mailSender;
 	private final TemplateEngine templateEngine;
