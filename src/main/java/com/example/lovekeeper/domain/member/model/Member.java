@@ -110,4 +110,17 @@ public class Member extends BaseEntity {
 	public boolean isActive() {
 		return this.status == Status.ACTIVE;
 	}
+
+	//===비즈니스 로직===//
+	public void updateInviteCode(String inviteCode) {
+		this.inviteCode = inviteCode;
+	}
+
+	public void updateCouple(Couple couple) {
+		this.couple = couple;
+	}
+
+	public void updatePartner(Member partner) {
+		this.partner = partner;
+	}
 }
