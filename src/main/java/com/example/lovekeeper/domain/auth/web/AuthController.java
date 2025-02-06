@@ -40,6 +40,9 @@ public class AuthController {
 
 	private final AuthCommandService authCommandService;
 
+	/**
+	 * 회원가입
+	 */
 	@Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
 	@ApiResponse(responseCode = "201", description = "회원가입 성공")
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
