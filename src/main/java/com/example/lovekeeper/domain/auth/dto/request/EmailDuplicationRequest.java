@@ -1,6 +1,9 @@
 package com.example.lovekeeper.domain.auth.dto.request;
 
+import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +18,8 @@ import lombok.NoArgsConstructor;
 public class EmailDuplicationRequest {
 
 	@Schema(description = "이메일", example = "qkrehdrb0813@gmail.com")
+	@Email(message = "이메일 형식이 올바르지 않습니다.")
+	@UniqueEmail
 	private String email;
 
 }
