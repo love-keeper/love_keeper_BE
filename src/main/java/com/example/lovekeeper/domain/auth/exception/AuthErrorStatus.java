@@ -35,7 +35,13 @@ public enum AuthErrorStatus implements BaseCodeInterface {
 
 	// 소셜 로그인 관련 에러 (AUTH041 ~ AUTH050)
 	SOCIAL_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH041", "소셜 로그인에 실패했습니다."),
-	INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH042", "유효하지 않은 소셜 토큰입니다.");
+	INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH042", "유효하지 않은 소셜 토큰입니다."),
+
+	// 이메일 관련 에러 (AUTH051 ~ AUTH060)
+	EMAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AUTH051", "이메일 발송에 실패했습니다."),
+	EMAIL_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "AUTH052", "이메일 인증에 실패했습니다."),
+
+	;
 
 	private final HttpStatus httpStatus;
 	private final boolean isSuccess = false;
