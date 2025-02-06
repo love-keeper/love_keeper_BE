@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
 import com.example.lovekeeper.domain.auth.dto.response.SignUpResponse;
 import com.example.lovekeeper.domain.auth.service.command.AuthCommandService;
+import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.global.common.BaseResponse;
 
@@ -44,7 +45,7 @@ public class AuthController {
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<SignUpResponse> signUp(
-		@RequestParam @Email String email,
+		@RequestParam @Email @UniqueEmail String email,
 		@RequestParam(required = false) @Pattern(
 			regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
 			message = "비밀번호는 8~20자의 영문, 숫자, 특수문자를 포함해야 합니다.")
