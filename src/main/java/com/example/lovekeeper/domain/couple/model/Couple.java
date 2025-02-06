@@ -39,6 +39,7 @@ public class Couple extends BaseEntity {
 
 	private Integer duration;
 
-	private Status status;
+	@Builder.Default
+	private Status status = Status.ACTIVE;
 
 }
