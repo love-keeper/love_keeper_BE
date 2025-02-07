@@ -1,12 +1,15 @@
 package com.example.lovekeeper.domain.member.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.auth.model.RefreshToken;
 import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.global.common.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -20,6 +23,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -54,6 +58,14 @@ public class Member extends BaseEntity {
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private RefreshToken refreshToken;
 
+	@Builder.Default
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Letter> sentLetters = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Letter> receivedLetters = new ArrayList<>();
+
 	private String inviteCode;
 
 	private String email;
@@ -63,8 +75,6 @@ public class Member extends BaseEntity {
 	private String nickname;
 
 	private String profileImageUrl;
-
-	private String partnerName;
 
 	private LocalDate birthDate;
 
@@ -107,20 +117,27 @@ public class Member extends BaseEntity {
 	}
 
 	//==연관관계 메서드==//
+	public void updatePartner(Member partner) {
+		this.partner = partner;
+		partner.partner = this;
+	}
+
+	//===비즈니스 로직===//
+
 	public boolean isActive() {
 		return this.status == Status.ACTIVE;
 	}
 
-	//===비즈니스 로직===//
 	public void updateInviteCode(String inviteCode) {
 		this.inviteCode = inviteCode;
 	}
 
-	public void updateCouple(Couple couple) {
+	public void connectCouple(Member partner, Couple couple) {
 		this.couple = couple;
+		this.partner = partner;
+		partner.couple = couple;
+		partner.partner = this;
+
 	}
 
-	public void updatePartner(Member partner) {
-		this.partner = partner;
-	}
 }

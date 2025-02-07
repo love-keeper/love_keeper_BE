@@ -1,24 +1,21 @@
-package com.example.lovekeeper.domain.couple.model;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+package com.example.lovekeeper.domain.letter.model;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.member.model.Member;
-import com.example.lovekeeper.domain.member.model.Status;
 import com.example.lovekeeper.global.common.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,23 +30,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "couple")
-public class Couple extends BaseEntity {
+@Table(name = "letter")
+public class Letter extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "couple_id")
+	@Column(name = "letter_id")
 	private Long id;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "couple")
-	private List<Member> members = new ArrayList<>();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "couple_id")
+	private Couple couple;
 
-	@Builder.Default
-	private LocalDate startedAt = LocalDate.now();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id")
+	private Member sender;
 
-	@Builder.Default
-	@Enumerated(EnumType.STRING)
-	private Status status = Status.ACTIVE;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id")
+	private Member receiver;
 
+	@Lob
+	private String content;
+	
 }
