@@ -52,4 +52,8 @@ public class Couple extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Status status = Status.ACTIVE;
 
+	//== 비스니스 로직 ==//
+	public void updateStartDate(LocalDate newStartDate) {
+		this.startedAt = newStartDate;
+	}
 }

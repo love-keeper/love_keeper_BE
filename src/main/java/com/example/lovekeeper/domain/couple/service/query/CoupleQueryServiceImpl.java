@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CoupleQueryServiceImpl implements CoupleQueryService {
 
 	private final MemberJpaRepository memberJpaRepository;
