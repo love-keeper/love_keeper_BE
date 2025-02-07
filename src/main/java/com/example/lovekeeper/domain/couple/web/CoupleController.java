@@ -2,6 +2,7 @@ package com.example.lovekeeper.domain.couple.web;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.lovekeeper.domain.couple.dto.request.ConnectCoupleRequest;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
 import com.example.lovekeeper.domain.couple.service.command.CoupleCommandService;
+import com.example.lovekeeper.domain.couple.service.query.CoupleQueryService;
 import com.example.lovekeeper.global.common.BaseResponse;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
 
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Validated
 public class CoupleController {
 
+	private final CoupleQueryService coupleQueryService;
 	private final CoupleCommandService coupleCommandService;
 
 	/**
@@ -53,6 +56,16 @@ public class CoupleController {
 		Long memberId = userDetails.getMember().getId();
 		coupleCommandService.connectCouple(memberId, request.getInviteCode());
 		return BaseResponse.onSuccess("커플 연결이 완료되었습니다.");
+	}
+
+	/**
+	 * 인증된 사용자가 속한 커플이 사귄 지 며칠이 지났는지 계산
+	 * @return 커플이 사귄 날짜
+	 */
+	@GetMapping("/days-since-started")
+	public BaseResponse<Long> getDaysSinceStarted(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return BaseResponse.onSuccess(
+			coupleQueryService.getDaysSinceStarted(userDetails.getMember().getId()));
 	}
 
 }

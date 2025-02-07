@@ -1,6 +1,5 @@
 package com.example.lovekeeper.domain.couple.service.command;
 
-import java.time.LocalDate;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import com.example.lovekeeper.domain.couple.repository.CoupleJpaRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
-import com.example.lovekeeper.domain.member.model.Status;
 import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
 
 import jakarta.transaction.Transactional;
@@ -61,19 +59,11 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 		}
 
 		// 커플 엔티티 생성
-		Couple couple = Couple.builder()
-			.startedAt(LocalDate.now())
-			.status(Status.ACTIVE)
-			.build();
+		Couple couple = Couple.builder().build();
 		coupleJpaRepository.save(couple);
 
 		// 양쪽 member에 couple 설정
-		currentMember.updateCouple(couple);
-		partnerMember.updateCouple(couple);
-
-		// 서로를 partner로 설정
-		currentMember.updatePartner(partnerMember);
-		partnerMember.updatePartner(currentMember);
+		currentMember.connectCouple(partnerMember, couple);
 	}
 
 	/**
