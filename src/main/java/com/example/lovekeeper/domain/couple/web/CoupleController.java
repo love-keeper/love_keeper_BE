@@ -4,11 +4,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.couple.dto.request.ConnectCoupleRequest;
+import com.example.lovekeeper.domain.couple.dto.request.UpdateCoupleStartDateRequest;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
 import com.example.lovekeeper.domain.couple.service.command.CoupleCommandService;
 import com.example.lovekeeper.domain.couple.service.query.CoupleQueryService;
@@ -68,4 +70,20 @@ public class CoupleController {
 			coupleQueryService.getDaysSinceStarted(userDetails.getMember().getId()));
 	}
 
+	/**
+	 * 커플의 시작일 수정
+	 * @param request 시작일 수정 정보
+	 * @param userDetails 인증된 사용자 정보
+	 * @return 성공 메시지
+	 */
+	@PutMapping("/start-date")
+	public BaseResponse<String> updateCoupleStartDate(
+		@RequestBody UpdateCoupleStartDateRequest request,
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+		coupleCommandService.updateCoupleStartDate(userDetails.getMember().getId(), request.getNewStartDate());
+
+		return BaseResponse.onSuccess("커플 시작일이 변경되었습니다.");
+	}
 }
+

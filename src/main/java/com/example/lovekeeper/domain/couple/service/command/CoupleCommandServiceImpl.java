@@ -1,10 +1,13 @@
 package com.example.lovekeeper.domain.couple.service.command;
 
+import java.time.LocalDate;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
+import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
+import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.repository.CoupleJpaRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
@@ -64,6 +67,27 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 
 		// 양쪽 member에 couple 설정
 		currentMember.connectCouple(partnerMember, couple);
+	}
+
+	/**
+	 * 커플의 시작일 수정
+	 */
+	@Override
+	public void updateCoupleStartDate(Long memberId, LocalDate newStartDate) {
+		// 현재 회원 조회
+		Member currentMember = memberJpaRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 회원이 속한 커플 조회
+		Couple currentCouple = currentMember.getCouple();
+
+		// 커플이 없는 경우 예외 처리
+		if (currentCouple == null) {
+			throw new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND);
+		}
+
+		// 커플 시작일 수정
+		currentCouple.updateStartDate(newStartDate);
 	}
 
 	/**
