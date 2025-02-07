@@ -5,6 +5,10 @@ spring:
     username: root
     password: ehdfprl77
 
+  jpa:
+    hibernate:
+      ddl-auto: create
+  
   mail:
     host: smtp.gmail.com
     port: 587
