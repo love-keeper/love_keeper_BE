@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.couple.web;
+package com.example.lovekeeper.domain.couple.api;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;

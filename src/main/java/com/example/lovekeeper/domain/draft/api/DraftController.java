@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.draft.web;
+package com.example.lovekeeper.domain.draft.api;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
