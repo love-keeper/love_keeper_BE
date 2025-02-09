@@ -1,5 +1,5 @@
 // AuthController.java
-package com.example.lovekeeper.domain.auth.web;
+package com.example.lovekeeper.domain.auth.api;
 
 import java.time.LocalDate;
 
@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.lovekeeper.domain.auth.dto.request.EmailDuplicationRequest;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
+import com.example.lovekeeper.domain.auth.dto.response.ReissueResponse;
 import com.example.lovekeeper.domain.auth.dto.response.SignUpResponse;
 import com.example.lovekeeper.domain.auth.service.command.AuthCommandService;
 import com.example.lovekeeper.domain.auth.service.query.AuthQueryService;
@@ -28,6 +29,9 @@ import com.example.lovekeeper.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -46,6 +50,9 @@ public class AuthController {
 	private final AuthCommandService authCommandService;
 	private final AuthQueryService authQueryService;
 
+	/**
+	 * 이메일 중복 확인
+	 */
 	@Operation(summary = "회원가입이 가능한지 확인", description = "이메일 중복 확인")
 	@ApiResponse(responseCode = "200", description = "이메일 중복 확인 성공")
 	@GetMapping("/email-duplication")
@@ -79,4 +86,53 @@ public class AuthController {
 		return BaseResponse.onSuccessCreate(authCommandService.signUpMember(
 			SignUpRequest.of(email, password, nickname, birthDate, profileImage, provider, providerId)));
 	}
+
+	@Operation(summary = "토큰 재발급", description = "쿠키에 담긴 Refresh Token을 이용해 새 Access/Refresh Token을 발급받습니다.")
+	@ApiResponse(responseCode = "200", description = "토큰 재발급 성공")
+	@PostMapping("/reissue")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<ReissueResponse> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
+
+		// 1) 쿠키에서 기존 Refresh Token 추출
+		String oldRefreshToken = extractRefreshTokenFromCookie(request);
+		if (oldRefreshToken == null) {
+			return BaseResponse.onFailure("AUTH003", "Refresh Token이 쿠키에 존재하지 않습니다.", null);
+		}
+
+		// 2) Service에서 재발급 로직 처리
+		ReissueResponse reissueResponse = authCommandService.reissueRefreshToken(oldRefreshToken);
+
+		// 3) 새 Access Token을 헤더에 담는다
+		response.setHeader("Authorization", "Bearer " + reissueResponse.getAccessToken());
+
+		// 4) 새 Refresh Token을 쿠키에 담아 내려준다
+		Cookie refreshCookie = new Cookie("refresh_token", reissueResponse.getRefreshToken());
+		refreshCookie.setHttpOnly(true);
+		refreshCookie.setPath("/");
+		refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일, (초 단위)
+
+		// 필요 시 HTTPS 환경에서만 사용하도록 secure 옵션 활성화
+		// refreshCookie.setSecure(true);
+
+		response.addCookie(refreshCookie);
+
+		log.info("[AuthController] 토큰 재발급 - Access/Refresh Token 생성 완료");
+
+		// 클라이언트로 ReissueResponse 객체(AccessToken, RefreshToken)를 JSON으로도 보내고자 하면,
+		// Refresh Token은 굳이 바디로 내려주지 않고, AccessToken만 제공해도 됩니다(정책에 따라).
+		return BaseResponse.onSuccess(reissueResponse);
+	}
+
+	private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+		if (request.getCookies() == null) {
+			return null;
+		}
+		for (Cookie cookie : request.getCookies()) {
+			if ("refresh_token".equals(cookie.getName())) {
+				return cookie.getValue();
+			}
+		}
+		return null;
+	}
+
 }

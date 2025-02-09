@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.member.web;
+package com.example.lovekeeper.domain.member.api;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
