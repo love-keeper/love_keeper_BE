@@ -7,10 +7,13 @@ import java.util.List;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Status;
+import com.example.lovekeeper.domain.note.model.Note;
 import com.example.lovekeeper.global.common.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,6 +47,14 @@ public class Couple extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "couple")
 	private List<Member> members = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "couple", orphanRemoval = true, cascade = CascadeType.ALL)
+	private List<Letter> letters = new ArrayList<>(); // 편지
+
+	@Builder.Default
+	@OneToMany(mappedBy = "couple", orphanRemoval = true, cascade = CascadeType.ALL)
+	private List<Note> notes = new ArrayList<>();
 
 	@Builder.Default
 	private LocalDate startedAt = LocalDate.now();
