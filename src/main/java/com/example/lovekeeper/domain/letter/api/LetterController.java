@@ -1,5 +1,8 @@
 package com.example.lovekeeper.domain.letter.api;
 
+import java.time.Month;
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.letter.dto.request.SendLetterRequest;
+import com.example.lovekeeper.domain.letter.dto.response.LetterCountByDateResponse;
 import com.example.lovekeeper.domain.letter.dto.response.LetterResponse;
 import com.example.lovekeeper.domain.letter.service.command.LetterCommandService;
 import com.example.lovekeeper.domain.letter.service.query.LetterQueryService;
@@ -40,6 +44,21 @@ public class LetterController {
 
 		return BaseResponse.onSuccess(letterQueryService.getLetters(userDetails.getMember().getId(), page,
 			size));
+	}
+
+	// 연도 + 월을 기준으로 각 날짜별 편지 수 반환
+	@GetMapping("/monthly-letter-count")
+	public BaseResponse<List<LetterCountByDateResponse>> getLetterCountByMonth(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam int year,
+		@RequestParam int month // 1 for January, 2 for February, etc.
+	) {
+
+		Month selectedMonth = Month.of(month);
+		List<LetterCountByDateResponse> letterCountByDateResponses = letterQueryService.getLetterCountByMonth(year,
+			selectedMonth, userDetails.getMember().getId());
+
+		return BaseResponse.onSuccess(letterCountByDateResponses);
 	}
 
 	/**

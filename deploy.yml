@@ -1,4 +1,0 @@
-- hosts: production
-  tasks:
-    - name: Deploy new version
-      command: kubectl apply -f k8s/deployment.yml
