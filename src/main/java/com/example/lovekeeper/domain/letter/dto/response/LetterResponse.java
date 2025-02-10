@@ -45,12 +45,13 @@ public class LetterResponse {
 	public static class LetterDetailResponse {
 
 		private String senderNickname;
-
+		private String receiverNickname;
 		private String content;
 
 		public static LetterDetailResponse from(Letter letter) {
 			return LetterDetailResponse.builder()
 				.senderNickname(letter.getSender().getNickname())
+				.receiverNickname(letter.getReceiver().getNickname())
 				.content(letter.getContent())
 				.build();
 		}
