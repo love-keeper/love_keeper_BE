@@ -1,8 +1,9 @@
-package com.example.lovekeeper.domain.draft.model;
+package com.example.lovekeeper.domain.note.model;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.global.common.BaseEntity;
 
@@ -14,7 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,37 +30,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "draft")
-public class Draft extends BaseEntity {
+@Table(name = "note") // 쪽지
+public class Note extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "draft_id")
+	@Column(name = "note_id")
 	private Long id;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member member;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "couple_id")
+	private Couple couple;
 
-	private int draftOrder;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id")
+	private Member sender;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id")
+	private Member receiver;
 
 	@Lob
 	private String content;
 
-	//== 생성 메서드 ==//
-	public static Draft createDraft(Member member, int order, String content) {
-		return Draft.builder()
-			.member(member)
-			.draftOrder(order)
-			.content(content)
-			.build();
-	}
-
-	//== 연관 관계 메서드 ==//
-
-	//== 비즈니스 로직 ==//
-	public void updateContent(String content) {
-		this.content = content;
-	}
+	private String imageUrl;
 
 }

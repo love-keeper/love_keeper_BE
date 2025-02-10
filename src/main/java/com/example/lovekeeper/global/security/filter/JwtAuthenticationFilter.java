@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CustomUserDetailsService customUserDetailsService;
-	private final ObjectMapper objectMapper; // (Bean 등록 또는 생성자 주입)
+	private final ObjectMapper objectMapper;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		try {
+			// Authorization 헤더에서 Bearer 토큰 추출
 			String token = resolveToken(request);
 
 			// 토큰이 존재하고 유효하다면
@@ -52,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					userDetails.getAuthorities()
 				);
 
+				// 인증 정보 설정
 				SecurityContextHolder.getContext().setAuthentication(auth);
 
 				log.debug("[JwtAuthenticationFilter] 인증 성공 - memberId: {}", memberId);
@@ -76,9 +78,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private String resolveToken(HttpServletRequest request) {
 		String bearer = request.getHeader("Authorization");
 		if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
-			return bearer.substring(7);
+			return bearer.substring(7); // "Bearer " 부분 제거하고 토큰만 반환
 		}
-		return null;
+		return null; // 토큰이 없으면 null 반환
 	}
 
 	/**
