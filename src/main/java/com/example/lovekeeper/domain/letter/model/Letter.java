@@ -4,6 +4,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
+import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.global.common.BaseEntity;
 
@@ -52,5 +54,27 @@ public class Letter extends BaseEntity {
 
 	@Lob
 	private String content;
-	
+
+	//== 생성 메서드 ==//
+	//== 생성 메서드 ==//
+	public static Letter createLetter(Member sender, Member receiver, String content) {
+		// Validate if sender and receiver are part of the same couple
+		if (!sender.getCouple().equals(receiver.getCouple())) {
+			throw new MemberException(MemberErrorStatus.INVALID_COUPLE_FOR_LETTER);
+		}
+
+		// Letter creation
+		return Letter.builder()
+			.couple(sender.getCouple())  // Same couple as sender
+			.sender(sender)
+			.receiver(receiver)
+			.content(content)
+			.build();
+	}
+
+	//== 비즈니스 로직 ==//
+	public void send() {
+		// Send logic if required (e.g. notifications, etc.)
+	}
+
 }
