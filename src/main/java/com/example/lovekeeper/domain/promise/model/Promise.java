@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.letter.model;
+package com.example.lovekeeper.domain.promise.model;
 
 import java.time.LocalDate;
 
@@ -16,7 +16,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -32,12 +31,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "letter")
-public class Letter extends BaseEntity {
+@Table(name = "promise") // 약속
+public class Promise extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "letter_id")
+	@Column(name = "promise_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -45,28 +44,27 @@ public class Letter extends BaseEntity {
 	private Couple couple;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sender_id")
-	private Member sender;
+	@JoinColumn(name = "member_id")
+	private Member member;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "receiver_id")
-	private Member receiver;
-
-	@Lob
 	private String content;
 
 	@Builder.Default
-	private LocalDate sentDate = LocalDate.now();
+	private LocalDate promiseDate = LocalDate.now();
 
 	//== 생성 메서드 ==//
-	public static Letter createLetter(Member sender, Member receiver, String content) {
-		// Validate if sender and receiver are part of the same couple
-		return null;
-	}
+	public static Promise createPromise(Couple couple, Member member, String content) {
+		Promise promise = Promise.builder()
+			.couple(couple)
+			.member(member)
+			.content(content)
+			.build();
 
-	//== 비즈니스 로직 ==//
-	public void send() {
-		// Send logic if required (e.g. notifications, etc.)
+		// 연관 관계 설정
+		couple.addPromise(promise); // Couple 객체의 addPromise 메서드를 호출하여 연관 관계 설정
+		member.getPromises().add(promise); // Member 객체의 promises에 추가
+
+		return promise;
 	}
 
 }

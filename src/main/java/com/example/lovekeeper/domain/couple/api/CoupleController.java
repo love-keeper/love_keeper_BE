@@ -1,5 +1,6 @@
 package com.example.lovekeeper.domain.couple.api;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,10 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.couple.dto.request.ConnectCoupleRequest;
 import com.example.lovekeeper.domain.couple.dto.request.UpdateCoupleStartDateRequest;
+import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
 import com.example.lovekeeper.domain.couple.service.command.CoupleCommandService;
 import com.example.lovekeeper.domain.couple.service.query.CoupleQueryService;
@@ -38,6 +41,7 @@ public class CoupleController {
 	 * - 인증 사용자 ID를 @AuthenticationPrincipal로 추출
 	 */
 	@PostMapping("/generate-code")
+	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<GenerateCodeResponse> generateInviteCode(
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -51,6 +55,7 @@ public class CoupleController {
 	 * - 인증 사용자 ID는 @AuthenticationPrincipal
 	 */
 	@PostMapping("/connect")
+	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<String> connectCouple(
 		@RequestBody ConnectCoupleRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -65,6 +70,7 @@ public class CoupleController {
 	 * @return 커플이 사귄 날짜
 	 */
 	@GetMapping("/days-since-started")
+	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<Long> getDaysSinceStarted(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return BaseResponse.onSuccess(
 			coupleQueryService.getDaysSinceStarted(userDetails.getMember().getId()));
@@ -77,6 +83,7 @@ public class CoupleController {
 	 * @return 성공 메시지
 	 */
 	@PutMapping("/start-date")
+	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> updateCoupleStartDate(
 		@RequestBody UpdateCoupleStartDateRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -84,6 +91,16 @@ public class CoupleController {
 		coupleCommandService.updateCoupleStartDate(userDetails.getMember().getId(), request.getNewStartDate());
 
 		return BaseResponse.onSuccess("커플 시작일이 변경되었습니다.");
+	}
+
+	@GetMapping("/letters-promises/counts")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<CountResponse> getLettersAndPromisesCount(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return BaseResponse.onSuccess(
+			coupleQueryService.getLettersAndPromisesCount(userDetails.getMember().getId())
+		);
 	}
 }
 

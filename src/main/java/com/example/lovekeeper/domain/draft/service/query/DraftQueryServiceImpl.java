@@ -7,10 +7,10 @@ import com.example.lovekeeper.domain.draft.dto.response.DraftResponse;
 import com.example.lovekeeper.domain.draft.exception.DraftErrorStatus;
 import com.example.lovekeeper.domain.draft.exception.DraftException;
 import com.example.lovekeeper.domain.draft.model.Draft;
-import com.example.lovekeeper.domain.draft.repository.DraftJpaRepository;
+import com.example.lovekeeper.domain.draft.repository.DraftRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DraftQueryServiceImpl implements DraftQueryService {
 
-	private final DraftJpaRepository draftJpaRepository;
-	private final MemberJpaRepository memberJpaRepository;
+	private final DraftRepository draftRepository;
+	private final MemberRepository memberRepository;
 
 	@Override
 	public DraftResponse getDraft(Long memberId, int order) {
@@ -33,10 +33,10 @@ public class DraftQueryServiceImpl implements DraftQueryService {
 		}
 
 		// 현재 멤버 가져오기
-		memberJpaRepository.findById(memberId)
+		memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
-		Draft draft = draftJpaRepository.findByMemberIdAndDraftOrder(memberId, order);
+		Draft draft = draftRepository.findByMemberIdAndDraftOrder(memberId, order);
 
 		if (draft == null) {
 			throw new DraftException(DraftErrorStatus.DRAFT_NOT_FOUND);
