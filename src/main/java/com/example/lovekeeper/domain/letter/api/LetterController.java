@@ -1,18 +1,16 @@
 package com.example.lovekeeper.domain.letter.api;
 
-import java.time.Month;
-import java.util.List;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.letter.dto.request.SendLetterRequest;
-import com.example.lovekeeper.domain.letter.dto.response.LetterCountByDateResponse;
 import com.example.lovekeeper.domain.letter.dto.response.LetterResponse;
 import com.example.lovekeeper.domain.letter.service.command.LetterCommandService;
 import com.example.lovekeeper.domain.letter.service.query.LetterQueryService;
@@ -37,6 +35,7 @@ public class LetterController {
 	 * 편지 목록 조회 API (무한 스크롤)
 	 */
 	@GetMapping("/list")
+	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<LetterResponse.LetterListResponse> getLetters(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam int page, @RequestParam int size
@@ -46,25 +45,11 @@ public class LetterController {
 			size));
 	}
 
-	// 연도 + 월을 기준으로 각 날짜별 편지 수 반환
-	@GetMapping("/monthly-letter-count")
-	public BaseResponse<List<LetterCountByDateResponse>> getLetterCountByMonth(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestParam int year,
-		@RequestParam int month // 1 for January, 2 for February, etc.
-	) {
-
-		Month selectedMonth = Month.of(month);
-		List<LetterCountByDateResponse> letterCountByDateResponses = letterQueryService.getLetterCountByMonth(year,
-			selectedMonth, userDetails.getMember().getId());
-
-		return BaseResponse.onSuccess(letterCountByDateResponses);
-	}
-
 	/**
 	 * 편지 보내기 API
 	 */
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<String> sendLetter(
 		@RequestBody SendLetterRequest sendLetterRequest,
 		@AuthenticationPrincipal CustomUserDetails userDetails

@@ -4,5 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.lovekeeper.domain.couple.model.Couple;
 
-public interface CoupleJpaRepository extends JpaRepository<Couple, Long> {
+public interface CoupleRepository extends JpaRepository<Couple, Long> {
+
 }
+

@@ -8,7 +8,7 @@ import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Provider;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,14 +17,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	private final MemberJpaRepository memberJpaRepository;
+	private final MemberRepository memberRepository;
 
 	/**
 	 * 일반적인 시나리오(이메일을 username으로 사용)
 	 */
 	@Override
 	public CustomUserDetails loadUserByUsername(String email) throws MemberException {
-		Member member = memberJpaRepository.findByEmail(email)
+		Member member = memberRepository.findByEmail(email)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 		return new CustomUserDetails(member);
 	}
@@ -35,7 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	 * (PK를 담았다고 가정 시) Long memberId = jwtTokenProvider.getMemberId(token);
 	 */
 	public CustomUserDetails loadUserByMemberId(Long memberId) {
-		Member member = memberJpaRepository.findById(memberId)
+		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 		return new CustomUserDetails(member);
 	}
@@ -45,7 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	 * (필요 시 MemberJpaRepository에 findByProviderAndProviderId() 등 추가)
 	 */
 	public CustomUserDetails loadUserByProvider(Provider provider, String providerId) throws MemberException {
-		Member member = memberJpaRepository.findByProviderAndProviderId(provider, providerId)
+		Member member = memberRepository.findByProviderAndProviderId(provider, providerId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 		return new CustomUserDetails(member);
 	}
