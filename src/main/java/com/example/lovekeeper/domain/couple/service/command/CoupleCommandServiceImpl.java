@@ -54,6 +54,12 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 		Member partnerMember = memberRepository.findByInviteCode(inviteCode)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.INVITE_CODE_NOT_FOUND));
 
+		// 내 자신의 초대 코드로 연결 시도
+		if (currentMember.getInviteCode().equals(inviteCode)) {
+			throw new MemberException(MemberErrorStatus.SELF_INVITE_CODE);
+		}
+
+		// 커플 생
 		Couple newCouple = Couple.connectCouple(currentMember, partnerMember);
 
 		ConnectionHistory connectionHistory
