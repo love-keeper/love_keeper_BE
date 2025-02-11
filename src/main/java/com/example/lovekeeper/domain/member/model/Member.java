@@ -8,10 +8,12 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.auth.model.RefreshToken;
-import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
+import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.draft.model.Draft;
 import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.note.model.Note;
+import com.example.lovekeeper.domain.promise.model.Promise;
 import com.example.lovekeeper.global.common.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -23,8 +25,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -49,14 +49,6 @@ public class Member extends BaseEntity {
 	@Column(name = "member_id")
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "couple_id")
-	private Couple couple;
-
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "partner_id")
-	private Member partner;
-
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private RefreshToken refreshToken;
 
@@ -79,6 +71,18 @@ public class Member extends BaseEntity {
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Draft draft;
 
+	@Builder.Default
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Promise> promises = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "member1")
+	private List<ConnectionHistory> connectionHistories1 = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "member2")
+	private List<ConnectionHistory> connectionHistories2 = new ArrayList<>();
+
 	private String inviteCode;
 
 	private String email;
@@ -93,7 +97,11 @@ public class Member extends BaseEntity {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private Status status = Status.ACTIVE;
+	private MemberStatus status = MemberStatus.ACTIVE;
+
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	private CoupleStatus coupleStatus = CoupleStatus.DISCONNECTED;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
@@ -130,26 +138,11 @@ public class Member extends BaseEntity {
 	}
 
 	//==연관관계 메서드==//
-	public void updatePartner(Member partner) {
-		this.partner = partner;
-		partner.partner = this;
-	}
 
 	//==비즈니스 로직==//
-	public boolean isActive() {
-		return this.status == Status.ACTIVE;
-	}
 
 	public void updateInviteCode(String inviteCode) {
 		this.inviteCode = inviteCode;
-	}
-
-	public void connectCouple(Member partner, Couple couple) {
-		this.couple = couple;
-		this.partner = partner;
-		partner.couple = couple;
-		partner.partner = this;
-
 	}
 
 }

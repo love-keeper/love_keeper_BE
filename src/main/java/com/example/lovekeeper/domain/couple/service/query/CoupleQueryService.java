@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.couple.service.query;
 
+import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
+
 public interface CoupleQueryService {
 
 	/**
@@ -9,6 +11,10 @@ public interface CoupleQueryService {
 	 */
 	long getDaysSinceStarted(Long memberId);
 
+	/**
+	 * 커플의 Promise와 Letter의 개수를 조회
+	 */
+	CountResponse getLettersAndPromisesCount(Long memberId);
 }
 
 

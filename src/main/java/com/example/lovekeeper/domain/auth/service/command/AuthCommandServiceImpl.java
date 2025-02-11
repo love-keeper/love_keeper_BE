@@ -13,7 +13,7 @@ import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Provider;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.jwt.JwtTokenProvider;
 
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthCommandServiceImpl implements AuthCommandService {
 
-	private final MemberJpaRepository memberJpaRepository;
+	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRedisService refreshTokenRedisService;
@@ -39,7 +39,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		log.info("회원가입 요청: {}", signUpRequest);
 
 		// 이메일 중복 체크
-		if (memberJpaRepository.existsByEmail(signUpRequest.getEmail())) {
+		if (memberRepository.existsByEmail(signUpRequest.getEmail())) {
 			throw new MemberException(MemberErrorStatus.DUPLICATE_EMAIL);
 		}
 		// TODO: S3에 프로필 이미지 저장하고 URL 저장
@@ -61,7 +61,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		}
 
 		// 멤버 저장
-		Member savedMember = memberJpaRepository.save(member);
+		Member savedMember = memberRepository.save(member);
 
 		// 응답 생성
 		return SignUpResponse.from(savedMember);
@@ -97,7 +97,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		}
 
 		// 5) 사용자 조회
-		Member member = memberJpaRepository.findById(memberId)
+		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new AuthException(AuthErrorStatus.INVALID_TOKEN));
 
 		// 6) 새 Access Token, Refresh Token 생성
