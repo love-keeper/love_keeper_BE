@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,11 +22,10 @@ public class JwtTokenProvider {
 
 	private final SecretKey secretKey;
 
+	// JwtTokenProvider
 	public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
-		this.secretKey = new SecretKeySpec(
-			secret.getBytes(StandardCharsets.UTF_8),
-			Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256).getAlgorithm()
-		);
+		// HS512를 쓰려면 64바이트 이상이어야 함
+		this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**

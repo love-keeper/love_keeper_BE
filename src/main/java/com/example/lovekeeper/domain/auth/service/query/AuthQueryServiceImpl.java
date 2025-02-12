@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lovekeeper.domain.auth.exception.AuthErrorStatus;
 import com.example.lovekeeper.domain.auth.exception.AuthException;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthQueryServiceImpl implements AuthQueryService {
 
-	private final MemberJpaRepository memberJpaRepository;
+	private final MemberRepository memberRepository;
 
 	@Override
 	public void checkEmailDuplication(String email) {
 		log.info("checkEmailDuplication: {}", email);
-		memberJpaRepository.findByEmail(email).ifPresent(member -> {
+		memberRepository.findByEmail(email).ifPresent(member -> {
 			throw new AuthException(AuthErrorStatus.DUPLICATE_EMAIL);
 		});
 	}
