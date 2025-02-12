@@ -16,6 +16,7 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER002", "이미 탈퇴한 회원입니다."),
 	MEMBER_INACTIVE(HttpStatus.FORBIDDEN, "MEMBER003", "비활성화된 회원입니다."),
 	INVALID_MEMBER_STATUS(HttpStatus.BAD_REQUEST, "MEMBER004", "잘못된 회원 상태입니다."),
+	SELF_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER005", "자신의 초대 코드로 커플을 연결할 수 없습니다."),
 
 	// 회원 정보 중복/검증 관련 (MEMBER011 ~ MEMBER020)
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER011", "이미 사용 중인 이메일입니다."),
@@ -39,6 +40,7 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	CANNOT_CONNECT_WITH_SELF(HttpStatus.BAD_REQUEST, "MEMBER035", "자기 자신과 커플이 될 수 없습니다."),
 	INVITE_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER036", "초대 코드를 찾을 수 없습니다."),
 	ALREADY_COUPLE(HttpStatus.CONFLICT, "MEMBER037", "이미 커플인 회원입니다."),
+	INVALID_COUPLE_FOR_LETTER(HttpStatus.BAD_REQUEST, "MEMBER038", "편지를 보낼 수 없는 커플입니다."),
 
 	// 회원 수정/탈퇴 관련 (MEMBER041 ~ MEMBER050)
 	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER041", "비밀번호가 일치하지 않습니다."),

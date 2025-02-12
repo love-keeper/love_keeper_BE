@@ -1,0 +1,15 @@
+package com.example.lovekeeper.domain.letter.repository;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.lovekeeper.domain.letter.model.Letter;
+import com.example.lovekeeper.domain.member.model.Member;
+
+public interface LetterRepository extends JpaRepository<Letter, Long> {
+
+	// 편지 목록을 보낸 사람(sender) 또는 받은 사람(receiver) 기준으로 조회
+	Slice<Letter> findBySenderOrReceiver(Member sender, Member receiver, Pageable pageable);
+
+}

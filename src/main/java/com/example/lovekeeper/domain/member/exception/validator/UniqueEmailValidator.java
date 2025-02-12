@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
 
-	private final MemberJpaRepository memberJpaRepository;
+	private final MemberRepository memberRepository;
 
 	@Override
 	public boolean isValid(String email, ConstraintValidatorContext context) {
@@ -22,7 +22,7 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 			return true;  // null/blank는 다른 Validator가 처리
 		}
 
-		boolean exists = memberJpaRepository.existsByEmail(email);
+		boolean exists = memberRepository.existsByEmail(email);
 		if (exists) {
 			// Bean Validation 표준 방식 사용
 			context.disableDefaultConstraintViolation();
