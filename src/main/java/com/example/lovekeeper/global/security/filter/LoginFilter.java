@@ -20,6 +20,7 @@ import com.example.lovekeeper.global.security.user.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private final ObjectMapper objectMapper;
 	private final RefreshTokenRedisService refreshTokenRedisService;
 
-	public LoginFilter(AuthenticationManager authenticationManager,
+	public LoginFilter(
+		AuthenticationManager authenticationManager,
 		JwtTokenProvider jwtTokenProvider,
 		CustomUserDetailsService customUserDetailsService,
 		ObjectMapper objectMapper,
@@ -114,7 +116,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		long accessValidMs = 30 * 60 * 1000;            // 30분
 		long refreshValidMs = 7L * 24 * 60 * 60 * 1000; // 7일
 
-		// 토큰 생성 (예: member.getId() + role)
+		// 토큰 생성
 		String accessToken = jwtTokenProvider.createAccessToken(
 			member.getId(),
 			member.getRole(),
@@ -126,12 +128,23 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			refreshValidMs
 		);
 
-		// Redis에 Refresh Token 저장
+		// 1) 로그인할 때마다 기존 Refresh Token 삭제
+		refreshTokenRedisService.deleteRefreshToken(member.getId());
+
+		// 2) Redis에 새 Refresh Token 저장
 		refreshTokenRedisService.saveRefreshToken(member.getId(), refreshToken, refreshValidMs);
 
 		// 헤더에 토큰 반환
 		response.setHeader("Authorization", "Bearer " + accessToken);
-		response.setHeader("Refresh-Token", refreshToken);
+
+		// Refresh Token을 쿠키로 내려주기
+		Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
+		refreshCookie.setHttpOnly(true);
+		refreshCookie.setPath("/");
+		refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (초 단위)
+		// refreshCookie.setSecure(true); // HTTPS 환경에서만 전송하고 싶다면
+
+		response.addCookie(refreshCookie);
 
 		log.info("[LoginFilter] 인증 성공 - provider: {}, email: {}", member.getProvider(), member.getEmail());
 
@@ -152,7 +165,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		AuthenticationException failed) throws IOException {
 		log.error("[LoginFilter] 로그인 실패 : {}", failed.getMessage());
 
-		// 실패 응답도 BaseResponse 형식으로 전달
 		BaseResponse<Object> errorResponse = BaseResponse.onFailure(
 			"COMMON401",
 			"로그인에 실패하였습니다: " + failed.getMessage(),

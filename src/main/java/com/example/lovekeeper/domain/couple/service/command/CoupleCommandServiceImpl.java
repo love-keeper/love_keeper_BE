@@ -5,14 +5,17 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
+import com.example.lovekeeper.domain.connectionhistory.repository.ConnectionHistoryRepository;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
+import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
+import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
-import com.example.lovekeeper.domain.couple.repository.CoupleJpaRepository;
+import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
-import com.example.lovekeeper.domain.member.model.Status;
-import com.example.lovekeeper.domain.member.repository.MemberJpaRepository;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +25,15 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class CoupleCommandServiceImpl implements CoupleCommandService {
 
-	private final MemberJpaRepository memberJpaRepository;
-	private final CoupleJpaRepository coupleJpaRepository;
+	private final MemberRepository memberRepository;
+	private final CoupleRepository coupleRepository;
+	private final ConnectionHistoryRepository connectionHistoryRepository;
 
 	/**
 	 * 초대 코드 생성 및 저장
 	 */
 	public GenerateCodeResponse generateInviteCode(Long memberId) {
-		Member member = memberJpaRepository.findById(memberId)
+		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// 임의의 8자리 영문+숫자
@@ -45,35 +49,50 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 	 */
 	public void connectCouple(Long currentMemberId, String inviteCode) {
 		// 초대 코드를 입력하는 본인
-		Member currentMember = memberJpaRepository.findById(currentMemberId)
+		Member currentMember = memberRepository.findById(currentMemberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// 초대 코드를 소유한 상대방
-		Member partnerMember = memberJpaRepository.findByInviteCode(inviteCode)
+		Member partnerMember = memberRepository.findByInviteCode(inviteCode)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.INVITE_CODE_NOT_FOUND));
 
-		// 이미 커플인 경우 예외 처리할 수도 있음
-		if (currentMember.getCouple() != null) {
-			throw new MemberException(MemberErrorStatus.ALREADY_HAS_PARTNER);
-		}
-		if (partnerMember.getCouple() != null) {
-			throw new MemberException(MemberErrorStatus.ALREADY_HAS_PARTNER);
+		// 내 자신의 초대 코드로 연결 시도
+		if (currentMember.getInviteCode().equals(inviteCode)) {
+			throw new MemberException(MemberErrorStatus.SELF_INVITE_CODE);
 		}
 
-		// 커플 엔티티 생성
-		Couple couple = Couple.builder()
-			.startedAt(LocalDate.now())
-			.status(Status.ACTIVE)
-			.build();
-		coupleJpaRepository.save(couple);
+		// 커플 생
+		Couple newCouple = Couple.connectCouple(currentMember, partnerMember);
 
-		// 양쪽 member에 couple 설정
-		currentMember.updateCouple(couple);
-		partnerMember.updateCouple(couple);
+		ConnectionHistory connectionHistory
+			= ConnectionHistory.makeHistory(currentMember, partnerMember, newCouple);
 
-		// 서로를 partner로 설정
-		currentMember.updatePartner(partnerMember);
-		partnerMember.updatePartner(currentMember);
+		// 커플 저장
+		coupleRepository.save(newCouple);
+		connectionHistoryRepository.save(connectionHistory);
+
+		// 초대 코드 초기화
+		currentMember.updateInviteCode(null);
+		partnerMember.updateInviteCode(null); // 상대방도 초기화
+
+	}
+
+	/**
+	 * 커플의 시작일 수정
+	 */
+	@Override
+	public void updateCoupleStartDate(Long memberId, LocalDate newStartDate) {
+		// 현재 회원 조회
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 커플 조회
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 커플 시작일 수정
+		couple.updateStartDate(newStartDate);
+		
 	}
 
 	/**
