@@ -34,7 +34,7 @@ out/
 /.nb-gradle/
 
 ## QClass ##
-!**/src/main/generated/
+src/main/generated/
 
 ### VS Code ###
 .vscode/
