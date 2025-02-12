@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
 import com.example.lovekeeper.domain.connectionhistory.repository.ConnectionHistoryRepository;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
+import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
+import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
@@ -84,6 +86,13 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 		Member currentMember = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
+		// 커플 조회
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 커플 시작일 수정
+		couple.updateStartDate(newStartDate);
+		
 	}
 
 	/**
