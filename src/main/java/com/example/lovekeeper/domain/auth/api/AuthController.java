@@ -4,27 +4,36 @@ package com.example.lovekeeper.domain.auth.api;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.lovekeeper.domain.auth.dto.request.ChangeBirthdayRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ChangeNicknameRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordAfterResetRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.EmailDuplicationRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ResetPasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
+import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
+import com.example.lovekeeper.domain.auth.dto.response.ChangeNicknameResponse;
 import com.example.lovekeeper.domain.auth.dto.response.ReissueResponse;
 import com.example.lovekeeper.domain.auth.dto.response.SignUpResponse;
 import com.example.lovekeeper.domain.auth.service.command.AuthCommandService;
+import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandService;
 import com.example.lovekeeper.domain.auth.service.query.AuthQueryService;
 import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.global.common.BaseResponse;
+import com.example.lovekeeper.global.security.user.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -50,13 +59,14 @@ public class AuthController {
 	private final AuthCommandService authCommandService;
 	private final AuthQueryService authQueryService;
 
+	private final EmailAuthCommandService emailauthcommandservice;
+
 	/**
 	 * 이메일 중복 확인
 	 */
 	@Operation(summary = "회원가입이 가능한지 확인", description = "이메일 중복 확인")
 	@ApiResponse(responseCode = "200", description = "이메일 중복 확인 성공")
 	@GetMapping("/email-duplication")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> checkEmailDuplication(
 		@RequestBody @Valid EmailDuplicationRequest emailDuplicationRequest) {
 		authQueryService.checkEmailDuplication(emailDuplicationRequest.getEmail());
@@ -69,7 +79,6 @@ public class AuthController {
 	@Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
 	@ApiResponse(responseCode = "201", description = "회원가입 성공")
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<SignUpResponse> signUp(
 		@RequestParam @Email @UniqueEmail String email,
 		@RequestParam(required = false) @Pattern(
@@ -87,10 +96,74 @@ public class AuthController {
 			SignUpRequest.of(email, password, nickname, birthDate, profileImage, provider, providerId)));
 	}
 
+	/**
+	 * 닉네임 변경
+	 */
+	@PatchMapping("/nickname")
+	public BaseResponse<ChangeNicknameResponse> changeNickname(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid ChangeNicknameRequest changeNicknameRequest) {
+
+		return BaseResponse.onSuccess(authCommandService.changeNickname(userDetails.getMember().getId(),
+			changeNicknameRequest.getNickname()));
+	}
+
+	/**
+	 * 생일 변경
+	 */
+	@PatchMapping("/birthday")
+	public BaseResponse<ChangeBirthdayResponse> changeBirthday(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid ChangeBirthdayRequest changeBirthdayRequest) {
+
+		return BaseResponse.onSuccess(authCommandService.changeBirthday(userDetails.getMember().getId(),
+			changeBirthdayRequest.getBirthday()));
+	}
+
+	/**
+	 * 비밀번호 변경
+	 */
+	@PatchMapping("/password")
+	public BaseResponse<String> changePassword(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid ChangePasswordRequest request
+	) {
+
+		authCommandService.changePassword(userDetails.getMember().getId(), request);
+
+		return BaseResponse.onSuccess("비밀번호 변경 성공");
+	}
+
+	/**
+	 * 비밀번호 초기화 요청
+	 */
+	@Operation(summary = "비밀번호 변경 요청", description = "사용자의 이메일로 비밀번호 변경 링크를 보냅니다.")
+	@PostMapping("/password/reset-request")
+	public BaseResponse<String> resetPasswordRequest(@RequestBody @Valid ResetPasswordRequest request) {
+		// 이메일 인증 코드 생성 및 발송
+		emailauthcommandservice.sendPasswordChangeLink(request.getEmail());
+		return BaseResponse.onSuccess("비밀번호 변경 링크가 이메일로 발송되었습니다.");
+	}
+
+	/**
+	 * 비밀번호 초기화 후 변경
+	 */
+	@Operation(summary = "비밀번호 변경", description = "비밀번호 초기화 후 새로운 비밀번호로 변경합니다.")
+	@ApiResponse(responseCode = "200", description = "비밀번호 변경 성공")
+	@PostMapping("/password/reset")
+	public BaseResponse<String> resetPassword(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid ChangePasswordAfterResetRequest request) {
+		authCommandService.resetPassword(userDetails.getMember().getId(), request);
+		return BaseResponse.onSuccess("비밀번호 변경 성공");
+	}
+
+	/**
+	 * 토큰 재발급
+	 */
 	@Operation(summary = "토큰 재발급", description = "쿠키에 담긴 Refresh Token을 이용해 새 Access/Refresh Token을 발급받습니다.")
 	@ApiResponse(responseCode = "200", description = "토큰 재발급 성공")
 	@PostMapping("/reissue")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<ReissueResponse> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
 
 		// 1) 쿠키에서 기존 Refresh Token 추출
@@ -120,9 +193,12 @@ public class AuthController {
 
 		// 클라이언트로 ReissueResponse 객체(AccessToken, RefreshToken)를 JSON으로도 보내고자 하면,
 		// Refresh Token은 굳이 바디로 내려주지 않고, AccessToken만 제공해도 됩니다(정책에 따라).
-		return BaseResponse.onSuccess(reissueResponse);
+		return BaseResponse.onSuccessCreate(reissueResponse);
 	}
 
+	/**
+	 * 쿠키에서 Refresh Token 추출
+	 */
 	private String extractRefreshTokenFromCookie(HttpServletRequest request) {
 		if (request.getCookies() == null) {
 			return null;
