@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.lovekeeper.domain.auth.dto.request.ChangeBirthdayRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangeNicknameRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordAfterResetRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.EmailDuplicationRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ResetPasswordRequest;
@@ -134,7 +135,7 @@ public class AuthController {
 	}
 
 	/**
-	 * 비밀번호 변경 요청
+	 * 비밀번호 초기화 요청
 	 */
 	@Operation(summary = "비밀번호 변경 요청", description = "사용자의 이메일로 비밀번호 변경 링크를 보냅니다.")
 	@PostMapping("/password/reset-request")
@@ -142,6 +143,19 @@ public class AuthController {
 		// 이메일 인증 코드 생성 및 발송
 		emailauthcommandservice.sendPasswordChangeLink(request.getEmail());
 		return BaseResponse.onSuccess("비밀번호 변경 링크가 이메일로 발송되었습니다.");
+	}
+
+	/**
+	 * 비밀번호 초기화 후 변경
+	 */
+	@Operation(summary = "비밀번호 변경", description = "비밀번호 초기화 후 새로운 비밀번호로 변경합니다.")
+	@ApiResponse(responseCode = "200", description = "비밀번호 변경 성공")
+	@PostMapping("/password/reset")
+	public BaseResponse<String> resetPassword(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid ChangePasswordAfterResetRequest request) {
+		authCommandService.resetPassword(userDetails.getMember().getId(), request);
+		return BaseResponse.onSuccess("비밀번호 변경 성공");
 	}
 
 	/**

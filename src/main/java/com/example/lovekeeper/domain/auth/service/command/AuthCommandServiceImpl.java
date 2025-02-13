@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordAfterResetRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
 import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
@@ -202,6 +203,21 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		// 5) 비밀번호 변경
 		currentMember.changePassword(passwordEncoder.encode(request.getNewPassword()));
 
+	}
+
+	@Override
+	public void resetPassword(Long memberId, ChangePasswordAfterResetRequest request) {
+		// 1) 사용자 조회
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 2) 새 비밀번호와 새 비밀번호 확인 일치 여부 확인
+		if (!request.getPassword().equals(request.getPasswordConfirm())) {
+			throw new MemberException(MemberErrorStatus.PASSWORD_MISMATCH);
+		}
+
+		// 3) 비밀번호 변경
+		currentMember.changePassword(passwordEncoder.encode(request.getPassword()));
 	}
 
 }

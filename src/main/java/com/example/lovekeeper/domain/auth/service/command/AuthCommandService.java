@@ -2,6 +2,7 @@ package com.example.lovekeeper.domain.auth.service.command;
 
 import java.time.LocalDate;
 
+import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordAfterResetRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
 import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
@@ -20,4 +21,5 @@ public interface AuthCommandService {
 
 	void changePassword(Long memberId, ChangePasswordRequest request);
 
+	void resetPassword(Long memberId, ChangePasswordAfterResetRequest request);
 }
