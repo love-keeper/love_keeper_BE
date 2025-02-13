@@ -3,7 +3,6 @@ package com.example.lovekeeper.domain.promise.api;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.promise.dto.request.PromiseRequest;
@@ -41,7 +39,6 @@ public class PromiseController {
 	 * 약속 읽기
 	 */
 	@GetMapping
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<PromiseResponse.PromiseListResponse> getPromises(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam int page,
@@ -55,7 +52,6 @@ public class PromiseController {
 	 * 약속 생성
 	 */
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<String> createPromise(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid PromiseRequest request
@@ -70,7 +66,6 @@ public class PromiseController {
 	 * 약속 전체 개수 조회
 	 */
 	@GetMapping("/count")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<Long> getPromiseCount(
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
@@ -81,7 +76,6 @@ public class PromiseController {
 	 * 약속 삭제
 	 */
 	@DeleteMapping("/{promiseId}")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> deletePromise(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long promiseId
@@ -97,7 +91,6 @@ public class PromiseController {
 	 * 예: GET /api/promises/by-date?date=2025-02-13&page=0&size=10
 	 */
 	@GetMapping("/by-date")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<PromiseResponse.PromiseListResponse> getPromisesByDate(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,

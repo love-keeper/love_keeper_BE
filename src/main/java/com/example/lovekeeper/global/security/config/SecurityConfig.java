@@ -1,7 +1,9 @@
 package com.example.lovekeeper.global.security.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -11,6 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
@@ -34,36 +38,16 @@ public class SecurityConfig {
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomUserDetailsService customUserDetailsService;
-	private final ObjectMapper objectMapper; // 전역 Bean (JacksonConfig 등에서 주입)
+	private final ObjectMapper objectMapper;
 	private final RefreshTokenRedisService refreshTokenRedisService;
 
-	/**
-	 * AuthenticationManager 빈 등록
-	 */
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-		return configuration.getAuthenticationManager();
-	}
-
-	/**
-	 * 패스워드 인코더
-	 */
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	/**
-	 * 보안 설정
-	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
 		// AuthenticationManager 주입
 		AuthenticationManager authenticationManager = authenticationManager(
 			http.getSharedObject(AuthenticationConfiguration.class));
 
-		// LoginFilter 생성 (provider별 local or social 로그인 처리)
+		// LoginFilter 생성
 		LoginFilter loginFilter = new LoginFilter(
 			authenticationManager,
 			jwtTokenProvider,
@@ -80,28 +64,35 @@ public class SecurityConfig {
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 				.accessDeniedHandler(jwtAccessDeniedHandler))
 			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // OPTIONS 요청 허용
+				.requestMatchers("/error").permitAll()                   // 에러 페이지 허용
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()  // 정적 리소스 허용
 				.requestMatchers("/api/auth/**").permitAll()       // 로그인 요청 허용
 				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 				.requestMatchers("/health").permitAll()
 				.anyRequest().authenticated()
 			)
-			.cors(Customizer.withDefaults()); // 별도 CORS 설정이 있다면 적용 (corsConfigurationSource 등)
+			.cors(Customizer.withDefaults());
 
-		// 필터 등록 순서:
-		// 1) LoginFilter ( /api/auth/login ) 처리
-		// 2) JwtAuthenticationFilter ( JWT 검증 )
+		// 필터 순서:
+		// 1) ExceptionTranslationFilter를 먼저 등록하여 404 등의 에러를 처리
+		http.addFilterBefore(new ExceptionTranslationFilter(jwtAuthenticationEntryPoint),
+			FilterSecurityInterceptor.class);
+
+		// 2) 그 다음 JWT 인증 필터들 등록
 		http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);
 		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
-	// 필요 시 CORS 설정
-    /*
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        // ...
-        return source;
-    }
-    */
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+		return configuration.getAuthenticationManager();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 }
