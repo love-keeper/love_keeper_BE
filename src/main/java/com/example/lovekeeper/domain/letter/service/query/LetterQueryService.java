@@ -9,4 +9,5 @@ public interface LetterQueryService {
 	 */
 	LetterResponse.LetterListResponse getLetters(Long memberId, int page, int size);
 
+	Long getLetterCount(Long memberId);
 }

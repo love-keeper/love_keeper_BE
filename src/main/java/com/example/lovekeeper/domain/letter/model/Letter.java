@@ -59,9 +59,22 @@ public class Letter extends BaseEntity {
 	private LocalDate sentDate = LocalDate.now();
 
 	//== 생성 메서드 ==//
-	public static Letter createLetter(Member sender, Member receiver, String content) {
-		// Validate if sender and receiver are part of the same couple
-		return null;
+	public static Letter createLetter(Couple couple, Member sender,
+		Member receiver, String content) {
+
+		Letter newLetter = Letter.builder()
+			.couple(couple)
+			.sender(sender)
+			.receiver(receiver)
+			.content(content)
+			.build();
+
+		couple.getLetters().add(newLetter);
+		sender.getSentLetters().add(newLetter);
+		receiver.getReceivedLetters().add(newLetter);
+
+		return newLetter;
+
 	}
 
 	//== 비즈니스 로직 ==//

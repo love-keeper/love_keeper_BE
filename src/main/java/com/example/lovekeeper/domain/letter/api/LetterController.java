@@ -61,4 +61,15 @@ public class LetterController {
 		return BaseResponse.onSuccess("편지를 보냅니다.");
 
 	}
+
+	/**
+	 * 전체 편지 개수 조회
+	 */
+	@GetMapping("/count")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<Long> getLetterCount(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return BaseResponse.onSuccess(letterQueryService.getLetterCount(userDetails.getMember().getId()));
+	}
 }
