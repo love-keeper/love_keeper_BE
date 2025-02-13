@@ -1,13 +1,11 @@
 package com.example.lovekeeper.domain.draft.api;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.draft.dto.request.SaveDraftRequest;
@@ -39,7 +37,6 @@ public class DraftController {
 	 * @return
 	 */
 	@GetMapping("/{order}")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<DraftResponse> getDraft(
 		@PathVariable int order,
 		@AuthenticationPrincipal CustomUserDetails userDetails
@@ -55,7 +52,6 @@ public class DraftController {
 	 * @return
 	 */
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<String> saveDraft(
 		@RequestBody @Valid SaveDraftRequest request,
 		@AuthenticationPrincipal CustomUserDetails userDetails

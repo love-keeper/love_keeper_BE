@@ -4,18 +4,22 @@ import java.nio.file.AccessDeniedException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.example.lovekeeper.global.common.BaseResponse;
@@ -105,6 +109,36 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 	public ResponseEntity<BaseResponse<String>> handleAccessDeniedException(AccessDeniedException e) {
 		log.error("[handleAccessDeniedException] {}", e.getMessage(), e);
 		return handleExceptionInternal(GlobalErrorStatus._ACCESS_DENIED.getCode());
+	}
+
+	/**
+	 * 7) NoHandlerFoundException (404 Not Found)
+	 */
+	@Override
+	protected ResponseEntity<Object> handleNoHandlerFoundException(
+		NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		log.error("No handler found for {} {}", ex.getHttpMethod(), ex.getRequestURL());
+		return ResponseEntity
+			.status(HttpStatus.NOT_FOUND)
+			.body(BaseResponse.onFailure("COMMON404", "요청하신 URL을 찾을 수 없습니다.", null));
+	}
+
+	/**
+	 * 8) HttpRequestMethodNotSupportedException (405 Method Not Allowed)
+	 */
+	@Override
+	protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+		HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		String supportedMethods = ex.getSupportedHttpMethods().stream()
+			.map(method -> method.name())
+			.collect(Collectors.joining(", "));
+
+		log.error("Method not supported: {}", ex.getMessage());
+		return ResponseEntity
+			.status(HttpStatus.METHOD_NOT_ALLOWED)
+			.body(BaseResponse.onFailure("COMMON405",
+				String.format("지원하지 않는 HTTP 메서드입니다. 지원되는 메서드: %s", supportedMethods),
+				null));
 	}
 
 	/**

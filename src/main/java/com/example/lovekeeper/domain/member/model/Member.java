@@ -2,12 +2,16 @@ package com.example.lovekeeper.domain.member.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 
-import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
+import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.draft.model.Draft;
 import com.example.lovekeeper.domain.letter.model.Letter;
@@ -39,12 +43,21 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "member")
+@Where(clause = "deleted_at IS NULL")
 public class Member extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "member_id")
 	private Long id;
+
+	@Builder.Default
+	@OneToMany(mappedBy = "member1")
+	private List<Couple> couples1 = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "member2")
+	private List<Couple> couples2 = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -60,14 +73,6 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Promise> promises = new ArrayList<>();
-
-	@Builder.Default
-	@OneToMany(mappedBy = "member1")
-	private List<ConnectionHistory> connectionHistories1 = new ArrayList<>();
-
-	@Builder.Default
-	@OneToMany(mappedBy = "member2")
-	private List<ConnectionHistory> connectionHistories2 = new ArrayList<>();
 
 	private String inviteCode;
 
@@ -123,9 +128,23 @@ public class Member extends BaseEntity {
 			.build();
 	}
 
-	//==연관관계 메서드==//
-
 	//==비즈니스 로직==//
+
+	// 현재 활성화된 커플 관계 찾기
+	public Optional<Couple> getActiveCouple() {
+		return Stream.concat(couples1.stream(), couples2.stream())
+			.filter(couple -> couple.getStatus() == CoupleStatus.CONNECTED)
+			.findFirst();
+	}
+
+	// 특정 회원과의 이전 커플 관계 찾기
+	public Optional<Couple> findPreviousCoupleWith(Member other) {
+		return Stream.concat(couples1.stream(), couples2.stream())
+			.filter(couple -> (couple.getMember1().equals(this) && couple.getMember2().equals(other)) ||
+				(couple.getMember1().equals(other) && couple.getMember2().equals(this)))
+			.sorted(Comparator.comparing(Couple::getStartedAt).reversed())
+			.findFirst();
+	}
 
 	public void updateInviteCode(String inviteCode) {
 		this.inviteCode = inviteCode;
@@ -141,5 +160,33 @@ public class Member extends BaseEntity {
 
 	public void changePassword(String newPassword) {
 		this.password = newPassword;
+	}
+
+	public void updateStatus(MemberStatus status) {
+		this.status = status;
+	}
+
+	public void updateCoupleStatus(CoupleStatus coupleStatus) {
+		this.coupleStatus = coupleStatus;
+	}
+
+	public void updateProfileImage(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public void updateEmail(String email) {
+		this.email = email;
+	}
+
+	public void updateProvider(Provider provider) {
+		this.provider = provider;
+	}
+
+	public void updateProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
+	public void updateRole(Role role) {
+		this.role = role;
 	}
 }
