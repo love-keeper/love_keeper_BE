@@ -1,5 +1,8 @@
 package com.example.lovekeeper.domain.letter.api;
 
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,5 +74,22 @@ public class LetterController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		return BaseResponse.onSuccess(letterQueryService.getLetterCount(userDetails.getMember().getId()));
+	}
+
+	/**
+	 * 특정 날짜 편지 조회
+	 * 예: GET /api/letters/by-date?date=2025-02-13&page=0&size=10
+	 */
+	@GetMapping("/by-date")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<LetterResponse.LetterListResponse> getLettersByDate(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+		@RequestParam int page,
+		@RequestParam int size
+	) {
+		return BaseResponse.onSuccess(
+			letterQueryService.getLettersByDate(userDetails.getMember().getId(), date, page, size)
+		);
 	}
 }
