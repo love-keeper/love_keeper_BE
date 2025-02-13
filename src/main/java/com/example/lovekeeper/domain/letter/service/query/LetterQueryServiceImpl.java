@@ -2,6 +2,7 @@ package com.example.lovekeeper.domain.letter.service.query;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// Pageable 객체 생성 (page, size)
-		PageRequest pageRequest = PageRequest.of(page, size);
+		PageRequest pageRequest = PageRequest.of(page, size, Sort.by("sentDate").descending());
 
 		// Slice 객체로 데이터를 조회 (total count 없이, 다음 페이지 존재 여부만 체크)
 		Slice<Letter> letterSlice = letterRepository.findBySenderOrReceiver(member, member, pageRequest);
