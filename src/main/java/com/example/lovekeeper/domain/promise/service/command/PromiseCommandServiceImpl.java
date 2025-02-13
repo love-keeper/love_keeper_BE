@@ -40,8 +40,21 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		// 약속 생성
 
 		log.info("약속을 생성합니다.");
-		
+
 		promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
 
+	}
+
+	@Override
+	public void deletePromise(Long memberId, Long promiseId) {
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 약속 찾기
+		Promise promise = promiseRepository.findByIdAndCoupleId(promiseId, couple.getId())
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 삭제
+		promiseRepository.delete(promise);
 	}
 }
