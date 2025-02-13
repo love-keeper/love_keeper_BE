@@ -9,7 +9,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.member.model.Member;
-import com.example.lovekeeper.domain.note.model.Note;
 import com.example.lovekeeper.domain.promise.model.Promise;
 import com.example.lovekeeper.global.common.BaseEntity;
 
@@ -58,10 +57,6 @@ public class Couple extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "couple", orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<Letter> letters = new ArrayList<>(); // 편지
-
-	@Builder.Default
-	@OneToMany(mappedBy = "couple", orphanRemoval = true, cascade = CascadeType.ALL)
-	private List<Note> notes = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "couple", cascade = CascadeType.ALL, orphanRemoval = true)
