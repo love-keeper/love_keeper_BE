@@ -1,5 +1,8 @@
 package com.example.lovekeeper.domain.promise.api;
 
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,5 +90,22 @@ public class PromiseController {
 		promiseCommandService.deletePromise(userDetails.getMember().getId(), promiseId);
 
 		return BaseResponse.onSuccess("약속 삭제 성공");
+	}
+
+	/**
+	 * 특정 날짜 약속 조회
+	 * 예: GET /api/promises/by-date?date=2025-02-13&page=0&size=10
+	 */
+	@GetMapping("/by-date")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<PromiseResponse.PromiseListResponse> getPromisesByDate(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+		@RequestParam int page,
+		@RequestParam int size
+	) {
+		return BaseResponse.onSuccess(
+			promiseQueryService.getPromisesByDate(userDetails.getMember().getId(), date, page, size)
+		);
 	}
 }

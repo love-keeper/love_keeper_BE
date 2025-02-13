@@ -1,6 +1,9 @@
 package com.example.lovekeeper.domain.letter.service.query;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -61,6 +64,19 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		// 현재 커플이 주고받은 편지의 개수 조회
 		return letterRepository.countByCoupleId(currentCouple.getId());
 
+	}
+
+	@Override
+	public LetterResponse.LetterListResponse getLettersByDate(Long memberId, LocalDate date, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("sentDate", "createdAt").descending());
+
+		// 커플 정보 조회
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 특정 날짜 편지 조회
+		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), date, pageable);
+		return LetterResponse.LetterListResponse.from(letters);
 	}
 
 }

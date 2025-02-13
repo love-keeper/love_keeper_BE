@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.letter.repository;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +19,5 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
 	@Query("select count(l) from Letter l where l.couple.id = :coupleId")
 	long countByCoupleId(@Param("coupleId") Long coupleId);
 
+	Slice<Letter> findByCoupleIdAndSentDate(Long coupleId, LocalDate sentDate, Pageable pageable);
 }
