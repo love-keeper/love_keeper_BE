@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.promise.service.query;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -51,5 +53,16 @@ public class PromiseQueryServiceImpl implements PromiseQueryService {
 		// 현재 커플 약속 전체 개수를 조회
 		return promiseRepository.countByCoupleId(currentCouple.getId());
 
+	}
+
+	@Override
+	public PromiseResponse.PromiseListResponse getPromisesByDate(Long memberId, LocalDate date, int page, int size) {
+
+		Pageable pageable = PageRequest.of(page, size, Sort.by("promisedAt", "createdAt").descending());
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		Slice<Promise> promises = promiseRepository.findByCoupleIdAndPromisedAt(couple.getId(), date, pageable);
+		return PromiseResponse.PromiseListResponse.from(promises);
 	}
 }
