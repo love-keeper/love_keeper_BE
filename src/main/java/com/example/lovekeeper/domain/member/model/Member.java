@@ -84,7 +84,7 @@ public class Member extends BaseEntity {
 
 	private String profileImageUrl;
 
-	private LocalDate birthDate;
+	private LocalDate birthDay;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
@@ -110,7 +110,7 @@ public class Member extends BaseEntity {
 			.email(email)
 			.password(password)
 			.nickname(nickname)
-			.birthDate(birthDate)
+			.birthDay(birthDate)
 			.profileImageUrl(profileImageUrl)
 			.provider(provider)
 			.build();
@@ -121,7 +121,7 @@ public class Member extends BaseEntity {
 		return Member.builder()
 			.email(email)
 			.nickname(nickname)
-			.birthDate(birthDate)
+			.birthDay(birthDate)
 			.profileImageUrl(profileImageUrl)
 			.provider(provider)
 			.providerId(providerId)
@@ -136,4 +136,15 @@ public class Member extends BaseEntity {
 		this.inviteCode = inviteCode;
 	}
 
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void changeBirthday(LocalDate birthday) {
+		this.birthDay = birthday;
+	}
+
+	public void changePassword(String newPassword) {
+		this.password = newPassword;
+	}
 }
