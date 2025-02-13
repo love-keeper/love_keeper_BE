@@ -6,6 +6,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
+import com.example.lovekeeper.domain.couple.exception.CoupleException;
+import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.letter.dto.response.LetterResponse;
 import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.letter.repository.LetterRepository;
@@ -25,6 +29,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 
 	private final LetterRepository letterRepository;
 	private final MemberRepository memberRepository;
+	private final CoupleRepository coupleRepository;
 
 	/**
 	 * 편지 리스트 조회
@@ -44,6 +49,18 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 
 		// LetterListResponse의 정적 팩토리 메서드 사용하여 변환
 		return LetterResponse.LetterListResponse.from(letterSlice);
+	}
+
+	@Override
+	public Long getLetterCount(Long memberId) {
+
+		// 현재 커플 찾기
+		Couple currentCouple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 현재 커플이 주고받은 편지의 개수 조회
+		return letterRepository.countByCoupleId(currentCouple.getId());
+
 	}
 
 }
