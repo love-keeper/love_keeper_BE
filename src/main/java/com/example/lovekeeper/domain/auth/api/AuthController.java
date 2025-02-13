@@ -4,7 +4,6 @@ package com.example.lovekeeper.domain.auth.api;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,7 +54,6 @@ public class AuthController {
 	@Operation(summary = "회원가입이 가능한지 확인", description = "이메일 중복 확인")
 	@ApiResponse(responseCode = "200", description = "이메일 중복 확인 성공")
 	@GetMapping("/email-duplication")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> checkEmailDuplication(
 		@RequestBody @Valid EmailDuplicationRequest emailDuplicationRequest) {
 		authQueryService.checkEmailDuplication(emailDuplicationRequest.getEmail());
@@ -69,7 +66,6 @@ public class AuthController {
 	@Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
 	@ApiResponse(responseCode = "201", description = "회원가입 성공")
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<SignUpResponse> signUp(
 		@RequestParam @Email @UniqueEmail String email,
 		@RequestParam(required = false) @Pattern(
@@ -90,7 +86,6 @@ public class AuthController {
 	@Operation(summary = "토큰 재발급", description = "쿠키에 담긴 Refresh Token을 이용해 새 Access/Refresh Token을 발급받습니다.")
 	@ApiResponse(responseCode = "200", description = "토큰 재발급 성공")
 	@PostMapping("/reissue")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<ReissueResponse> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
 
 		// 1) 쿠키에서 기존 Refresh Token 추출
@@ -120,7 +115,7 @@ public class AuthController {
 
 		// 클라이언트로 ReissueResponse 객체(AccessToken, RefreshToken)를 JSON으로도 보내고자 하면,
 		// Refresh Token은 굳이 바디로 내려주지 않고, AccessToken만 제공해도 됩니다(정책에 따라).
-		return BaseResponse.onSuccess(reissueResponse);
+		return BaseResponse.onSuccessCreate(reissueResponse);
 	}
 
 	private String extractRefreshTokenFromCookie(HttpServletRequest request) {

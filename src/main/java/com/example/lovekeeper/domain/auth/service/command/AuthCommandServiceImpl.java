@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.auth.service.command;
 
+import java.io.IOException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +16,10 @@ import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
+import com.example.lovekeeper.global.exception.BaseException;
+import com.example.lovekeeper.global.exception.code.GlobalErrorStatus;
 import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
+import com.example.lovekeeper.global.infrastructure.service.S3Service;
 import com.example.lovekeeper.global.security.jwt.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +35,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRedisService refreshTokenRedisService;
+	private final S3Service s3Service;
 
 	/**
 	 * 회원가입 로직
@@ -42,8 +48,14 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		if (memberRepository.existsByEmail(signUpRequest.getEmail())) {
 			throw new MemberException(MemberErrorStatus.DUPLICATE_EMAIL);
 		}
-		// TODO: S3에 프로필 이미지 저장하고 URL 저장
+
 		String uploadedImageUrl = null;
+		try {
+			uploadedImageUrl = s3Service.uploadProfileImage(signUpRequest.getProfileImage());
+		} catch (IOException e) {
+			log.error("[AuthCommandServiceImpl] S3 이미지 업로드 실패: {}", e.getMessage());
+			throw new BaseException(GlobalErrorStatus._S3_UPLOAD_ERROR);
+		}
 
 		Member member;
 		// 로컬 회원가입 사용자라면 비밀번호가 있으므로 인코딩
