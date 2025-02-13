@@ -12,7 +12,6 @@ import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
 import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.draft.model.Draft;
 import com.example.lovekeeper.domain.letter.model.Letter;
-import com.example.lovekeeper.domain.note.model.Note;
 import com.example.lovekeeper.domain.promise.model.Promise;
 import com.example.lovekeeper.global.common.BaseEntity;
 
@@ -59,14 +58,6 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Letter> receivedLetters = new ArrayList<>();
-
-	@Builder.Default
-	@OneToMany(mappedBy = "sender", orphanRemoval = true, cascade = CascadeType.ALL)
-	private List<Note> sentNotes = new ArrayList<>(); // 보낸 쪽지
-
-	@Builder.Default
-	@OneToMany(mappedBy = "receiver", orphanRemoval = true, cascade = CascadeType.ALL)
-	private List<Note> receivedNotes = new ArrayList<>(); // 받은 쪽지
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Draft draft;

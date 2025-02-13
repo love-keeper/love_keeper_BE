@@ -50,7 +50,7 @@ public class Promise extends BaseEntity {
 	private String content;
 
 	@Builder.Default
-	private LocalDate promiseDate = LocalDate.now();
+	private LocalDate promisedAt = LocalDate.now();
 
 	//== 생성 메서드 ==//
 	public static Promise createPromise(Couple couple, Member member, String content) {
