@@ -9,4 +9,6 @@ public interface PromiseQueryService {
 	 */
 	PromiseResponse.PromiseListResponse getPromises(Long memberId, int page, int size);
 
+	Long getPromiseCount(Long memberId);
+
 }

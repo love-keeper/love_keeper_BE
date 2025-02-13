@@ -77,6 +77,8 @@ public class Couple extends BaseEntity {
 			.build();
 	}
 
+	//== 연관 관계 메서드==//
+	
 	//== 비스니스 로직 ==//
 	public void updateStartDate(LocalDate newStartDate) {
 		this.startedAt = newStartDate;
