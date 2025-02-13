@@ -26,7 +26,9 @@ public enum CoupleErrorStatus implements BaseCodeInterface {
 	// 커플 상태 변경 관련 (COUPLE011 ~ COUPLE020)
 	INVALID_COUPLE_UPDATE(HttpStatus.BAD_REQUEST, "COUPLE011", "커플 상태 업데이트에 실패했습니다."),
 	COUPLE_DELETION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "COUPLE012", "이미 커플 상태인 회원은 커플 삭제가 불가능합니다."),
-	COUPLE_INACTIVE(HttpStatus.FORBIDDEN, "COUPLE013", "비활성화된 커플입니다.");
+	COUPLE_INACTIVE(HttpStatus.FORBIDDEN, "COUPLE013", "비활성화된 커플입니다."),
+	SAME_NICKNAME(HttpStatus.BAD_REQUEST, "COUPLE014", "커플은 서로 같은 닉네임으로 변경할 수 없습니다."),
+	;
 
 	private final HttpStatus httpStatus;
 	private final boolean isSuccess = false;
