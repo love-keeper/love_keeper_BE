@@ -22,8 +22,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -46,46 +46,79 @@ public class Couple extends BaseEntity {
 	@Column(name = "couple_id")
 	private Long id;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_1_id")
-	private Member member1; // 멤버 1
+	private Member member1;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_2_id")
-	private Member member2; // 멤버 2
+	private Member member2;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "couple", orphanRemoval = true, cascade = CascadeType.ALL)
-	private List<Letter> letters = new ArrayList<>(); // 편지
+	private List<Letter> letters = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "couple", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Promise> promises = new ArrayList<>(); // 약속
+	private List<Promise> promises = new ArrayList<>();
 
 	@Builder.Default
-	private LocalDate startedAt = LocalDate.now(); // 시작일
+	private LocalDate startedAt = LocalDate.now();
+
+	private LocalDate endedAt;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private CoupleStatus status = CoupleStatus.CONNECTED; // 커플 상태
+	private CoupleStatus status = CoupleStatus.CONNECTED;
+
+	@Builder.Default
+	private int connectionCount = 1;
 
 	//== 생성 메서드 ==//
-	public static Couple connectCouple(Member currentMember, Member partnerMember) {
-		return Couple.builder()
-			.member1(currentMember)
-			.member2(partnerMember)
+	public static Couple connectCouple(Member member1, Member member2) {
+		Couple couple = Couple.builder()
+			.member1(member1)
+			.member2(member2)
 			.build();
+
+		member1.getCouples1().add(couple);
+		member2.getCouples2().add(couple);
+
+		return couple;
 	}
 
-	//== 연관 관계 메서드==//
-	
-	//== 비스니스 로직 ==//
+	//== 비즈니스 로직 ==//
+	public void disconnect() {
+		this.status = CoupleStatus.DISCONNECTED;
+		this.endedAt = LocalDate.now();
+	}
+
+	//== 연관 관계 메서드 ==//
+
+	public void reconnect() {
+		this.status = CoupleStatus.CONNECTED;
+		this.startedAt = LocalDate.now();
+		this.endedAt = null;
+		this.connectionCount++;
+	}
+
+	public boolean isActive() {
+		return this.status == CoupleStatus.CONNECTED;
+	}
+
+	public boolean involves(Member member) {
+		return member1.equals(member) || member2.equals(member);
+	}
+
+	public Member getPartner(Member member) {
+		if (member1.equals(member))
+			return member2;
+		if (member2.equals(member))
+			return member1;
+		throw new IllegalArgumentException("Member is not part of this couple");
+	}
+
 	public void updateStartDate(LocalDate newStartDate) {
 		this.startedAt = newStartDate;
 	}
-
-	public void addPromise(Promise promise) {
-		this.promises.add(promise);
-	}
-
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,6 +34,7 @@ import com.example.lovekeeper.domain.auth.service.query.AuthQueryService;
 import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.global.common.BaseResponse;
+import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +62,7 @@ public class AuthController {
 	private final AuthQueryService authQueryService;
 
 	private final EmailAuthCommandService emailauthcommandservice;
+	private final RefreshTokenRedisService refreshTokenRedisService;
 
 	/**
 	 * 이메일 중복 확인
@@ -194,6 +197,29 @@ public class AuthController {
 		// 클라이언트로 ReissueResponse 객체(AccessToken, RefreshToken)를 JSON으로도 보내고자 하면,
 		// Refresh Token은 굳이 바디로 내려주지 않고, AccessToken만 제공해도 됩니다(정책에 따라).
 		return BaseResponse.onSuccessCreate(reissueResponse);
+	}
+
+	/**
+	 * 로그아웃
+	 */
+	@PostMapping("/logout")
+	public BaseResponse<String> logout(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		HttpServletResponse response) {
+
+		// 1. Redis에서 Refresh Token 삭제
+		refreshTokenRedisService.deleteRefreshToken(userDetails.getMember().getId());
+
+		// 2. 쿠키에서 Refresh Token 삭제
+		Cookie refreshCookie = new Cookie("refresh_token", null);
+		refreshCookie.setMaxAge(0);
+		refreshCookie.setPath("/");
+		response.addCookie(refreshCookie);
+
+		// 3. SecurityContext 초기화
+		SecurityContextHolder.clearContext();
+
+		return BaseResponse.onSuccess("로그아웃 되었습니다.");
 	}
 
 	/**

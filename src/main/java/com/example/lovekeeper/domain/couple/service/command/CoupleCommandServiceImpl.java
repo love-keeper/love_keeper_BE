@@ -1,16 +1,16 @@
 package com.example.lovekeeper.domain.couple.service.command;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.example.lovekeeper.domain.connectionhistory.model.ConnectionHistory;
-import com.example.lovekeeper.domain.connectionhistory.repository.ConnectionHistoryRepository;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
@@ -19,7 +19,9 @@ import com.example.lovekeeper.domain.member.repository.MemberRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,7 +29,6 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 
 	private final MemberRepository memberRepository;
 	private final CoupleRepository coupleRepository;
-	private final ConnectionHistoryRepository connectionHistoryRepository;
 
 	/**
 	 * 초대 코드 생성 및 저장
@@ -47,38 +48,54 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 	/**
 	 * 초대 코드를 이용해 두 회원 커플 연결
 	 */
+	@Override
 	public void connectCouple(Long currentMemberId, String inviteCode) {
-		// 초대 코드를 입력하는 본인
+		// 1. 현재 회원 조회
 		Member currentMember = memberRepository.findById(currentMemberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
-		// 초대 코드를 소유한 상대방
+		// 2. 초대 코드로 상대방 회원 조회
 		Member partnerMember = memberRepository.findByInviteCode(inviteCode)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.INVITE_CODE_NOT_FOUND));
 
-		if (currentMember.getInviteCode() == null) {
-			throw new MemberException(MemberErrorStatus.MUST_HAVE_INVITE_CODE);
-		}
-
-		// 내 자신의 초대 코드로 연결 시도
-		if (currentMember.getInviteCode().equals(inviteCode)) {
+		// 3. 자신의 초대 코드로 연결 시도하는지 확인
+		if (currentMember.equals(partnerMember)) {
 			throw new MemberException(MemberErrorStatus.SELF_INVITE_CODE);
 		}
 
-		// 커플 생
-		Couple newCouple = Couple.connectCouple(currentMember, partnerMember);
+		// 4. 둘 다 현재 활성화된 커플 관계가 없는지 확인
+		if (currentMember.getActiveCouple().isPresent()) {
+			throw new CoupleException(CoupleErrorStatus.ALREADY_COUPLE);
+		}
+		if (partnerMember.getActiveCouple().isPresent()) {
+			throw new CoupleException(CoupleErrorStatus.ALREADY_COUPLE);
+		}
 
-		ConnectionHistory connectionHistory
-			= ConnectionHistory.makeHistory(currentMember, partnerMember, newCouple);
+		// 5. 이전 커플 관계가 있는지 확인
+		Optional<Couple> previousCouple = currentMember.findPreviousCoupleWith(partnerMember);
 
-		// 커플 저장
-		coupleRepository.save(newCouple);
-		connectionHistoryRepository.save(connectionHistory);
+		Couple couple;
+		if (previousCouple.isPresent()) {
+			// 5-1. 이전 커플 관계가 있으면 재연결
+			couple = previousCouple.get();
+			couple.reconnect();
+			log.info("커플 재연결 완료 - coupleId: {}, member1Id: {}, member2Id: {}",
+				couple.getId(), currentMemberId, partnerMember.getId());
+		} else {
+			// 5-2. 이전 커플 관계가 없으면 새로 생성
+			couple = Couple.connectCouple(currentMember, partnerMember);
+			coupleRepository.save(couple);
+			log.info("새로운 커플 연결 완료 - member1Id: {}, member2Id: {}",
+				currentMemberId, partnerMember.getId());
+		}
 
-		// 초대 코드 초기화
+		// 6. 양쪽 회원의 상태 업데이트
+		currentMember.updateCoupleStatus(CoupleStatus.CONNECTED);
+		partnerMember.updateCoupleStatus(CoupleStatus.CONNECTED);
+
+		// 7. 초대 코드 초기화
 		currentMember.updateInviteCode(null);
-		partnerMember.updateInviteCode(null); // 상대방도 초기화
-
+		partnerMember.updateInviteCode(null);
 	}
 
 	/**
@@ -97,6 +114,36 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 		// 커플 시작일 수정
 		couple.updateStartDate(newStartDate);
 
+	}
+
+	@Override
+	public void disconnectCouple(Long memberId) {
+		// 1. 회원 조회
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 2. 현재 활성화된 커플 관계 조회
+		Couple activeCouple = member.getActiveCouple()
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 3. 커플 연결 끊기
+		activeCouple.disconnect();
+
+		// 4. 양쪽 회원의 상태 업데이트
+		Member partner = activeCouple.getPartner(member);
+		member.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+		partner.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+
+		log.info("커플 연결 해제 완료 - coupleId: {}, member1Id: {}, member2Id: {}",
+			activeCouple.getId(), member.getId(), partner.getId());
+	}
+
+	private void validateNoCurrentCouple(Long memberId) {
+		coupleRepository.findByMemberId(memberId)
+			.filter(couple -> couple.getStatus() == CoupleStatus.CONNECTED)
+			.ifPresent(couple -> {
+				throw new CoupleException(CoupleErrorStatus.ALREADY_COUPLE);
+			});
 	}
 
 	/**
