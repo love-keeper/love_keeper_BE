@@ -2,7 +2,9 @@ package com.example.lovekeeper.domain.promise.api;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,5 +61,20 @@ public class PromiseController {
 		promiseCommandService.createPromise(userDetails.getMember().getId(), request.getContent());
 
 		return BaseResponse.onSuccess("약속 생성 성공");
+	}
+
+	/**
+	 * 약속 삭제
+	 */
+	@DeleteMapping("/{promiseId}")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<String> deletePromise(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long promiseId
+	) {
+
+		promiseCommandService.deletePromise(userDetails.getMember().getId(), promiseId);
+
+		return BaseResponse.onSuccess("약속 삭제 성공");
 	}
 }
