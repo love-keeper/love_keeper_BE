@@ -61,7 +61,10 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
 		String uploadedImageUrl = null;
 		try {
-			uploadedImageUrl = s3Service.uploadProfileImage(signUpRequest.getProfileImage());
+			if (signUpRequest.getProfileImage() != null) {
+
+				uploadedImageUrl = s3Service.uploadProfileImage(signUpRequest.getProfileImage());
+			}
 		} catch (IOException e) {
 			log.error("[AuthCommandServiceImpl] S3 이미지 업로드 실패: {}", e.getMessage());
 			throw new BaseException(GlobalErrorStatus._S3_UPLOAD_ERROR);
