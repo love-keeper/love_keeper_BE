@@ -16,4 +16,5 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
 
 	@Query("select count(l) from Letter l where l.couple.id = :coupleId")
 	long countByCoupleId(@Param("coupleId") Long coupleId);
+
 }
