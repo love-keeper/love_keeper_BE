@@ -25,6 +25,7 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER014", "비밀번호는 8~20자의 영문, 숫자, 특수문자를 포함해야 합니다."),
 	INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER015", "닉네임은 2~10자 이내여야 합니다."),
 	INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER016", "잘못된 생년월일입니다."),
+	INVALID_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER017", "이메일이 일치하지 않습니다."),
 
 	// 프로필 관련 (MEMBER021 ~ MEMBER030)
 	PROFILE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER021", "프로필 이미지를 찾을 수 없습니다."),

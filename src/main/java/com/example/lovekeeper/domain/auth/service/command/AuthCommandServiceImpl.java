@@ -203,4 +203,5 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 		currentMember.changePassword(passwordEncoder.encode(request.getNewPassword()));
 
 	}
+
 }
