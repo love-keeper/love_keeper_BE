@@ -64,6 +64,17 @@ public class PromiseController {
 	}
 
 	/**
+	 * 약속 전체 개수 조회
+	 */
+	@GetMapping("/count")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<Long> getPromiseCount(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		return BaseResponse.onSuccess(promiseQueryService.getPromiseCount(userDetails.getMember().getId()));
+	}
+
+	/**
 	 * 약속 삭제
 	 */
 	@DeleteMapping("/{promiseId}")

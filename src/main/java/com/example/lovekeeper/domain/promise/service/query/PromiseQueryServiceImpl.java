@@ -40,4 +40,16 @@ public class PromiseQueryServiceImpl implements PromiseQueryService {
 
 		return PromiseResponse.PromiseListResponse.from(promises);
 	}
+
+	@Override
+	public Long getPromiseCount(Long memberId) {
+
+		// 현재 커플 찾기
+		Couple currentCouple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 현재 커플 약속 전체 개수를 조회
+		return promiseRepository.countByCoupleId(currentCouple.getId());
+
+	}
 }
