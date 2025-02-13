@@ -20,12 +20,14 @@ import com.example.lovekeeper.domain.auth.dto.request.ChangeBirthdayRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangeNicknameRequest;
 import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.EmailDuplicationRequest;
+import com.example.lovekeeper.domain.auth.dto.request.ResetPasswordRequest;
 import com.example.lovekeeper.domain.auth.dto.request.SignUpRequest;
 import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
 import com.example.lovekeeper.domain.auth.dto.response.ChangeNicknameResponse;
 import com.example.lovekeeper.domain.auth.dto.response.ReissueResponse;
 import com.example.lovekeeper.domain.auth.dto.response.SignUpResponse;
 import com.example.lovekeeper.domain.auth.service.command.AuthCommandService;
+import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandService;
 import com.example.lovekeeper.domain.auth.service.query.AuthQueryService;
 import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
 import com.example.lovekeeper.domain.member.model.Provider;
@@ -55,6 +57,8 @@ public class AuthController {
 
 	private final AuthCommandService authCommandService;
 	private final AuthQueryService authQueryService;
+
+	private final EmailAuthCommandService emailauthcommandservice;
 
 	/**
 	 * 이메일 중복 확인
@@ -127,6 +131,17 @@ public class AuthController {
 		authCommandService.changePassword(userDetails.getMember().getId(), request);
 
 		return BaseResponse.onSuccess("비밀번호 변경 성공");
+	}
+
+	/**
+	 * 비밀번호 변경 요청
+	 */
+	@Operation(summary = "비밀번호 변경 요청", description = "사용자의 이메일로 비밀번호 변경 링크를 보냅니다.")
+	@PostMapping("/password/reset-request")
+	public BaseResponse<String> resetPasswordRequest(@RequestBody @Valid ResetPasswordRequest request) {
+		// 이메일 인증 코드 생성 및 발송
+		emailauthcommandservice.sendPasswordChangeLink(request.getEmail());
+		return BaseResponse.onSuccess("비밀번호 변경 링크가 이메일로 발송되었습니다.");
 	}
 
 	/**
