@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class CoupleDSLRepositoryImpl implements CoupleDSLRepository {
+public class CoupleQueryRepositoryImpl implements CoupleQueryRepository {
 
 	/**
 	 * 연도별, 월별 편지 수 조회

@@ -3,14 +3,12 @@ package com.example.lovekeeper.domain.letter.api;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.letter.dto.request.SendLetterRequest;
@@ -38,7 +36,6 @@ public class LetterController {
 	 * 편지 목록 조회 API (무한 스크롤)
 	 */
 	@GetMapping("/list")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<LetterResponse.LetterListResponse> getLetters(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam int page, @RequestParam int size
@@ -52,7 +49,6 @@ public class LetterController {
 	 * 편지 보내기 API
 	 */
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
 	public BaseResponse<String> sendLetter(
 		@RequestBody SendLetterRequest sendLetterRequest,
 		@AuthenticationPrincipal CustomUserDetails userDetails
@@ -69,7 +65,6 @@ public class LetterController {
 	 * 전체 편지 개수 조회
 	 */
 	@GetMapping("/count")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<Long> getLetterCount(
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
@@ -81,7 +76,6 @@ public class LetterController {
 	 * 예: GET /api/letters/by-date?date=2025-02-13&page=0&size=10
 	 */
 	@GetMapping("/by-date")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<LetterResponse.LetterListResponse> getLettersByDate(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
