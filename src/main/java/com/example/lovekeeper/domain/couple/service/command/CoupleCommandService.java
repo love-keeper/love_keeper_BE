@@ -23,4 +23,6 @@ public interface CoupleCommandService {
 	 */
 	void updateCoupleStartDate(Long memberId, LocalDate newStartDate);
 
+	void disconnectCouple(Long memberId);
+
 }
