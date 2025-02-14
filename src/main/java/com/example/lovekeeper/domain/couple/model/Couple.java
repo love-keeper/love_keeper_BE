@@ -74,6 +74,9 @@ public class Couple extends BaseEntity {
 	@Builder.Default
 	private int connectionCount = 1;
 
+	@Builder.Default
+	private boolean isPremium = false;
+
 	//== 생성 메서드 ==//
 	public static Couple connectCouple(Member member1, Member member2) {
 		Couple couple = Couple.builder()
