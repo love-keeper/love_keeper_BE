@@ -17,7 +17,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
+import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.filter.JwtAuthenticationFilter;
 import com.example.lovekeeper.global.security.filter.LoginFilter;
 import com.example.lovekeeper.global.security.handler.JwtAccessDeniedHandler;
