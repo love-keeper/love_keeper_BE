@@ -1,4 +1,4 @@
-package com.example.lovekeeper.global.infrastructure.service;
+package com.example.lovekeeper.global.infrastructure.service.s3;
 
 import java.io.IOException;
 import java.io.InputStream;

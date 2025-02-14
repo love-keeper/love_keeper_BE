@@ -13,6 +13,7 @@ import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
 import com.example.lovekeeper.domain.promise.model.Promise;
 import com.example.lovekeeper.domain.promise.repository.PromiseRepository;
+import com.example.lovekeeper.global.infrastructure.service.fcm.FCMService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 	private final MemberRepository memberRepository;
 	private final CoupleRepository coupleRepository;
 
+	private final FCMService fcmService;
+
 	@Override
 	public void createPromise(Long memberId, String content) {
 		// 현재 멤버 찾기
@@ -37,11 +40,23 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		Couple currentCouple = coupleRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
-		// 약속 생성
-
 		log.info("약속을 생성합니다.");
 
+		// 약속 생성
 		promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
+
+		// 파트너 정하기
+		Member partner = currentCouple.getMember1() == currentMember
+			? currentCouple.getMember2()
+			: currentCouple.getMember1();
+
+		// 약속 생성 푸시 알림 전송
+		fcmService.sendPushNotification(
+			partner.getId(),
+			String.valueOf(currentCouple.getPromiseCount()) + " 번째 약속이 정해졌어요.",
+			"약속이 생성되었습니다.",
+			System.currentTimeMillis()
+		);
 
 	}
 

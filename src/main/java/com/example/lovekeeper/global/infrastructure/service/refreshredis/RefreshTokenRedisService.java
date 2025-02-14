@@ -1,4 +1,4 @@
-package com.example.lovekeeper.global.infrastructure.service;
+package com.example.lovekeeper.global.infrastructure.service.refreshredis;
 
 import java.time.Duration;
 

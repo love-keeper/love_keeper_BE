@@ -13,6 +13,7 @@ import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
+import com.example.lovekeeper.global.infrastructure.service.fcm.FCMService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ public class LetterCommandServiceImpl implements LetterCommandService {
 	private final MemberRepository memberRepository;
 	private final LetterRepository letterRepository;
 	private final CoupleRepository coupleRepository;
+
+	private final FCMService fcmService;
 
 	/**
 	 * 편지 보내기
@@ -57,5 +60,7 @@ public class LetterCommandServiceImpl implements LetterCommandService {
 		// 편지 저장
 		letterRepository.save(letter);
 
+		// FCM 푸시 알림 전송
+		fcmService.sendPushNotification(receiver.getId(), "새로운 편지가 도착했어요!", "편지함을 확인해주세요.", System.currentTimeMillis());
 	}
 }
