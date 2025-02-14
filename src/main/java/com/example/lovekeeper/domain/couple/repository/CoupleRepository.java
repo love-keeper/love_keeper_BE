@@ -13,7 +13,7 @@ import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 
 public interface CoupleRepository extends JpaRepository<Couple, Long> {
 
-	@Query("SELECT c FROM Couple c WHERE c.member1.id = :memberId OR c.member2.id = :memberId")
+	@Query("SELECT c FROM Couple c WHERE (c.member1.id = :memberId OR c.member2.id = :memberId) AND c.status = 'CONNECTED'")
 	Optional<Couple> findByMemberId(@Param("memberId") Long memberId);
 
 	@Query("SELECT c FROM Couple c WHERE " +

@@ -51,4 +51,15 @@ public class CoupleQueryServiceImpl implements CoupleQueryService {
 		return null;
 
 	}
+
+	/**
+	 * 커플 시작일 조회
+	 */
+	@Override
+	public LocalDate getCoupleStartDate(Long memberId) {
+
+		return coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND)).getStartedAt();
+	}
+
 }
