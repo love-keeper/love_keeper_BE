@@ -30,7 +30,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// 2. 이미 탈퇴한 회원인지 확인
-		if (member.isDeleted()) {
+		if (member.isDeleted() && member.getStatus() == MemberStatus.DELETED) {
 			throw new MemberException(MemberErrorStatus.MEMBER_ALREADY_DELETED);
 		}
 
