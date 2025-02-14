@@ -14,7 +14,7 @@ import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.global.common.BaseResponse;
-import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
+import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.jwt.JwtTokenProvider;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
 import com.example.lovekeeper.global.security.user.CustomUserDetailsService;
