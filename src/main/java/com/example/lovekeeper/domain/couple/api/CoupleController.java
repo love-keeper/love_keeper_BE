@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.couple.api;
 
+import java.time.LocalDate;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,6 +72,14 @@ public class CoupleController {
 	public BaseResponse<Long> getDaysSinceStarted(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		return BaseResponse.onSuccess(
 			coupleQueryService.getDaysSinceStarted(userDetails.getMember().getId()));
+	}
+
+	/**
+	 * 커플의 시작일 조회
+	 */
+	@GetMapping("/start-date")
+	public BaseResponse<LocalDate> getCoupleStartDate(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return BaseResponse.onSuccess(coupleQueryService.getCoupleStartDate(userDetails.getMember().getId()));
 	}
 
 	/**
