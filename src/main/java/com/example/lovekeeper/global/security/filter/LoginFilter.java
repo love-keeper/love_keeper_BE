@@ -10,6 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.lovekeeper.domain.auth.dto.response.LoginResponse;
+import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.global.common.BaseResponse;
@@ -70,17 +71,32 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			} else {
 				// 소셜 로그인
 				String providerId = requestMap.get("providerId");
-				Provider providerEnum = mapToProviderEnum(providerStr);
+				if (providerId == null || providerId.isEmpty()) {
+					throw new AuthenticationException("Provider ID is required for social login") {
+					};
+				}
 
-				CustomUserDetails userDetails = customUserDetailsService.loadUserByProvider(providerEnum, providerId);
+				Provider providerEnum;
+				try {
+					providerEnum = mapToProviderEnum(providerStr);
+				} catch (IllegalArgumentException e) {
+					throw new AuthenticationException("Invalid provider: " + providerStr) {
+					};
+				}
 
-				UsernamePasswordAuthenticationToken auth =
-					new UsernamePasswordAuthenticationToken(
+				try {
+					CustomUserDetails userDetails = customUserDetailsService.loadUserByProvider(providerEnum,
+						providerId);
+					return new UsernamePasswordAuthenticationToken(
 						userDetails,
 						null,
 						userDetails.getAuthorities()
 					);
-				return auth;
+				} catch (MemberException e) {
+					log.error("[LoginFilter] 소셜 로그인 실패 - provider: {}, providerId: {}", providerStr, providerId);
+					throw new AuthenticationException("Social login failed: " + e.getMessage()) {
+					};
+				}
 			}
 
 		} catch (IOException e) {
