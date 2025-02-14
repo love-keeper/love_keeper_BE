@@ -64,6 +64,8 @@ public class Promise extends BaseEntity {
 		couple.getPromises().add(promise); // Couple 객체의 addPromise 메서드를 호출하여 연관 관계 설정
 		member.getPromises().add(promise); // Member 객체의 promises에 추가
 
+		couple.increasePromiseCount(); // Couple의 약속 개수 증가
+
 		return promise;
 	}
 
