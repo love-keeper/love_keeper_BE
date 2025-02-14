@@ -1,4 +1,4 @@
-package com.example.lovekeeper.global.infrastructure.service;
+package com.example.lovekeeper.global.infrastructure.service.email;
 
 import java.time.Duration;
 import java.util.Random;

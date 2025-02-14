@@ -27,8 +27,8 @@ import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
 import com.example.lovekeeper.global.exception.BaseException;
 import com.example.lovekeeper.global.exception.code.GlobalErrorStatus;
-import com.example.lovekeeper.global.infrastructure.service.RefreshTokenRedisService;
-import com.example.lovekeeper.global.infrastructure.service.S3Service;
+import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
+import com.example.lovekeeper.global.infrastructure.service.s3.S3Service;
 import com.example.lovekeeper.global.security.jwt.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
