@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.couple.service.query;
 
+import java.time.LocalDate;
+
 import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
 
 public interface CoupleQueryService {
@@ -15,6 +17,9 @@ public interface CoupleQueryService {
 	 * 커플의 Promise와 Letter의 개수를 조회
 	 */
 	CountResponse getLettersAndPromisesCount(Long memberId);
+
+	LocalDate getCoupleStartDate(Long memberId);
+
 }
 
 

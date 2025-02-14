@@ -1,0 +1,24 @@
+package com.example.lovekeeper.global.infrastructure.service.fcm;
+
+public interface FCMService {
+	/**
+	 * FCM 토큰 저장
+	 * @param memberId 회원 ID
+	 * @param token FCM 토큰
+	 */
+	void saveToken(Long memberId, String token);
+
+	/**
+	 * FCM 토큰 삭제
+	 * @param token 삭제할 FCM 토큰
+	 */
+	void removeToken(String token);
+
+	/**
+	 * 푸시 알림 전송
+	 * @param memberId 수신할 회원 ID
+	 * @param title 알림 제목
+	 * @param body 알림 내용
+	 */
+	void sendPushNotification(Long memberId, String title, String body, Long timestamp);
+}
