@@ -75,6 +75,9 @@ public class Couple extends BaseEntity {
 	private int connectionCount = 1;
 
 	@Builder.Default
+	private int promiseCount = 0;
+
+	@Builder.Default
 	private boolean isPremium = false;
 
 	//== 생성 메서드 ==//
@@ -96,6 +99,14 @@ public class Couple extends BaseEntity {
 		this.endedAt = LocalDate.now();
 	}
 
+	public void updatePremium(boolean isPremium) {
+		this.isPremium = isPremium;
+	}
+
+	public void increasePromiseCount() {
+		this.promiseCount++;
+	}
+	
 	//== 연관 관계 메서드 ==//
 
 	public void reconnect() {

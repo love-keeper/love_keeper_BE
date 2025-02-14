@@ -8,7 +8,7 @@ import org.thymeleaf.context.Context;
 
 import com.example.lovekeeper.domain.auth.exception.AuthErrorStatus;
 import com.example.lovekeeper.global.exception.BaseException;
-import com.example.lovekeeper.global.infrastructure.service.EmailAuthRedisService;
+import com.example.lovekeeper.global.infrastructure.service.email.EmailAuthRedisService;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
