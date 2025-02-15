@@ -18,6 +18,6 @@ public class HealthController {
 	@Operation(summary = "서버 상태 확인", description = "서버가 정상적으로 동작하는지 확인합니다.")
 	@GetMapping("/health")
 	public ResponseEntity<BaseResponse<String>> checkHealth() {
-		return ResponseEntity.ok(BaseResponse.onSuccess("Server is up and running"));
+		return ResponseEntity.ok(BaseResponse.onSuccess("서버가 정상적으로 동작 중입니다."));
 	}
 }
