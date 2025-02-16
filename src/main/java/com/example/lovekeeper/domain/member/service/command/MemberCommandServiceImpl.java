@@ -1,15 +1,20 @@
 package com.example.lovekeeper.domain.member.service.command;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.lovekeeper.domain.couple.model.CoupleStatus;
-import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.MemberStatus;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
+import com.example.lovekeeper.global.exception.BaseException;
+import com.example.lovekeeper.global.exception.code.GlobalErrorStatus;
+import com.example.lovekeeper.global.infrastructure.service.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
 	private final MemberRepository memberRepository;
-	private final CoupleRepository coupleRepository;
+	private final S3Service s3Service;
 
 	@Override
 	public void withdrawMember(Long memberId) {
@@ -54,5 +59,25 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		member.updateCoupleStatus(CoupleStatus.DISCONNECTED);
 
 		log.info("회원 탈퇴 처리 완료 - memberId: {}", memberId);
+	}
+
+	@Override
+	public void updateProfileImage(Long memberId, MultipartFile profileImage) {
+		try {
+			// 1. 회원 조회
+			Member currentMember = memberRepository.findById(memberId)
+				.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+			// 2. S3에 이미지 업로드
+			String newProfileImageUrl = s3Service.uploadProfileImage(profileImage, currentMember.getProfileImageUrl());
+
+			// 3. 회원 프로필 이미지 URL 업데이트
+			currentMember.updateProfileImageUrl(newProfileImageUrl);
+
+			log.info("프로필 이미지 업로드 완료 - memberId: {}", memberId);
+			
+		} catch (IOException e) {
+			throw new BaseException(GlobalErrorStatus._S3_UPLOAD_ERROR);
+		}
 	}
 }
