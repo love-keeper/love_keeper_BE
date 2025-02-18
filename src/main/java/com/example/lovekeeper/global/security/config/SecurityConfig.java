@@ -1,5 +1,7 @@
 package com.example.lovekeeper.global.security.config;
 
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.filter.JwtAuthenticationFilter;
@@ -68,7 +73,8 @@ public class SecurityConfig {
 				.requestMatchers("/error").permitAll()                   // 에러 페이지 허용
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()  // 정적 리소스 허용
 				.requestMatchers("/api/auth/**").permitAll()       // 로그인 요청 허용
-				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html",
+					"/webjars/**").permitAll()
 				.requestMatchers("/health").permitAll()
 				.anyRequest().authenticated()
 			)
@@ -94,5 +100,18 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of("*"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 }
