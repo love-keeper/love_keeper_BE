@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -109,11 +110,10 @@ public class AuthController {
 	 */
 	@Operation(summary = "비밀번호 변경", description = "비밀번호 초기화 후 새로운 비밀번호로 변경합니다.")
 	@ApiResponse(responseCode = "200", description = "비밀번호 변경 성공")
-	@PostMapping("/password/reset")
+	@PatchMapping("/password/reset")
 	public BaseResponse<String> resetPassword(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid ChangePasswordAfterResetRequest request) {
-		authCommandService.resetPassword(userDetails.getMember().getId(), request);
+		authCommandService.resetPassword(request);
 		return BaseResponse.onSuccess("비밀번호 변경 성공");
 	}
 
