@@ -34,7 +34,7 @@ public class MemberController {
 
 	private final MemberCommandService memberCommandService;
 	private final AuthCommandService authCommandService;
-	
+
 	/**
 	 * 닉네임 변경
 	 */
@@ -43,7 +43,7 @@ public class MemberController {
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid ChangeNicknameRequest changeNicknameRequest) {
 
-		return BaseResponse.onSuccess(authCommandService.changeNickname(userDetails.getMember().getId(),
+		return BaseResponse.onSuccess(memberCommandService.changeNickname(userDetails.getMember().getId(),
 			changeNicknameRequest.getNickname()));
 	}
 
@@ -55,7 +55,7 @@ public class MemberController {
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid ChangeBirthdayRequest changeBirthdayRequest) {
 
-		return BaseResponse.onSuccess(authCommandService.changeBirthday(userDetails.getMember().getId(),
+		return BaseResponse.onSuccess(memberCommandService.changeBirthday(userDetails.getMember().getId(),
 			changeBirthdayRequest.getBirthday()));
 	}
 
@@ -68,7 +68,7 @@ public class MemberController {
 		@RequestBody @Valid ChangePasswordRequest request
 	) {
 
-		authCommandService.changePassword(userDetails.getMember().getId(), request);
+		memberCommandService.changePassword(userDetails.getMember().getId(), request);
 
 		return BaseResponse.onSuccess("비밀번호 변경 성공");
 	}

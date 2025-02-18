@@ -8,6 +8,10 @@ import lombok.Getter;
 @Schema(description = "비밀번호 초기화 후 변경 요청")
 public class ChangePasswordAfterResetRequest {
 
+	@Schema(description = "이메일", example = "qkrehdrb0813@gmail.com")
+	@NotBlank(message = "이메일을 입력해주세요.")
+	private String email;
+
 	@Schema(description = "비밀번호", example = "password1234")
 	@NotBlank(message = "비밀번호를 입력해주세요.")
 	private String password;
