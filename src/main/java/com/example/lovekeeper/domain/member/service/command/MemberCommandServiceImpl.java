@@ -45,22 +45,27 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		Member currentMember = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
-		// 2) 현재 비밀번호 일치 여부 확인
+		// 2) 사용자가 SNS 로그인 회원인지 확인
+		if (currentMember.isSocialMember()) {
+			throw new MemberException(MemberErrorStatus.SOCIAL_MEMBER);
+		}
+
+		// 3) 현재 비밀번호 일치 여부 확인
 		if (!passwordEncoder.matches(request.getCurrentPassword(), currentMember.getPassword())) {
 			throw new MemberException(MemberErrorStatus.INVALID_CURRENT_PASSWORD);
 		}
 
-		// 3) 새 비밀번호와 현재 비밀번호 일치 여부 확인
+		// 4) 새 비밀번호와 현재 비밀번호 일치 여부 확인
 		if (passwordEncoder.matches(request.getNewPassword(), currentMember.getPassword())) {
 			throw new MemberException(MemberErrorStatus.SAME_AS_CURRENT_PASSWORD);
 		}
 
-		// 4) 새 비밀번호와 새 비밀번호 확인 일치 여부 확인
+		// 5) 새 비밀번호와 새 비밀번호 확인 일치 여부 확인
 		if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
 			throw new MemberException(MemberErrorStatus.PASSWORD_MISMATCH);
 		}
 
-		// 5) 비밀번호 변경
+		// 6) 비밀번호 변경
 		currentMember.changePassword(passwordEncoder.encode(request.getNewPassword()));
 
 	}
@@ -155,7 +160,6 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		Member currentMember = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
-		// 2) 생일 변경
 		currentMember.changeBirthday(birthday);
 
 		return ChangeBirthdayResponse.of(birthday);
