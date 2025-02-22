@@ -193,4 +193,8 @@ public class Member extends BaseEntity {
 	public void updateProfileImageUrl(String profileImageUrl) {
 		this.profileImageUrl = profileImageUrl;
 	}
+
+	public boolean isSocialMember() {
+		return provider != Provider.LOCAL;
+	}
 }
