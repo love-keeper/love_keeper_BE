@@ -155,6 +155,19 @@ public class AuthController {
 		return BaseResponse.onSuccessCreate(reissueResponse);
 	}
 
+	@Operation(summary = "토큰 유효성 확인", description = "Access Token의 유효성을 확인합니다.")
+	@ApiResponse(responseCode = "200", description = "토큰 유효")
+	@ApiResponse(responseCode = "401", description = "토큰이 유효하지 않음")
+	@GetMapping("/check-token")
+	public BaseResponse<String> checkToken(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		if (userDetails == null) {
+			return BaseResponse.onFailure("COMMON401", "토큰이 유효하지 않습니다.", null);
+		}
+		return BaseResponse.onSuccess("토큰이 유효합니다.");
+	}
+
 	/**
 	 * 로그아웃
 	 */
