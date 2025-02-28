@@ -17,6 +17,7 @@ import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
 import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
+import com.example.lovekeeper.domain.member.dto.response.MyInfoResponse;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
@@ -41,6 +42,25 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	private final S3Service s3Service;
 	private final PasswordEncoder passwordEncoder;
 	private final EmailAuthCommandService emailAuthCommandService;
+
+	@Override
+	public MyInfoResponse getMyInfo(Long memberId) {
+		// 1) 사용자 조회
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		Couple couple = coupleRepository.findByMemberId(member.getId())
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		return MyInfoResponse.of(
+			member.getId(),
+			member.getNickname(),
+			member.getBirthDay(),
+			couple.getStartedAt(),
+			member.getEmail(),
+			member.getProfileImageUrl()
+		);
+	}
 
 	@Override
 	public void changePassword(Long memberId, ChangePasswordRequest request) {
