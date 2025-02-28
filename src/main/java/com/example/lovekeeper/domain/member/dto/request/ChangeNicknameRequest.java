@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.auth.dto.request;
+package com.example.lovekeeper.domain.member.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

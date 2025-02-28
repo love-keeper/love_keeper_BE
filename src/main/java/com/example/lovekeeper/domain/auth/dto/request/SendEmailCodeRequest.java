@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.auth.dto.request;
 
+import com.example.lovekeeper.domain.member.exception.annotation.UniqueEmail;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class SendEmailCodeRequest {
 
 	@Schema(description = "이메일", example = "qkrehdrb0813@gmail.com")
+	@UniqueEmail
 	private String email;
 
 }

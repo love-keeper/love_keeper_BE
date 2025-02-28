@@ -197,4 +197,8 @@ public class Member extends BaseEntity {
 	public boolean isSocialMember() {
 		return provider != Provider.LOCAL;
 	}
+
+	public void changeEmail(String email) {
+		this.email = email;
+	}
 }

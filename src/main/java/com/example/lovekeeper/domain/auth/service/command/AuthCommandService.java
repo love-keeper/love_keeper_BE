@@ -11,5 +11,5 @@ public interface AuthCommandService {
 	ReissueResponse reissueRefreshToken(String oldRefreshToken);
 
 	void resetPassword(ChangePasswordAfterResetRequest request);
-
+	
 }

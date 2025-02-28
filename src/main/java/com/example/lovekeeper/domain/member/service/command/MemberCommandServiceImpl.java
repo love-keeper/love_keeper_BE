@@ -8,18 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
-import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
-import com.example.lovekeeper.domain.auth.dto.response.ChangeNicknameResponse;
+import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandService;
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
+import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
+import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
+import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.member.model.MemberStatus;
+import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.domain.member.repository.MemberRepository;
 import com.example.lovekeeper.global.exception.BaseException;
 import com.example.lovekeeper.global.exception.code.GlobalErrorStatus;
@@ -38,6 +40,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	private final CoupleRepository coupleRepository;
 	private final S3Service s3Service;
 	private final PasswordEncoder passwordEncoder;
+	private final EmailAuthCommandService emailAuthCommandService;
 
 	@Override
 	public void changePassword(Long memberId, ChangePasswordRequest request) {
@@ -165,4 +168,29 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		return ChangeBirthdayResponse.of(birthday);
 	}
 
+	// 기존 changeEmail 메서드를 대체하는 새로운 메서드
+	public void changeEmailWithVerification(Long memberId, String email, String code) {
+		// 1) 사용자 조회
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 2) 소셜 로그인 회원인지 체크
+		// 소셜 로그인 회원은 이메일 변경 불가
+		if (currentMember.getProvider() != Provider.LOCAL) {
+			throw new MemberException(MemberErrorStatus.SOCIAL_MEMBER_EMAIL_CANNOT_CHANGE);
+		}
+
+		// 3) 이메일 중복 체크
+		if (memberRepository.existsByEmail(email)) {
+			throw new MemberException(MemberErrorStatus.DUPLICATE_EMAIL);
+		}
+
+		// 4) 인증 코드 검증
+		emailAuthCommandService.verifyCode(email, code);
+
+		// 5) 이메일 변경
+		currentMember.changeEmail(email);
+
+		log.info("이메일 변경 완료 - memberId: {}, newEmail: {}", memberId, email);
+	}
 }

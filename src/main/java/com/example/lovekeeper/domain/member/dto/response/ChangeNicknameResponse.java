@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.auth.dto.response;
+package com.example.lovekeeper.domain.member.dto.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

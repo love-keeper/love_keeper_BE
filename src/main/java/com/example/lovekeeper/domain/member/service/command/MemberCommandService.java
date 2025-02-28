@@ -4,9 +4,9 @@ import java.time.LocalDate;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.lovekeeper.domain.auth.dto.request.ChangePasswordRequest;
-import com.example.lovekeeper.domain.auth.dto.response.ChangeBirthdayResponse;
-import com.example.lovekeeper.domain.auth.dto.response.ChangeNicknameResponse;
+import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
+import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
+import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
 
 public interface MemberCommandService {
 	/**
@@ -26,4 +26,5 @@ public interface MemberCommandService {
 
 	ChangeBirthdayResponse changeBirthday(Long memberId, LocalDate birthday);
 
+	void changeEmailWithVerification(Long memberId, String email, String code);
 }
