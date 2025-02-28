@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ${{ secrets.DOCKER_USERNAME }}/lovekeeper-app:${TAG:-latest}  # Docker Hub 이미지 사용
+    image: DOCKER_USERNAME/lovekeeper-app:DOCKER_TAG  # 변수 자리표시자
     container_name: lovekeeper-app
     ports:
       - "8080:8080"
