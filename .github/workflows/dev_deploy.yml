@@ -76,7 +76,11 @@ jobs:
           
           # EC2에서 Docker Compose 실행
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
+            # 기존 컨테이너와 볼륨 삭제
             docker-compose -f /home/$EC2_USERNAME/docker-compose.yml down -v
+            docker rm -f lovekeeper-redis lovekeeper-mysql lovekeeper-app 2>/dev/null || true
+          
+            # 새 이미지 풀 및 실행
             docker pull $DOCKER_USERNAME/lovekeeper-app:$TAG
             docker-compose -f /home/$EC2_USERNAME/docker-compose.yml up -d
           
