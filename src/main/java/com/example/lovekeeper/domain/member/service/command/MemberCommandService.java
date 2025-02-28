@@ -7,8 +7,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
 import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
+import com.example.lovekeeper.domain.member.dto.response.MyInfoResponse;
 
 public interface MemberCommandService {
+
+	/**
+	 * 내 정보 가져오기
+	 */
+	MyInfoResponse getMyInfo(Long memberId);
+
 	/**
 	 * 비밀번호 변경
 	 */
