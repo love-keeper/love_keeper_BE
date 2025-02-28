@@ -1,4 +1,4 @@
-package com.example.lovekeeper.domain.auth.dto.request;
+package com.example.lovekeeper.domain.member.dto.request;
 
 import java.time.LocalDate;
 

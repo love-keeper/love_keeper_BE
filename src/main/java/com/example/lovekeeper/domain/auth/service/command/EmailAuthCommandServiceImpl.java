@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.example.lovekeeper.domain.auth.dto.response.SendCodeResponse;
 import com.example.lovekeeper.domain.auth.exception.AuthErrorStatus;
+import com.example.lovekeeper.domain.member.repository.MemberRepository;
 import com.example.lovekeeper.global.exception.BaseException;
 import com.example.lovekeeper.global.infrastructure.service.email.EmailAuthRedisService;
 
@@ -22,13 +24,14 @@ public class EmailAuthCommandServiceImpl implements EmailAuthCommandService {
 	private final JavaMailSender mailSender;
 	private final TemplateEngine templateEngine;
 	private final EmailAuthRedisService emailAuthRedisService;
+	private final MemberRepository memberRepository;
 
 	/**
 	 * 이메일로 인증 코드 발송
 	 * @param email 수신자 이메일
 	 */
 	@Override
-	public void sendVerificationCode(String email) {
+	public SendCodeResponse sendVerificationCode(String email) {
 		// 1. 6자리 숫자 인증 코드 생성
 		String code = emailAuthRedisService.generateCode();
 
@@ -56,6 +59,9 @@ public class EmailAuthCommandServiceImpl implements EmailAuthCommandService {
 			// 메일 발송 실패 시 BaseException을 발생
 			throw new BaseException(AuthErrorStatus.EMAIL_SEND_FAIL);
 		}
+
+		return SendCodeResponse.of(code);
+
 	}
 
 	/**

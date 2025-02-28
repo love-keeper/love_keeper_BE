@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.auth.dto.request.SendEmailCodeRequest;
 import com.example.lovekeeper.domain.auth.dto.request.VerifyEmailCodeRequest;
+import com.example.lovekeeper.domain.auth.dto.response.SendCodeResponse;
 import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandService;
 import com.example.lovekeeper.global.common.BaseResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,9 +25,10 @@ public class EmailAuthController {
 	 * 이메일 인증 코드 발송
 	 */
 	@PostMapping("/send-code")
-	public BaseResponse<String> sendEmailCode(@RequestBody SendEmailCodeRequest request) {
-		emailCommandAuthService.sendVerificationCode(request.getEmail());
-		return BaseResponse.onSuccess("인증 코드가 이메일로 발송되었습니다.");
+	public BaseResponse<SendCodeResponse> sendEmailCode(
+		@RequestBody @Valid SendEmailCodeRequest request) {
+
+		return BaseResponse.onSuccess(emailCommandAuthService.sendVerificationCode(request.getEmail()));
 	}
 
 	/**

@@ -27,6 +27,7 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER016", "잘못된 생년월일입니다."),
 	INVALID_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER017", "이메일이 일치하지 않습니다."),
 	SOCIAL_MEMBER(HttpStatus.BAD_REQUEST, "MEMBER018", "SNS 로그인 회원은 비밀번호를 변경할 수 없습니다."),
+	SAME_EMAIL(HttpStatus.BAD_REQUEST, "MEMBER019", "현재 이메일과 동일한 이메일로 변경할 수 없습니다."),
 
 	// 프로필 관련 (MEMBER021 ~ MEMBER030)
 	PROFILE_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER021", "프로필 이미지를 찾을 수 없습니다."),
@@ -50,6 +51,7 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	INVALID_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER042", "현재 비밀번호가 일치하지 않습니다."),
 	SAME_AS_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER043", "현재 비밀번호와 동일한 비밀번호로 변경할 수 없습니다."),
 	WITHDRAWAL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "MEMBER044", "커플 상태에서는 회원 탈퇴가 불가능합니다."),
+	SOCIAL_MEMBER_EMAIL_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "MEMBER045", "SNS 로그인 회원은 이메일을 변경할 수 없습니다."),
 
 	// 초대 코드 관련 (MEMBER051 ~ MEMBER060)
 	INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER051", "유효하지 않은 초대 코드입니다."),
