@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  app:
+    image: lovekeeper-app:${TAG:-latest}
+    container_name: lovekeeper-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_REDIS_HOST=redis
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/lovekeeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=ehdfprl77
+    restart: always
+
+  redis:
+    image: redis:7.0
+    container_name: lovekeeper-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    container_name: lovekeeper-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ehdfprl77
+      MYSQL_DATABASE: lovekeeper
+      MYSQL_USER: lovekeeper
+      MYSQL_PASSWORD: ehdfprl77
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+volumes:
+  mysql-data:
+  redis-data:
