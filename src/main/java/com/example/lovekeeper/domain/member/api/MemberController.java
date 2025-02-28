@@ -3,6 +3,7 @@ package com.example.lovekeeper.domain.member.api;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import com.example.lovekeeper.domain.member.dto.request.ChangeNicknameRequest;
 import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
 import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
+import com.example.lovekeeper.domain.member.dto.response.MyInfoResponse;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.service.command.MemberCommandService;
@@ -42,9 +44,19 @@ public class MemberController {
 	private final EmailAuthCommandService emailAuthCommandService;
 
 	/**
+	 * 내 프로필 정보
+	 */
+	@GetMapping("/me")
+	public BaseResponse<MyInfoResponse> getMyInfo(
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return BaseResponse.onSuccess(memberCommandService.getMyInfo(userDetails.getMember().getId()));
+	}
+
+	/**
 	 * 이메일 변경을 위한 인증 코드 발송
 	 */
 	@PostMapping("/email/send-code")
+
 	public BaseResponse<SendCodeResponse> sendEmailChangeCode(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid SendEmailCodeRequest sendEmailCodeRequest) {
