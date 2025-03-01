@@ -62,4 +62,12 @@ public class CoupleQueryServiceImpl implements CoupleQueryService {
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND)).getStartedAt();
 	}
 
+	@Override
+	public Boolean isCoupleConnected(Long memberId) {
+		coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		return true;
+	}
+
 }

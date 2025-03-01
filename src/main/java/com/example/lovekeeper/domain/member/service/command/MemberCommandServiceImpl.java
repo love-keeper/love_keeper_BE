@@ -58,7 +58,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 			member.getBirthDay(),
 			couple.getStartedAt(),
 			member.getEmail(),
-			member.getProfileImageUrl()
+			member.getProfileImageUrl(),
+			couple.getPartner(member).getNickname()
 		);
 	}
 

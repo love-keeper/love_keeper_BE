@@ -20,6 +20,7 @@ public interface CoupleQueryService {
 
 	LocalDate getCoupleStartDate(Long memberId);
 
+	Boolean isCoupleConnected(Long memberId);
 }
 
 
