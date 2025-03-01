@@ -23,13 +23,58 @@ public class PromiseQueryRepository {
 		return queryFactory
 			.select(Projections.constructor(DateCountResponse.class,
 				promise.promisedAt,
-				promise.count()
-			))
+				promise.count()))
 			.from(promise)
 			.where(promise.couple.id.eq(coupleId)
 				.and(promise.promisedAt.year().eq(year))
 				.and(promise.promisedAt.month().eq(month)))
 			.groupBy(promise.promisedAt)
 			.fetch();
+	}
+
+	public List<DateCountResponse> findPromiseCountByCoupleAndSpecificDate(Long coupleId, int year, int month,
+		int day) {
+		QPromise promise = QPromise.promise;
+
+		return queryFactory
+			.select(Projections.constructor(DateCountResponse.class,
+				promise.promisedAt,
+				promise.count()))
+			.from(promise)
+			.where(promise.couple.id.eq(coupleId)
+				.and(promise.promisedAt.year().eq(year))
+				.and(promise.promisedAt.month().eq(month))
+				.and(promise.promisedAt.dayOfMonth().eq(day)))
+			.groupBy(promise.promisedAt)
+			.fetch();
+	}
+
+	public long findTotalPromiseCountByCoupleAndYearMonth(Long coupleId, int year, int month) {
+		QPromise promise = QPromise.promise;
+
+		Long count = queryFactory
+			.select(promise.count())
+			.from(promise)
+			.where(promise.couple.id.eq(coupleId)
+				.and(promise.promisedAt.year().eq(year))
+				.and(promise.promisedAt.month().eq(month)))
+			.fetchOne();
+
+		return count != null ? count : 0;
+	}
+
+	public long findTotalPromiseCountByCoupleAndSpecificDate(Long coupleId, int year, int month, int day) {
+		QPromise promise = QPromise.promise;
+
+		Long count = queryFactory
+			.select(promise.count())
+			.from(promise)
+			.where(promise.couple.id.eq(coupleId)
+				.and(promise.promisedAt.year().eq(year))
+				.and(promise.promisedAt.month().eq(month))
+				.and(promise.promisedAt.dayOfMonth().eq(day)))
+			.fetchOne();
+
+		return count != null ? count : 0;
 	}
 }
