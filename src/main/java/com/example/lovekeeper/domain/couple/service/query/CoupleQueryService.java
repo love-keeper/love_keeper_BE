@@ -3,6 +3,7 @@ package com.example.lovekeeper.domain.couple.service.query;
 import java.time.LocalDate;
 
 import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
+import com.example.lovekeeper.domain.couple.dto.response.CoupleInfoResponse;
 
 public interface CoupleQueryService {
 
@@ -20,7 +21,7 @@ public interface CoupleQueryService {
 
 	LocalDate getCoupleStartDate(Long memberId);
 
-	Boolean isCoupleConnected(Long memberId);
+	CoupleInfoResponse getCoupleInfo(Long memberId);
 }
 
 

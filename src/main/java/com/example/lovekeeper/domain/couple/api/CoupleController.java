@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.lovekeeper.domain.couple.dto.request.ConnectCoupleRequest;
 import com.example.lovekeeper.domain.couple.dto.request.UpdateCoupleStartDateRequest;
 import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
+import com.example.lovekeeper.domain.couple.dto.response.CoupleInfoResponse;
 import com.example.lovekeeper.domain.couple.dto.response.GenerateCodeResponse;
 import com.example.lovekeeper.domain.couple.service.command.CoupleCommandService;
 import com.example.lovekeeper.domain.couple.service.query.CoupleQueryService;
@@ -40,9 +41,9 @@ public class CoupleController {
 	 * 커플 정보 조회
 	 * - 인증 사용자 ID를 @AuthenticationPrincipal로 추출
 	 */
-	@GetMapping("/check")
-	public BaseResponse<Boolean> isCoupleConnected(@AuthenticationPrincipal CustomUserDetails userDetails) {
-		return BaseResponse.onSuccess(coupleQueryService.isCoupleConnected(userDetails.getMember().getId()));
+	@GetMapping("/info")
+	public BaseResponse<CoupleInfoResponse> getCoupleInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return BaseResponse.onSuccess(coupleQueryService.getCoupleInfo(userDetails.getMember().getId()));
 	}
 
 	/**
@@ -51,7 +52,6 @@ public class CoupleController {
 	 * - 인증 사용자 ID를 @AuthenticationPrincipal로 추출
 	 */
 	@PostMapping("/generate-code")
-
 	public BaseResponse<GenerateCodeResponse> generateInviteCode(
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
 
