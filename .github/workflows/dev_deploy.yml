@@ -67,23 +67,24 @@ jobs:
         run: |
           echo "$EC2_SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
+
           # docker-compose.yml에 변수 대체
           sed "s|DOCKER_USERNAME|$DOCKER_USERNAME|g; s|DOCKER_TAG|$TAG|g" docker-compose.yml > docker-compose-ec2.yml
-          
+
           # 수정된 docker-compose-ec2.yml 전송
           scp -i private_key.pem -o StrictHostKeyChecking=no docker-compose-ec2.yml $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/docker-compose.yml
-          
+
           # EC2에서 Docker Compose 실행
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
-            # 기존 컨테이너와 볼륨 삭제
-            docker-compose -f /home/$EC2_USERNAME/docker-compose.yml down -v
-            docker rm -f lovekeeper-redis lovekeeper-mysql lovekeeper-app 2>/dev/null || true
-          
+            # 기존 컨테이너만 종료 (볼륨 유지)
+            docker-compose -f /home/$EC2_USERNAME/docker-compose.yml down
+            docker rm -f lovekeeper-app lovekeeper-redis lovekeeper-mysql 2>/dev/null || true
+            sudo kill -9 \$(sudo lsof -t -i :8080) 2>/dev/null || true
+
             # 새 이미지 풀 및 실행
             docker pull $DOCKER_USERNAME/lovekeeper-app:$TAG
             docker-compose -f /home/$EC2_USERNAME/docker-compose.yml up -d
-          
+
             # Redis 상태 확인 및 마스터 설정
             for i in {1..10}; do
               if docker exec lovekeeper-redis redis-cli ping | grep -q PONG; then
@@ -105,5 +106,5 @@ jobs:
               exit 1
             fi
           "
-          
+
           rm -f private_key.pem
