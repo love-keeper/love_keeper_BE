@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lovekeeper.domain.couple.dto.response.CountResponse;
+import com.example.lovekeeper.domain.couple.dto.response.CoupleInfoResponse;
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
@@ -40,7 +41,7 @@ public class CoupleQueryServiceImpl implements CoupleQueryService {
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
 		// 커플 시작일
-		return ChronoUnit.DAYS.between(couple.getStartedAt(), LocalDate.now()) + 1;
+		return getDays(couple.getStartedAt());
 
 	}
 
@@ -63,11 +64,29 @@ public class CoupleQueryServiceImpl implements CoupleQueryService {
 	}
 
 	@Override
-	public Boolean isCoupleConnected(Long memberId) {
-		coupleRepository.findByMemberId(memberId)
+	public CoupleInfoResponse getCoupleInfo(Long memberId) {
+		// 현재 사용자 조회
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 커플 조회
+		Couple couple = coupleRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
-		return true;
+		Member partner = couple.getPartner(currentMember);
+
+		return CoupleInfoResponse.of(
+			couple.getId(),
+			partner.getNickname(),
+			currentMember.getProfileImageUrl(),
+			partner.getProfileImageUrl(),
+			couple.getStartedAt(),
+			getDays(couple.getStartedAt())
+		);
+	}
+
+	private long getDays(LocalDate startDate) {
+		return ChronoUnit.DAYS.between(startDate, LocalDate.now()) + 1;
 	}
 
 }
