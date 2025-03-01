@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: DOCKER_USERNAME/lovekeeper-app:DOCKER_TAG  # 변수 자리표시자
+    image: DOCKER_USERNAME/lovekeeper-app:DOCKER_TAG
     container_name: lovekeeper-app
     ports:
       - "8080:8080"
@@ -14,10 +14,9 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/lovekeeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATA SOURCE_PASSWORD=ehdfprl77
+      - SPRING_DATASOURCE_PASSWORD=ehdfprl77  # 공백 제거
     restart: always
 
   redis:
@@ -40,7 +39,7 @@ services:
     container_name: lovekeeper-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ehdfprl77
-      MYSQL_DATABASE: lovekeeper
+      MYSQL_DATABASE: love_keeper
       MYSQL_USER: lovekeeper
       MYSQL_PASSWORD: ehdfprl77
     ports:
