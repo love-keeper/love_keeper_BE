@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
+import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.domain.promise.model.Promise;
@@ -106,7 +108,7 @@ public class Couple extends BaseEntity {
 	public void increasePromiseCount() {
 		this.promiseCount++;
 	}
-	
+
 	//== 연관 관계 메서드 ==//
 
 	public void reconnect() {
@@ -129,7 +131,7 @@ public class Couple extends BaseEntity {
 			return member2;
 		if (member2.equals(member))
 			return member1;
-		throw new IllegalArgumentException("Member is not part of this couple");
+		throw new CoupleException(CoupleErrorStatus.MEMBER_NOT_IN_COUPLE);
 	}
 
 	public void updateStartDate(LocalDate newStartDate) {
