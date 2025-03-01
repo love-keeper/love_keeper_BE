@@ -37,11 +37,21 @@ public class CoupleController {
 	private final CoupleCommandService coupleCommandService;
 
 	/**
+	 * 커플 정보 조회
+	 * - 인증 사용자 ID를 @AuthenticationPrincipal로 추출
+	 */
+	@GetMapping("/check")
+	public BaseResponse<Boolean> isCoupleConnected(@AuthenticationPrincipal CustomUserDetails userDetails) {
+		return BaseResponse.onSuccess(coupleQueryService.isCoupleConnected(userDetails.getMember().getId()));
+	}
+
+	/**
 	 * 초대 코드 생성
 	 * - RequestBody 없음 (JSON이 필요하면 DTO 추가)
 	 * - 인증 사용자 ID를 @AuthenticationPrincipal로 추출
 	 */
 	@PostMapping("/generate-code")
+
 	public BaseResponse<GenerateCodeResponse> generateInviteCode(
 		@AuthenticationPrincipal CustomUserDetails userDetails) {
 

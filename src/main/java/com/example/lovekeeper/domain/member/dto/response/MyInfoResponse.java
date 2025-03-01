@@ -26,8 +26,10 @@ public class MyInfoResponse {
 
 	private String profileImageUrl;
 
+	private String coupleNickname;
+
 	public static MyInfoResponse of(Long memberId, String nickname, LocalDate birthday, LocalDate relationshipStartDate,
-		String email, String profileImageUrl) {
+		String email, String profileImageUrl, String coupleNickname) {
 		return MyInfoResponse.builder()
 			.memberId(memberId)
 			.nickname(nickname)
@@ -35,6 +37,7 @@ public class MyInfoResponse {
 			.relationshipStartDate(relationshipStartDate)
 			.email(email)
 			.profileImageUrl(profileImageUrl)
+			.coupleNickname(coupleNickname)
 			.build();
 	}
 }

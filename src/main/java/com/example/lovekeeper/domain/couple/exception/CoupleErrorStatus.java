@@ -22,6 +22,7 @@ public enum CoupleErrorStatus implements BaseCodeInterface {
 	ALREADY_USED_INVITE_CODE(HttpStatus.BAD_REQUEST, "COUPLE008", "이미 사용된 초대 코드입니다."),
 	COUPLE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "COUPLE009", "이미 삭제된 커플입니다."),
 	COUPLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COUPLE010", "커플 생성에 실패했습니다."),
+	MEMBER_NOT_IN_COUPLE(HttpStatus.BAD_REQUEST, "COUPLE011", "커플에 속한 회원이 아닙니다."),
 
 	// 커플 상태 변경 관련 (COUPLE011 ~ COUPLE020)
 	INVALID_COUPLE_UPDATE(HttpStatus.BAD_REQUEST, "COUPLE011", "커플 상태 업데이트에 실패했습니다."),
