@@ -23,8 +23,7 @@ public class LetterQueryRepository {
 		return jpaQueryFactory
 			.select(Projections.constructor(DateCountResponse.class,
 				letter.sentDate,
-				letter.count()
-			))
+				letter.count()))
 			.from(letter)
 			.where(letter.couple.id.eq(coupleId)
 				.and(letter.sentDate.year().eq(year))
@@ -33,4 +32,48 @@ public class LetterQueryRepository {
 			.fetch();
 	}
 
+	public List<DateCountResponse> findLetterCountByCoupleAndSpecificDate(Long coupleId, int year, int month, int day) {
+		QLetter letter = QLetter.letter;
+
+		return jpaQueryFactory
+			.select(Projections.constructor(DateCountResponse.class,
+				letter.sentDate,
+				letter.count()))
+			.from(letter)
+			.where(letter.couple.id.eq(coupleId)
+				.and(letter.sentDate.year().eq(year))
+				.and(letter.sentDate.month().eq(month))
+				.and(letter.sentDate.dayOfMonth().eq(day)))
+			.groupBy(letter.sentDate)
+			.fetch();
+	}
+
+	public long findTotalLetterCountByCoupleAndYearMonth(Long coupleId, int year, int month) {
+		QLetter letter = QLetter.letter;
+
+		Long count = jpaQueryFactory
+			.select(letter.count())
+			.from(letter)
+			.where(letter.couple.id.eq(coupleId)
+				.and(letter.sentDate.year().eq(year))
+				.and(letter.sentDate.month().eq(month)))
+			.fetchOne();
+
+		return count != null ? count : 0;
+	}
+
+	public long findTotalLetterCountByCoupleAndSpecificDate(Long coupleId, int year, int month, int day) {
+		QLetter letter = QLetter.letter;
+
+		Long count = jpaQueryFactory
+			.select(letter.count())
+			.from(letter)
+			.where(letter.couple.id.eq(coupleId)
+				.and(letter.sentDate.year().eq(year))
+				.and(letter.sentDate.month().eq(month))
+				.and(letter.sentDate.dayOfMonth().eq(day)))
+			.fetchOne();
+
+		return count != null ? count : 0;
+	}
 }

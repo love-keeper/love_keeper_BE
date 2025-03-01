@@ -21,13 +21,13 @@ public class CalendarController {
 	private final CalendarQueryService calendarQueryService;
 
 	@GetMapping
-	public BaseResponse<CalendarResponse> getCalendarData(
+	public BaseResponse<CalendarResponse> getCalendarDataByYearAndMonth(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam int year,
-		@RequestParam int month
+		@RequestParam int month,
+		@RequestParam(required = false) Integer day // day는 선택적 파라미터로 설정
 	) {
 		return BaseResponse.onSuccess(
-			calendarQueryService.getCalendarDataForMember(userDetails.getMember().getId(), year, month));
+			calendarQueryService.getCalendarDataForMember(userDetails.getMember().getId(), year, month, day));
 	}
-
 }

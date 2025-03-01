@@ -27,19 +27,45 @@ public class CalendarQueryServiceImpl implements CalendarQueryService {
 	private final LetterQueryRepository letterQueryRepository;
 	private final PromiseQueryRepository promiseQueryRepository;
 
-	public CalendarResponse getCalendarDataForMember(Long memberId, int year, int month) {
+	@Override
+	public CalendarResponse getCalendarDataForMember(Long memberId, int year, int month, Integer day) {
 		// 1. 현재 로그인한 사용자가 속한 커플 조회
 		Couple couple = coupleRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
-		// 2. QueryDSL을 이용하여 편지 및 약속 개수 조회
-		List<DateCountResponse> letterDateCounts = letterQueryRepository.findLetterCountByCoupleAndYearMonth(
-			couple.getId(), year, month);
-		List<DateCountResponse> promiseDateCounts = promiseQueryRepository.findPromiseCountByCoupleAndYearMonth(
-			couple.getId(), year, month);
+		// 2. 편지 및 약속 개수 조회
+		List<DateCountResponse> letterDateCounts;
+		List<DateCountResponse> promiseDateCounts;
+		long totalLetterCount;
+		long totalPromiseCount;
+		long dailyLetterCount = 0;
+		long dailyPromiseCount = 0;
 
-		// 3. 응답 DTO 생성 후 반환
-		return CalendarResponse.of(letterDateCounts, promiseDateCounts);
+		if (day != null) {
+			// 특정 날짜에 대한 데이터 조회
+			letterDateCounts = letterQueryRepository.findLetterCountByCoupleAndSpecificDate(couple.getId(), year, month,
+				day);
+			promiseDateCounts = promiseQueryRepository.findPromiseCountByCoupleAndSpecificDate(couple.getId(), year,
+				month, day);
+			// 특정 날짜의 총 개수 계산
+			dailyLetterCount = letterQueryRepository.findTotalLetterCountByCoupleAndSpecificDate(couple.getId(), year,
+				month, day);
+			dailyPromiseCount = promiseQueryRepository.findTotalPromiseCountByCoupleAndSpecificDate(couple.getId(),
+				year, month, day);
+		} else {
+			// 전체 월 데이터 조회
+			letterDateCounts = letterQueryRepository.findLetterCountByCoupleAndYearMonth(couple.getId(), year, month);
+			promiseDateCounts = promiseQueryRepository.findPromiseCountByCoupleAndYearMonth(couple.getId(), year,
+				month);
+		}
+
+		// 3. 해당 월의 총 편지와 약속 개수 계산
+		totalLetterCount = letterQueryRepository.findTotalLetterCountByCoupleAndYearMonth(couple.getId(), year, month);
+		totalPromiseCount = promiseQueryRepository.findTotalPromiseCountByCoupleAndYearMonth(couple.getId(), year,
+			month);
+
+		// 4. 응답 DTO 생성 후 반환
+		return CalendarResponse.of(letterDateCounts, promiseDateCounts, totalLetterCount, totalPromiseCount,
+			dailyLetterCount, dailyPromiseCount);
 	}
 }
-
