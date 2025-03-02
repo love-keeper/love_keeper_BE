@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class FCMServiceImpl implements FCMService {
 
