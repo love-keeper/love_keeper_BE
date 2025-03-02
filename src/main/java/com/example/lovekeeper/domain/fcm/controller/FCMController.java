@@ -1,8 +1,11 @@
 package com.example.lovekeeper.domain.fcm.api;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.fcm.dto.request.FCMTokenRequest;
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
 import com.example.lovekeeper.global.common.BaseResponse;
 import com.example.lovekeeper.global.infrastructure.service.fcm.FCMService;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
@@ -41,4 +45,15 @@ public class FCMController {
 		fcmService.removeToken(request.getToken());
 		return BaseResponse.onSuccess("FCM 토큰이 삭제되었습니다.");
 	}
+
+	@GetMapping("/notifications")
+	@ResponseStatus(HttpStatus.OK)
+	public BaseResponse<List<PushNotificationResponse>> getPushNotificationList(
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		List<PushNotificationResponse> notifications = fcmService.getPushNotificationList(
+			userDetails.getMember().getId());
+		return BaseResponse.onSuccess(notifications);
+	}
+
 }
