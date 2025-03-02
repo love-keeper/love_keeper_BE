@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
 import com.example.lovekeeper.domain.fcm.model.FCMToken;
+import com.example.lovekeeper.domain.fcm.model.PushNotification;
 import com.example.lovekeeper.domain.fcm.repository.FCMTokenRepository;
 import com.example.lovekeeper.domain.fcm.repository.PushNotificationRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
@@ -68,15 +69,11 @@ public class FCMServiceImpl implements FCMService {
 		}
 
 		for (FCMToken token : tokens) {
-			sendSingleNotification(token, memberId, title, body, System.currentTimeMillis());
+			sendSingleNotification(token, memberId, title, body, timestamp);
 		}
 	}
 
-	/**
-	 * 단일 토큰에 대한 푸시 알림 전송
-	 */
-	private void sendSingleNotification(FCMToken token, Long memberId, String title, String body,
-		Long letterTimestamp) {
+	private void sendSingleNotification(FCMToken token, Long memberId, String title, String body, Long timestamp) {
 		try {
 			Message message = Message.builder()
 				.setToken(token.getToken())
@@ -85,23 +82,29 @@ public class FCMServiceImpl implements FCMService {
 					.setBody(body)
 					.build())
 				.putData("memberId", String.valueOf(memberId))
-				.putData("time", String.valueOf(letterTimestamp))
+				.putData("time", String.valueOf(timestamp))
 				.build();
 
 			String response = FirebaseMessaging.getInstance().send(message);
 			log.info("Successfully sent message to token {}: {}", token.getToken(), response);
+
+			Member member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+			PushNotification notification = PushNotification.builder()
+				.member(member)
+				.title(title)
+				.body(body)
+				.sentAt(LocalDateTime.now())
+				.build();
+			pushNotificationRepository.save(notification);
 
 		} catch (FirebaseMessagingException e) {
 			handleMessagingException(token, e);
 		}
 	}
 
-	/**
-	 * Firebase 메시징 예외 처리
-	 */
 	private void handleMessagingException(FCMToken token, FirebaseMessagingException e) {
 		if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
-			// 토큰이 더 이상 유효하지 않은 경우 삭제
 			log.warn("Token {} is no longer valid, removing it", token.getToken());
 			removeToken(token.getToken());
 		} else {
