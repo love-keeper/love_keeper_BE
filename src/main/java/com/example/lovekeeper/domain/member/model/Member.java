@@ -27,7 +27,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -67,8 +66,9 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Letter> receivedLetters = new ArrayList<>();
 
-	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Draft draft;
+	@Builder.Default
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Draft> draft = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
