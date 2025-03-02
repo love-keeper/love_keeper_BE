@@ -1,5 +1,9 @@
 package com.example.lovekeeper.global.infrastructure.service.fcm;
 
+import java.util.List;
+
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
+
 public interface FCMService {
 	/**
 	 * FCM 토큰 저장
@@ -21,4 +25,9 @@ public interface FCMService {
 	 * @param body 알림 내용
 	 */
 	void sendPushNotification(Long memberId, String title, String body, Long timestamp);
+
+	/**
+	 * 푸시 알림 리스트 가져오기
+	 */
+	List<PushNotificationResponse> getPushNotificationList(Long memberId);
 }
