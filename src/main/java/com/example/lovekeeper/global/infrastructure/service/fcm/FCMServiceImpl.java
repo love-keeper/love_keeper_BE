@@ -1,12 +1,16 @@
 package com.example.lovekeeper.global.infrastructure.service.fcm;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
 import com.example.lovekeeper.domain.fcm.model.FCMToken;
 import com.example.lovekeeper.domain.fcm.repository.FCMTokenRepository;
+import com.example.lovekeeper.domain.fcm.repository.PushNotificationRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
@@ -27,6 +31,7 @@ public class FCMServiceImpl implements FCMService {
 
 	private final FCMTokenRepository fcmTokenRepository;
 	private final MemberRepository memberRepository;
+	private final PushNotificationRepository pushNotificationRepository;
 
 	@Override
 	@Transactional
@@ -101,6 +106,47 @@ public class FCMServiceImpl implements FCMService {
 			removeToken(token.getToken());
 		} else {
 			log.error("Failed to send message to token {}", token.getToken(), e);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<PushNotificationResponse> getPushNotificationList(Long memberId) {
+		return pushNotificationRepository.findAllByMemberIdOrderBySentAtDesc(memberId)
+			.stream()
+			.map(notif -> PushNotificationResponse.builder()
+				.id(notif.getId())
+				.title(notif.getTitle())
+				.body(notif.getBody())
+				.relativeTime(calculateRelativeTime(notif.getSentAt()))
+				.build())
+			.toList();
+	}
+
+	// 상대 시간 계산 메서드
+	private String calculateRelativeTime(LocalDateTime sentAt) {
+		LocalDateTime now = LocalDateTime.now();
+		Duration duration = Duration.between(sentAt, now);
+
+		long seconds = duration.getSeconds();
+		long minutes = seconds / 60;
+		long hours = minutes / 60;
+		long days = hours / 24;
+
+		if (seconds < 60) {
+			return seconds + "초 전";
+		} else if (minutes < 60) {
+			return minutes + "분 전";
+		} else if (hours < 24) {
+			return hours + "시간 전";
+		} else if (days < 30) {
+			return days + "일 전";
+		} else if (days < 365) {
+			long months = days / 30;
+			return months + "개월 전";
+		} else {
+			long years = days / 365;
+			return years + "년 전";
 		}
 	}
 }
