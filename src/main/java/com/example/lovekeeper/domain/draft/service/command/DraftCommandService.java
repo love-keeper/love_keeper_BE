@@ -11,6 +11,7 @@ public interface DraftCommandService {
 	 */
 	void saveDraft(Long memberId, SaveDraftRequest request);
 
+	void deleteDraft(Long memberId, int order);
 }
 
 

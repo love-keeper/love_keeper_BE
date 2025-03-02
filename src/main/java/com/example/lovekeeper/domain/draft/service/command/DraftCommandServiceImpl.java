@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lovekeeper.domain.draft.dto.request.SaveDraftRequest;
+import com.example.lovekeeper.domain.draft.exception.DraftErrorStatus;
 import com.example.lovekeeper.domain.draft.model.Draft;
 import com.example.lovekeeper.domain.draft.repository.DraftRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
@@ -48,5 +49,16 @@ public class DraftCommandServiceImpl implements DraftCommandService {
 
 		log.info("saveDraft success");
 
+	}
+
+	@Override
+	public void deleteDraft(Long memberId, int order) {
+
+		Draft draft = draftRepository.findByMemberIdAndDraftOrder(memberId, order);
+		if (draft == null) {
+			throw new MemberException(DraftErrorStatus.DRAFT_NOT_FOUND);
+		}
+
+		draftRepository.delete(draft);
 	}
 }

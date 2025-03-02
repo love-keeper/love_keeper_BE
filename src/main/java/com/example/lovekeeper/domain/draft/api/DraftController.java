@@ -1,6 +1,7 @@
 package com.example.lovekeeper.domain.draft.api;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,5 +62,15 @@ public class DraftController {
 
 		draftCommandService.saveDraft(memberId, request);
 		return BaseResponse.onSuccess("편지가 임시 저장되었습니다.");
+	}
+
+	@DeleteMapping("/{order}")
+	public BaseResponse<String> deleteDraft(
+		@PathVariable int order,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		Long memberId = userDetails.getMember().getId();
+		draftCommandService.deleteDraft(memberId, order);
+		return BaseResponse.onSuccess("편지가 삭제되었습니다.");
 	}
 }
