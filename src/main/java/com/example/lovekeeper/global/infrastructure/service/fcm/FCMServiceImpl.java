@@ -100,7 +100,10 @@ public class FCMServiceImpl implements FCMService {
 			pushNotificationRepository.save(notification);
 
 		} catch (FirebaseMessagingException e) {
+			log.error("Failed to send message to token {}: {}", token.getToken(), e.getMessage());
 			handleMessagingException(token, e);
+		} catch (Exception e) {
+			log.error("Unexpected error while sending notification to token {}: {}", token.getToken(), e.getMessage());
 		}
 	}
 
@@ -109,7 +112,9 @@ public class FCMServiceImpl implements FCMService {
 			log.warn("Token {} is no longer valid, removing it", token.getToken());
 			removeToken(token.getToken());
 		} else {
-			log.error("Failed to send message to token {}", token.getToken(), e);
+			log.error("Failed to send message to token {}: {}", token.getToken(), e.getMessage());
+			// 추가적인 디버깅 정보 출력
+			log.error("Error details: {}", e.getCause() != null ? e.getCause().getMessage() : "No cause available");
 		}
 	}
 
