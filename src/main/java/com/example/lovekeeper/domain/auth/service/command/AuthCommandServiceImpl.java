@@ -52,6 +52,11 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 			throw new MemberException(MemberErrorStatus.DUPLICATE_EMAIL);
 		}
 
+		// 필수 동의 항목 검증
+		if (!signUpRequest.isPrivacyPolicyAgreed() || !signUpRequest.isTermsOfServiceAgreed()) {
+			throw new AuthException(AuthErrorStatus.CONSENT_REQUIRED);
+		}
+
 		String uploadedImageUrl = null;
 		try {
 			if (signUpRequest.getProfileImage() != null) {
@@ -70,12 +75,14 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 			// 새로운 멤버 생성
 			member = Member.createLocalMember(signUpRequest.getEmail(), encodedPassword, signUpRequest.getNickname(),
 				signUpRequest.getBirthDate(), uploadedImageUrl, signUpRequest.getProvider(),
-				signUpRequest.getProviderId());
+				signUpRequest.getProviderId(), signUpRequest.isPrivacyPolicyAgreed(),
+				signUpRequest.isMarketingAgreed(), signUpRequest.isTermsOfServiceAgreed());
 		} else {
 			// 새로운 멤버 생성
 			member = Member.createSocialMember(signUpRequest.getEmail(), signUpRequest.getNickname(),
 				signUpRequest.getBirthDate(), uploadedImageUrl, signUpRequest.getProvider(),
-				signUpRequest.getProviderId());
+				signUpRequest.getProviderId(), signUpRequest.isPrivacyPolicyAgreed(),
+				signUpRequest.isMarketingAgreed(), signUpRequest.isTermsOfServiceAgreed());
 		}
 
 		// 멤버 저장
