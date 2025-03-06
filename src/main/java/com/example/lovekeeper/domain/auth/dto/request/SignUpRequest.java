@@ -32,8 +32,14 @@ public class SignUpRequest {
 
 	private String providerId;
 
+	private boolean privacyPolicyAgreed; // 개인 정보 처리 방침 동의
+	private boolean marketingAgreed;     // 마케팅 정보 수신 동의
+	private boolean termsOfServiceAgreed; // 서비스 이용 약관 동의
+
 	public static SignUpRequest of(String email, String password, String nickname, LocalDate birthDate,
-		MultipartFile profileImage, Provider provider, String providerId) {
+		MultipartFile profileImage, Provider provider, String providerId, boolean privacyPolicyAgreed,
+		boolean marketingAgreed,
+		boolean termsOfServiceAgreed) {
 		return SignUpRequest.builder()
 			.email(email)
 			.password(password)
@@ -42,6 +48,9 @@ public class SignUpRequest {
 			.profileImage(profileImage)
 			.provider(provider)
 			.providerId(providerId)
+			.privacyPolicyAgreed(privacyPolicyAgreed)
+			.marketingAgreed(marketingAgreed)
+			.termsOfServiceAgreed(termsOfServiceAgreed)
 			.build();
 	}
 

@@ -87,11 +87,16 @@ public class AuthController {
 		@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthDate,
 		@RequestParam(required = false) MultipartFile profileImage,
 		@RequestParam Provider provider, // 필수임.
-		@RequestParam(required = false) String providerId // (Local 회원가입 시 필수가 아님)
+		@RequestParam(required = false) String providerId, // (Local 회원가입 시 필수가 아님)
+		@RequestParam boolean privacyPolicyAgreed,     // 동의 항목 추가
+		@RequestParam boolean marketingAgreed,         // 동의 항목 추가
+		@RequestParam boolean termsOfServiceAgreed     // 동의 항목 추가
 	) {
 
 		return BaseResponse.onSuccessCreate(authCommandService.signUpMember(
-			SignUpRequest.of(email, password, nickname, birthDate, profileImage, provider, providerId)));
+			SignUpRequest.of(email, password, nickname, birthDate, profileImage, provider, providerId,
+				privacyPolicyAgreed,
+				marketingAgreed, termsOfServiceAgreed)));
 	}
 
 	/**
