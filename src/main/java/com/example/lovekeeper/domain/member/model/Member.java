@@ -1,6 +1,7 @@
 package com.example.lovekeeper.domain.member.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -103,9 +104,18 @@ public class Member extends BaseEntity {
 
 	private String providerId;
 
+	private boolean privacyPolicyAgreed; // 개인 정보 처리 방침 동의
+
+	private boolean marketingAgreed; // 마케팅 정보 수신 동의
+
+	private boolean termsOfServiceAgreed; // 서비스 이용 약관 동의
+
+	private LocalDateTime consentAgreedAt; // 동의한 시간
+
 	//==생성 메서드==//
 	public static Member createLocalMember(String email, String password, String nickname, LocalDate birthDate,
-		String profileImageUrl, Provider provider, String providerId) {
+		String profileImageUrl, Provider provider, String providerId, boolean privacyPolicyAgreed,
+		boolean marketingAgreed, boolean termsOfServiceAgreed) {
 		return Member.builder()
 			.email(email)
 			.password(password)
@@ -113,11 +123,16 @@ public class Member extends BaseEntity {
 			.birthDay(birthDate)
 			.profileImageUrl(profileImageUrl)
 			.provider(provider)
+			.privacyPolicyAgreed(privacyPolicyAgreed)
+			.marketingAgreed(marketingAgreed)
+			.termsOfServiceAgreed(termsOfServiceAgreed)
+			.consentAgreedAt(LocalDateTime.now()) // 동의 시점 기록
 			.build();
 	}
 
 	public static Member createSocialMember(String email, String nickname, LocalDate birthDate, String profileImageUrl,
-		Provider provider, String providerId) {
+		Provider provider, String providerId, boolean privacyPolicyAgreed, boolean marketingAgreed,
+		boolean termsOfServiceAgreed) {
 		return Member.builder()
 			.email(email)
 			.nickname(nickname)
@@ -125,6 +140,10 @@ public class Member extends BaseEntity {
 			.profileImageUrl(profileImageUrl)
 			.provider(provider)
 			.providerId(providerId)
+			.privacyPolicyAgreed(privacyPolicyAgreed)
+			.marketingAgreed(marketingAgreed)
+			.termsOfServiceAgreed(termsOfServiceAgreed)
+			.consentAgreedAt(LocalDateTime.now()) // 동의 시점 기록
 			.build();
 	}
 
