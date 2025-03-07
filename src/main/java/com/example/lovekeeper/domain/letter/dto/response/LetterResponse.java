@@ -1,5 +1,6 @@
 package com.example.lovekeeper.domain.letter.dto.response;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,12 +48,14 @@ public class LetterResponse {
 		private String senderNickname;
 		private String receiverNickname;
 		private String content;
+		private LocalDate sentDate;
 
 		public static LetterDetailResponse from(Letter letter) {
 			return LetterDetailResponse.builder()
 				.senderNickname(letter.getSender().getNickname())
 				.receiverNickname(letter.getReceiver().getNickname())
 				.content(letter.getContent())
+				.sentDate(letter.getSentDate())
 				.build();
 		}
 
