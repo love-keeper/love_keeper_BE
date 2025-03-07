@@ -2,14 +2,13 @@ package com.example.lovekeeper.domain.fcm.api;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.fcm.dto.request.FCMTokenRequest;
@@ -28,7 +27,6 @@ public class FCMController {
 	private final FCMService fcmService;
 
 	@PostMapping("/token")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> registerToken(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody FCMTokenRequest request
@@ -38,7 +36,6 @@ public class FCMController {
 	}
 
 	@DeleteMapping("/token")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<String> removeToken(
 		@RequestBody FCMTokenRequest request
 	) {
@@ -47,13 +44,22 @@ public class FCMController {
 	}
 
 	@GetMapping("/notifications")
-	@ResponseStatus(HttpStatus.OK)
 	public BaseResponse<List<PushNotificationResponse>> getPushNotificationList(
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		List<PushNotificationResponse> notifications = fcmService.getPushNotificationList(
 			userDetails.getMember().getId());
 		return BaseResponse.onSuccess(notifications);
+	}
+
+	@PostMapping("/read/{notificationId}")
+	public BaseResponse<String> readPushNotification(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long notificationId
+
+	) {
+		fcmService.readPushNotification(userDetails.getMember().getId(), notificationId);
+		return BaseResponse.onSuccess("알림을 읽었습니다.");
 	}
 
 }

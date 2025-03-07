@@ -15,4 +15,15 @@ public class PushNotificationResponse {
 	private String title;
 	private String body;
 	private String relativeTime; // "1일 전" 같은 형식
+	private boolean isRead;
+
+	public static PushNotificationResponse of(Long id, String title, String body, String relativeTime, boolean isRead) {
+		return PushNotificationResponse.builder()
+			.id(id)
+			.title(title)
+			.body(body)
+			.relativeTime(relativeTime)
+			.isRead(isRead)
+			.build();
+	}
 }

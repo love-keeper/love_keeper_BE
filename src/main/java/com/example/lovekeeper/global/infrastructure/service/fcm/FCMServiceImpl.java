@@ -123,13 +123,27 @@ public class FCMServiceImpl implements FCMService {
 	public List<PushNotificationResponse> getPushNotificationList(Long memberId) {
 		return pushNotificationRepository.findAllByMemberIdOrderBySentAtDesc(memberId)
 			.stream()
-			.map(notif -> PushNotificationResponse.builder()
-				.id(notif.getId())
-				.title(notif.getTitle())
-				.body(notif.getBody())
-				.relativeTime(calculateRelativeTime(notif.getSentAt()))
-				.build())
+			.map(notif -> PushNotificationResponse.of(
+				notif.getId(),
+				notif.getTitle(),
+				notif.getBody(),
+				calculateRelativeTime(notif.getSentAt()),
+				notif.isRead(
+				)))
 			.toList();
+	}
+
+	@Override
+	public void readPushNotification(Long id, Long notificationId) {
+		PushNotification notification = pushNotificationRepository.findById(notificationId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.NOTIFICATION_NOT_FOUND));
+
+		if (!notification.getMember().getId().equals(id)) {
+			throw new MemberException(MemberErrorStatus.NOTIFICATION_NOT_FOUND);
+		}
+
+		notification.read();
+		pushNotificationRepository.save(notification);
 	}
 
 	// 상대 시간 계산 메서드
