@@ -30,4 +30,7 @@ public interface FCMService {
 	 * 푸시 알림 리스트 가져오기
 	 */
 	List<PushNotificationResponse> getPushNotificationList(Long memberId);
+
+	void readPushNotification(Long id, Long notificationId);
+
 }
