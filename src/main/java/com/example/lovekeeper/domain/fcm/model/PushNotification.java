@@ -7,7 +7,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.member.model.Member;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -40,13 +39,21 @@ public class PushNotification {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
-	@Column(nullable = false)
 	private String title;
 
-	@Column(nullable = false)
 	private String body;
 
-	@Column(nullable = false)
 	private LocalDateTime sentAt;
+
+	private boolean isRead;
+
+	//== 비즈니스 로직 ==//
+
+	/**
+	 * 푸시 알림을 읽음 처리
+	 */
+	public void read() {
+		this.isRead = true;
+	}
 
 }

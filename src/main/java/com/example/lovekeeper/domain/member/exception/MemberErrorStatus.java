@@ -56,9 +56,11 @@ public enum MemberErrorStatus implements BaseCodeInterface {
 	// 초대 코드 관련 (MEMBER051 ~ MEMBER060)
 	INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER051", "유효하지 않은 초대 코드입니다."),
 	EXPIRED_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER052", "만료된 초대 코드입니다."),
-	ALREADY_USED_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER053", "이미 사용된 초대 코드입니다.");
+	ALREADY_USED_INVITE_CODE(HttpStatus.BAD_REQUEST, "MEMBER053", "이미 사용된 초대 코드입니다."),
 
-	//
+	// 노티 관련
+	NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER061", "알림을 찾을 수 없습니다."),
+	;
 
 	private final HttpStatus httpStatus;
 	private final boolean isSuccess = false;
