@@ -4,9 +4,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationListResponse;
 import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
 import com.example.lovekeeper.domain.fcm.model.FCMToken;
 import com.example.lovekeeper.domain.fcm.model.PushNotification;
@@ -120,17 +123,21 @@ public class FCMServiceImpl implements FCMService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<PushNotificationResponse> getPushNotificationList(Long memberId) {
-		return pushNotificationRepository.findAllByMemberIdOrderBySentAtDesc(memberId)
-			.stream()
-			.map(notif -> PushNotificationResponse.of(
-				notif.getId(),
-				notif.getTitle(),
-				notif.getBody(),
-				calculateRelativeTime(notif.getSentAt()),
-				notif.isRead(
-				)))
-			.toList();
+	public PushNotificationListResponse getPushNotificationList(Long memberId, Pageable pageable) {
+		Slice<PushNotification> notifications = pushNotificationRepository.findAllByMemberId(memberId, pageable);
+		Slice<PushNotificationResponse> responseSlice = notifications.map(notif -> PushNotificationResponse.of(
+			notif.getId(),
+			notif.getTitle(),
+			notif.getBody(),
+			calculateRelativeTime(notif.getSentAt()),
+			notif.isRead()
+		));
+
+		// 지금까지 가져온 총 데이터 수 계산 (페이지 번호와 크기를 기반으로 단순 계산)
+		long totalElementsFetched =
+			(long)pageable.getPageNumber() * pageable.getPageSize() + responseSlice.getNumberOfElements();
+
+		return PushNotificationListResponse.fromSlice(responseSlice, totalElementsFetched);
 	}
 
 	@Override

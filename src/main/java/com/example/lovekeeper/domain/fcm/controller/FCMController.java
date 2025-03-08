@@ -1,7 +1,8 @@
 package com.example.lovekeeper.domain.fcm.api;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lovekeeper.domain.fcm.dto.request.FCMTokenRequest;
-import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationListResponse;
 import com.example.lovekeeper.global.common.BaseResponse;
 import com.example.lovekeeper.global.infrastructure.service.fcm.FCMService;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
@@ -44,12 +45,13 @@ public class FCMController {
 	}
 
 	@GetMapping("/notifications")
-	public BaseResponse<List<PushNotificationResponse>> getPushNotificationList(
-		@AuthenticationPrincipal CustomUserDetails userDetails
+	public BaseResponse<PushNotificationListResponse> getPushNotificationList(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PageableDefault(size = 10, sort = "sentAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		List<PushNotificationResponse> notifications = fcmService.getPushNotificationList(
-			userDetails.getMember().getId());
-		return BaseResponse.onSuccess(notifications);
+		PushNotificationListResponse response = fcmService.getPushNotificationList(
+			userDetails.getMember().getId(), pageable);
+		return BaseResponse.onSuccess(response);
 	}
 
 	@PostMapping("/read/{notificationId}")
