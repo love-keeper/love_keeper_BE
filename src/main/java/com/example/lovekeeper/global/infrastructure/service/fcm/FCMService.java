@@ -1,8 +1,8 @@
 package com.example.lovekeeper.global.infrastructure.service.fcm;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
-import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationResponse;
+import com.example.lovekeeper.domain.fcm.dto.response.PushNotificationListResponse;
 
 public interface FCMService {
 	/**
@@ -29,7 +29,7 @@ public interface FCMService {
 	/**
 	 * 푸시 알림 리스트 가져오기
 	 */
-	List<PushNotificationResponse> getPushNotificationList(Long memberId);
+	PushNotificationListResponse getPushNotificationList(Long memberId, Pageable pageable);
 
 	void readPushNotification(Long id, Long notificationId);
 
