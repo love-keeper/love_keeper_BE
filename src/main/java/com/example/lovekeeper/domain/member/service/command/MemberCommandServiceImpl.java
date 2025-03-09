@@ -127,6 +127,19 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		log.info("회원 탈퇴 처리 완료 - memberId: {}", memberId);
 	}
 
+	// Presigned URL 생성
+	public String getProfileImagePresignedUrl(String fileName) {
+		return s3Service.generatePresignedUrl(fileName);
+	}
+
+	// 업로드 완료 후 URL 저장 (클라이언트가 업로드 후 호출할 수 있는 메서드)
+	public void saveProfileImageUrl(Long memberId, String imageUrl) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+		member.updateProfileImageUrl(imageUrl);
+		log.info("프로필 이미지 URL 저장 완료 - memberId: {}, url: {}", memberId, imageUrl);
+	}
+
 	@Override
 	public void updateProfileImage(Long memberId, MultipartFile profileImage) {
 		try {
@@ -145,6 +158,15 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		} catch (IOException e) {
 			throw new BaseException(GlobalErrorStatus._S3_UPLOAD_ERROR);
 		}
+	}
+
+	// Presigned URL로 업로드 후 프로필 이미지 업데이트
+	@Override
+	public void updateProfileImage(Long memberId, String imageUrl) {
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+		currentMember.updateProfileImageUrl(imageUrl);
+		log.info("프로필 이미지 URL 업데이트 완료 - memberId: {}, imageUrl: {}", memberId, imageUrl);
 	}
 
 	@Override
