@@ -27,7 +27,13 @@ public interface MemberCommandService {
 	 */
 	void withdrawMember(Long memberId);
 
+	String getProfileImagePresignedUrl(String fileName);
+
+	void saveProfileImageUrl(Long memberId, String imageUrl);
+
 	void updateProfileImage(Long memberId, MultipartFile profileImage);
+
+	void updateProfileImage(Long memberId, String imageUrl);
 
 	ChangeNicknameResponse changeNickname(Long memberId, String nickname);
 
