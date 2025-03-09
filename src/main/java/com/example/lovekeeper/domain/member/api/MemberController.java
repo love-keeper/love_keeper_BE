@@ -26,10 +26,12 @@ import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.service.command.MemberCommandService;
 import com.example.lovekeeper.global.common.BaseResponse;
+import com.example.lovekeeper.global.infrastructure.service.s3.S3Service;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +44,7 @@ public class MemberController {
 
 	private final MemberCommandService memberCommandService;
 	private final EmailAuthCommandService emailAuthCommandService;
+	private final S3Service s3Service;
 
 	/**
 	 * 내 프로필 정보
@@ -132,13 +135,71 @@ public class MemberController {
 		return BaseResponse.onSuccess("비밀번호 변경 성공");
 	}
 
+	/**
+	 * Multipart file을 직접 업로드.
+	 * @param userDetails
+	 * @param profileImage
+	 * @return
+	 */
 	@PatchMapping(value = "/profileImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public BaseResponse<String> updateProfileImage(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestParam MultipartFile profileImage) {
+		log.info("[MultipartFile Upload] Start - memberId: {}", userDetails.getMember().getId());
+		long startTime = System.currentTimeMillis(); // 시작 시간 기록
+
 		memberCommandService.updateProfileImage(userDetails.getMember().getId(), profileImage);
 
+		long endTime = System.currentTimeMillis(); // 종료 시간 기록
+		long duration = endTime - startTime; // 소요 시간 계산
+		log.info("[MultipartFile Upload] End - memberId: {}, Duration: {}ms", userDetails.getMember().getId(),
+			duration);
+
 		return BaseResponse.onSuccess("프로필 이미지가 변경되었습니다.");
+	}
+
+	/**
+	 * Presigned Url 방식으로 프로필 사진을 업로드
+	 * @param userDetails
+	 * @param fileName
+	 * @return
+	 */
+	@GetMapping("/profileImage/presigned-url")
+	public BaseResponse<String> getProfileImagePresignedUrl(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam @NotBlank String fileName // 클라이언트가 업로드할 파일명 제공
+	) {
+		log.info("[Presigned URL] Generation Start - memberId: {}, fileName: {}", userDetails.getMember().getId(),
+			fileName);
+		long startTime = System.currentTimeMillis();
+
+		String presignedUrl = s3Service.generatePresignedUrl(fileName);
+
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		log.info("[Presigned URL] Generation End - memberId: {}, Duration: {}ms", userDetails.getMember().getId(),
+			duration);
+
+		return BaseResponse.onSuccess(presignedUrl);
+	}
+
+	@PatchMapping("/profileImage/update-url")
+	public BaseResponse<String> updateProfileImageUrl(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestParam @NotBlank String imageUrl // 클라이언트가 S3에 업로드한 후 받은 URL
+	) {
+		log.info("[Presigned URL] Update Start - memberId: {}, imageUrl: {}", userDetails.getMember().getId(),
+			imageUrl);
+		long startTime = System.currentTimeMillis();
+
+		memberCommandService.updateProfileImage(userDetails.getMember().getId(), imageUrl);
+
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		log.info("[Presigned URL] Update End - memberId: {}, Duration: {}ms", userDetails.getMember().getId(),
+			duration);
+
+		return BaseResponse.onSuccess("프로필 이미지가 업데이트되었습니다.");
 	}
 
 	@DeleteMapping
