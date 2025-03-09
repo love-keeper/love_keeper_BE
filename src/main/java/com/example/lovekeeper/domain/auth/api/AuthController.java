@@ -85,7 +85,7 @@ public class AuthController {
 		String password, // 비밀번호는 필수가 아님
 		@RequestParam @Size(min = 2, max = 10) String nickname,
 		@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthDate,
-		@RequestParam(required = false) MultipartFile profileImage,
+		@RequestParam(required = false) MultipartFile profileImage,  // 파일 이름만 전달받음
 		@RequestParam Provider provider, // 필수임.
 		@RequestParam(required = false) String providerId, // (Local 회원가입 시 필수가 아님)
 		@RequestParam boolean privacyPolicyAgreed,     // 동의 항목 추가
