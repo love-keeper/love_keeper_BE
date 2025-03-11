@@ -1,5 +1,8 @@
 package com.example.lovekeeper.domain.promise.service.command;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +45,11 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 
 		log.info("약속을 생성합니다.");
 
+		LocalDate promisedAt = LocalDate.now();
+		LocalDateTime createdAtEstimate = LocalDateTime.now();
+		log.info("Creating promise - promisedAt: {}, estimated createdAt: {}, timezone: {}",
+			promisedAt, createdAtEstimate, java.time.ZoneId.systemDefault());
+		
 		// 약속 생성
 		promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
 
@@ -54,7 +62,7 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		fcmService.sendPushNotification(
 			partner.getId(),
 			String.valueOf(currentCouple.getPromiseCount()) + " 번째 약속이 정해졌어요.",
-			"약속이 생성되었습니다.",
+			"새로운 약속이 등록되었어요",
 			System.currentTimeMillis()
 		);
 

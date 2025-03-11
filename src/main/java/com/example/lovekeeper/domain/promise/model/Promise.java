@@ -58,6 +58,7 @@ public class Promise extends BaseEntity {
 			.couple(couple)
 			.member(member)
 			.content(content)
+			.promisedAt(LocalDate.now())
 			.build();
 
 		// 연관 관계 설정
