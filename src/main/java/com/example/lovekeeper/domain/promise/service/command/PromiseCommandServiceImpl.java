@@ -54,7 +54,7 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		fcmService.sendPushNotification(
 			partner.getId(),
 			String.valueOf(currentCouple.getPromiseCount()) + " 번째 약속이 정해졌어요.",
-			"약속이 생성되었습니다.",
+			"새로운 약속이 등록되었어요",
 			System.currentTimeMillis()
 		);
 
