@@ -2,6 +2,8 @@ package com.example.lovekeeper.domain.fcm.dto.response;
 
 import java.util.List;
 
+import org.springframework.data.domain.Slice;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +22,7 @@ public class PushNotificationListResponse {
 	private long totalElementsFetched; // 지금까지 가져온 총 데이터 수 (선택적, 프론트에서 상태 관리에 유용)
 
 	public static PushNotificationListResponse fromSlice(
-		org.springframework.data.domain.Slice<PushNotificationResponse> slice,
+		Slice<PushNotificationResponse> slice,
 		long totalElementsFetched
 	) {
 		return PushNotificationListResponse.builder()
