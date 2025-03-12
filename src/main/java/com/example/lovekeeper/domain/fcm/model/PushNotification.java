@@ -6,6 +6,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.example.lovekeeper.domain.member.model.Member;
+import com.example.lovekeeper.global.common.BaseEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "push_notification")
-public class PushNotification {
+public class PushNotification extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +44,8 @@ public class PushNotification {
 
 	private String body;
 
-	private LocalDateTime sentAt;
+	@Builder.Default
+	private LocalDateTime sentAt = LocalDateTime.now();
 
 	private boolean isRead;
 
