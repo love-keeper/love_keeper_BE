@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Schema(description = "임시 저장된 편지 응답")
+@Schema(description = "임시 저장된 편지 응답 DTO")
 public class DraftResponse {
 
-	@Schema(description = "임시 저장된 편지의 순서")
+	@Schema(description = "임시 저장된 편지의 순서 (1~4)", example = "1", required = true)
 	private int order;
 
-	@Schema(description = "임시 저장된 편지의 내용")
+	@Schema(description = "임시 저장된 편지의 내용", example = "미안해...", required = true)
 	private String content;
 
 	public static DraftResponse of(Draft draft) {

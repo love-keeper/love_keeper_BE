@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Schema(description = "변경된 생일 응답")
+@Schema(description = "생일 변경 응답 DTO")
 public class ChangeBirthdayResponse {
 
-	@Schema(description = "변경된 생일", example = "1999-01-01")
+	@Schema(description = "변경된 생일 (yyyy-MM-dd)", example = "1999-01-01", required = true)
 	private LocalDate birthday;
 
 	public static ChangeBirthdayResponse of(LocalDate birthday) {
