@@ -8,17 +8,16 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 
 @Getter
-@Schema(description = "이메일 변경 요청")
+@Schema(description = "이메일 변경 요청 DTO")
 public class ChangeEmailRequest {
 
-	@Schema(description = "변경할 이메일", example = "qkrehdrb0813@gmail.com")
+	@Schema(description = "변경할 새 이메일", example = "qkrehdrb0813@gmail.com", required = true)
 	@Email(message = "이메일 형식이 올바르지 않습니다.")
 	@NotEmpty(message = "이메일을 입력해주세요.")
 	@UniqueEmail
 	private String email;
 
-	@Schema(description = "인증 코드", example = "123456")
+	@Schema(description = "인증 코드", example = "123456", required = true)
 	@NotEmpty(message = "인증 코드를 입력해주세요.")
 	private String code;
-
 }

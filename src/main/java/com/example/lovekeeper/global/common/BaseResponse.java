@@ -6,18 +6,27 @@ import com.example.lovekeeper.global.exception.code.BaseCodeInterface;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"timestamp", "code", "message", "result"}) // JSON 응답 시 순서를 정의
+@Schema(description = "공통 응답 DTO")
 public class BaseResponse<T> {
 
+	@Schema(description = "응답 시간", example = "2021-07-01T00:00:00")
 	private final LocalDateTime timestamp = LocalDateTime.now();
+
+	@Schema(description = "응답 코드", example = "200")
 	private final String code;
+
+	@Schema(description = "응답 메시지", example = "요청이 성공적으로 처리되었습니다.")
 	private final String message;
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@Schema(description = "응답 데이터", example = "사용 가능한 이메일입니다.")
 	private T result;
 
 	//성공한 경우 응답 생성
