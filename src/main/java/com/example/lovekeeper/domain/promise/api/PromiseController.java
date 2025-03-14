@@ -20,6 +20,13 @@ import com.example.lovekeeper.domain.promise.service.query.PromiseQueryService;
 import com.example.lovekeeper.global.common.BaseResponse;
 import com.example.lovekeeper.global.security.user.CustomUserDetails;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,70 +42,122 @@ public class PromiseController {
 	private final PromiseQueryService promiseQueryService;
 	private final PromiseCommandService promiseCommandService;
 
-	/**
-	 * 약속 읽기
-	 */
+	@Operation(summary = "약속 목록 조회",
+		description = "인증된 사용자의 약속 목록을 슬라이스 단위로 조회합니다. 무한 스크롤 방식으로 구현됩니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "약속 목록 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 페이지 요청 (page 또는 size가 유효하지 않음)",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
 	@GetMapping
 	public BaseResponse<PromiseResponse.PromiseListResponse> getPromises(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(description = "페이지 번호 (0부터 시작)", required = true, example = "0")
 		@RequestParam int page,
-		@RequestParam int size
-	) {
-
+		@Parameter(description = "페이지당 데이터 수", required = true, example = "10")
+		@RequestParam int size) {
 		return BaseResponse.onSuccess(promiseQueryService.getPromises(userDetails.getMember().getId(), page, size));
 	}
 
-	/**
-	 * 약속 생성
-	 */
+	@Operation(summary = "약속 생성",
+		description = "인증된 사용자가 새로운 약속을 생성합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "약속 생성 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청 데이터 (내용이 비어 있음)",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "404", description = "커플 연결이 되어 있지 않음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
 	@PostMapping
 	public BaseResponse<String> createPromise(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody @Valid PromiseRequest request
-	) {
-
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid PromiseRequest request) {
 		promiseCommandService.createPromise(userDetails.getMember().getId(), request.getContent());
-
 		return BaseResponse.onSuccess("약속 생성 성공");
 	}
 
-	/**
-	 * 약속 전체 개수 조회
-	 */
+	@Operation(summary = "약속 전체 개수 조회",
+		description = "인증된 사용자의 전체 약속 개수를 조회합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "약속 개수 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
 	@GetMapping("/count")
 	public BaseResponse<Long> getPromiseCount(
-		@AuthenticationPrincipal CustomUserDetails userDetails
-	) {
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
 		return BaseResponse.onSuccess(promiseQueryService.getPromiseCount(userDetails.getMember().getId()));
 	}
 
-	/**
-	 * 약속 삭제
-	 */
+	@Operation(summary = "약속 삭제",
+		description = "인증된 사용자가 특정 약속을 삭제합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "약속 삭제 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "403", description = "삭제 권한 없음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "404", description = "약속이 존재하지 않음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
 	@DeleteMapping("/{promiseId}")
 	public BaseResponse<String> deletePromise(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@PathVariable Long promiseId
-	) {
-
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(description = "삭제할 약속 ID", required = true, example = "1")
+		@PathVariable Long promiseId) {
 		promiseCommandService.deletePromise(userDetails.getMember().getId(), promiseId);
-
 		return BaseResponse.onSuccess("약속 삭제 성공");
 	}
 
-	/**
-	 * 특정 날짜 약속 조회
-	 * 예: GET /api/promises/by-date?date=2025-02-13&page=0&size=10
-	 */
+	@Operation(summary = "특정 날짜 약속 조회",
+		description = "인증된 사용자의 특정 날짜에 대한 약속 목록을 슬라이스 단위로 조회합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "특정 날짜 약속 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청 데이터 (날짜 형식 오류, 페이지 오류)",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
 	@GetMapping("/by-date")
 	public BaseResponse<PromiseResponse.PromiseListResponse> getPromisesByDate(
-		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(description = "조회할 날짜 (yyyy-MM-dd 형식)", required = true, example = "2025-02-13")
 		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+		@Parameter(description = "페이지 번호 (0부터 시작)", required = true, example = "0")
 		@RequestParam int page,
-		@RequestParam int size
-	) {
+		@Parameter(description = "페이지당 데이터 수", required = true, example = "10")
+		@RequestParam int size) {
 		return BaseResponse.onSuccess(
-			promiseQueryService.getPromisesByDate(userDetails.getMember().getId(), date, page, size)
-		);
+			promiseQueryService.getPromisesByDate(userDetails.getMember().getId(), date, page, size));
 	}
 }
