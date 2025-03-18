@@ -66,6 +66,31 @@ public class PromiseController {
 		return BaseResponse.onSuccess(promiseQueryService.getPromises(userDetails.getMember().getId(), page, size));
 	}
 
+	@Operation(summary = "특정 약속 상세 조회",
+		description = "인증된 사용자가 특정 약속의 상세 내용을 조회합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "약속 상세 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "403", description = "해당 약속에 접근 권한 없음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "404", description = "약속을 찾을 수 없음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
+	@GetMapping("/{promiseId}")
+	public BaseResponse<PromiseResponse.PromiseDetailResponse> getPromiseDetail(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(description = "조회할 약속 ID", required = true, example = "1")
+		@PathVariable Long promiseId) {
+		return BaseResponse.onSuccess(promiseQueryService.getPromiseDetail(userDetails.getMember().getId(), promiseId));
+	}
+
 	@Operation(summary = "약속 생성",
 		description = "인증된 사용자가 새로운 약속을 생성합니다.",
 		security = @SecurityRequirement(name = "bearerAuth"))

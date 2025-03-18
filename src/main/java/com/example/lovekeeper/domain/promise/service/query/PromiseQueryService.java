@@ -16,4 +16,9 @@ public interface PromiseQueryService {
 	// 추가된 메서드 (특정 날짜 약속 조회)
 	PromiseResponse.PromiseListResponse getPromisesByDate(Long memberId, LocalDate date, int page, int size);
 
+	/**
+	 * 약속 상세 조회
+	 */
+	PromiseResponse.PromiseDetailResponse getPromiseDetail(Long memberId, Long promiseId);
+
 }

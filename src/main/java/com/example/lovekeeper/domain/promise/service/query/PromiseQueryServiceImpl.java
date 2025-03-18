@@ -14,6 +14,7 @@ import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.promise.dto.response.PromiseResponse;
+import com.example.lovekeeper.domain.promise.exception.PromiseErrorStatus;
 import com.example.lovekeeper.domain.promise.model.Promise;
 import com.example.lovekeeper.domain.promise.repository.PromiseRepository;
 
@@ -64,5 +65,18 @@ public class PromiseQueryServiceImpl implements PromiseQueryService {
 
 		Slice<Promise> promises = promiseRepository.findByCoupleIdAndPromisedAt(couple.getId(), date, pageable);
 		return PromiseResponse.PromiseListResponse.from(promises);
+	}
+
+	@Override
+	public PromiseResponse.PromiseDetailResponse getPromiseDetail(Long memberId, Long promiseId) {
+		// 커플 정보 조회
+		Couple couple = coupleRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
+
+		// 약속 조회
+		Promise promise = promiseRepository.findByIdAndCoupleId(promiseId, couple.getId())
+			.orElseThrow(() -> new CoupleException(PromiseErrorStatus.PROMISE_NOT_FOUND)); // 새로운 예외 필요 시 정의
+
+		return PromiseResponse.PromiseDetailResponse.from(promise);
 	}
 }
