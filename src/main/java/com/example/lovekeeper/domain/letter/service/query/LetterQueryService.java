@@ -13,6 +13,8 @@ public interface LetterQueryService {
 
 	Long getLetterCount(Long memberId);
 
+	LetterResponse.LetterDetailResponse getLetterDetail(Long memberId, Long letterId);
+
 	/**
 	 * 특정 날짜 편지 리스트 조회
 	 */

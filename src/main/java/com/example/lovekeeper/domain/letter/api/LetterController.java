@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +63,31 @@ public class LetterController {
 		@Parameter(description = "페이지당 데이터 수", required = true, example = "10")
 		@RequestParam int size) {
 		return BaseResponse.onSuccess(letterQueryService.getLetters(userDetails.getMember().getId(), page, size));
+	}
+
+	@Operation(summary = "특정 편지 상세 조회",
+		description = "인증된 사용자가 특정 편지의 상세 내용을 조회합니다.",
+		security = @SecurityRequirement(name = "bearerAuth"))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "편지 상세 조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "403", description = "해당 편지에 접근 권한 없음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class))),
+		@ApiResponse(responseCode = "404", description = "편지를 찾을 수 없음",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = BaseResponse.class)))
+	})
+	@GetMapping("/{letterId}")
+	public BaseResponse<LetterResponse.LetterDetailResponse> getLetterDetail(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
+		@Parameter(description = "조회할 편지 ID", required = true, example = "1")
+		@PathVariable Long letterId) {
+		return BaseResponse.onSuccess(letterQueryService.getLetterDetail(userDetails.getMember().getId(), letterId));
 	}
 
 	@Operation(summary = "편지 보내기",

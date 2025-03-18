@@ -49,9 +49,9 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		LocalDateTime createdAtEstimate = LocalDateTime.now();
 		log.info("Creating promise - promisedAt: {}, estimated createdAt: {}, timezone: {}",
 			promisedAt, createdAtEstimate, java.time.ZoneId.systemDefault());
-		
+
 		// 약속 생성
-		promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
+		Promise savedPromise = promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
 
 		// 파트너 정하기
 		Member partner = currentCouple.getMember1() == currentMember
@@ -61,9 +61,10 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		// 약속 생성 푸시 알림 전송
 		fcmService.sendPushNotification(
 			partner.getId(),
-			String.valueOf(currentCouple.getPromiseCount()) + " 번째 약속이 정해졌어요.",
 			"새로운 약속이 등록되었어요",
-			System.currentTimeMillis()
+			"새로운 약속이 등록되었어요",
+			System.currentTimeMillis(),
+			savedPromise.getId()
 		);
 
 	}

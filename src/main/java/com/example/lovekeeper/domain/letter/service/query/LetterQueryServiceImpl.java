@@ -14,6 +14,7 @@ import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.letter.dto.response.LetterResponse;
+import com.example.lovekeeper.domain.letter.exception.LetterErrorStatus;
 import com.example.lovekeeper.domain.letter.model.Letter;
 import com.example.lovekeeper.domain.letter.repository.LetterRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
@@ -64,6 +65,20 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		// 현재 커플이 주고받은 편지의 개수 조회
 		return letterRepository.countByCoupleId(currentCouple.getId());
 
+	}
+
+	@Override
+	public LetterResponse.LetterDetailResponse getLetterDetail(Long memberId, Long letterId) {
+		// 편지 조회
+		Letter letter = letterRepository.findById(letterId)
+			.orElseThrow(() -> new MemberException(LetterErrorStatus.LETTER_NOT_FOUND)); // 새로운 예외 필요 시 정의
+
+		// 권한 확인: 현재 사용자가 편지의 발신자 또는 수신자인지 확인
+		if (!letter.getSender().getId().equals(memberId) && !letter.getReceiver().getId().equals(memberId)) {
+			throw new MemberException(LetterErrorStatus.NO_PERMISSION_TO_ACCESS_LETTER); // 새로운 예외 필요 시 정의
+		}
+
+		return LetterResponse.LetterDetailResponse.from(letter);
 	}
 
 	@Override

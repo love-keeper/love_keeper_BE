@@ -24,7 +24,7 @@ public interface FCMService {
 	 * @param title 알림 제목
 	 * @param body 알림 내용
 	 */
-	void sendPushNotification(Long memberId, String title, String body, Long timestamp);
+	void sendPushNotification(Long memberId, String title, String body, Long timestamp, Long letterId);
 
 	/**
 	 * 푸시 알림 리스트 가져오기
