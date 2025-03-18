@@ -64,7 +64,7 @@ public class FCMServiceImpl implements FCMService {
 	}
 
 	@Override
-	public void sendPushNotification(Long memberId, String title, String body, Long timestamp) {
+	public void sendPushNotification(Long memberId, String title, String body, Long timestamp, Long letterId) {
 		List<FCMToken> tokens = fcmTokenRepository.findAllByMemberId(memberId);
 
 		if (tokens.isEmpty()) {
@@ -73,11 +73,12 @@ public class FCMServiceImpl implements FCMService {
 		}
 
 		for (FCMToken token : tokens) {
-			sendSingleNotification(token, memberId, title, body, timestamp);
+			sendSingleNotification(token, memberId, title, body, timestamp, letterId);
 		}
 	}
 
-	private void sendSingleNotification(FCMToken token, Long memberId, String title, String body, Long timestamp) {
+	private void sendSingleNotification(FCMToken token, Long memberId, String title, String body, Long timestamp,
+		Long letterId) {
 		try {
 			Message message = Message.builder()
 				.setToken(token.getToken())
@@ -87,6 +88,7 @@ public class FCMServiceImpl implements FCMService {
 					.build())
 				.putData("memberId", String.valueOf(memberId))
 				.putData("time", String.valueOf(timestamp))
+				.putData("letterId", String.valueOf(letterId)) // 편지 ID 추가
 				.build();
 
 			String response = FirebaseMessaging.getInstance().send(message);

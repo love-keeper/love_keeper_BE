@@ -58,9 +58,14 @@ public class LetterCommandServiceImpl implements LetterCommandService {
 		Letter letter = Letter.createLetter(currentCouple, sender, receiver, content);
 
 		// 편지 저장
-		letterRepository.save(letter);
+		Letter savedLetter = letterRepository.save(letter);
 
 		// FCM 푸시 알림 전송
-		fcmService.sendPushNotification(receiver.getId(), "새로운 편지가 도착했어요!", "편지함을 확인해주세요", System.currentTimeMillis());
+		fcmService.sendPushNotification(receiver.getId(),
+			"새로운 편지가 도착했어요!",
+			"편지함을 확인해주세요",
+			System.currentTimeMillis(),
+			savedLetter.getId() // 편지 ID 추가
+		);
 	}
 }
