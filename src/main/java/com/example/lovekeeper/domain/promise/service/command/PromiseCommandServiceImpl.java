@@ -50,23 +50,21 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 		log.info("Creating promise - promisedAt: {}, estimated createdAt: {}, timezone: {}",
 			promisedAt, createdAtEstimate, java.time.ZoneId.systemDefault());
 
-		// 약속 생성
+		// 약속 생성 및 저장
 		Promise savedPromise = promiseRepository.save(Promise.createPromise(currentCouple, currentMember, content));
 
 		// 파트너 정하기
-		Member partner = currentCouple.getMember1() == currentMember
-			? currentCouple.getMember2()
-			: currentCouple.getMember1();
+		Member partner = currentCouple.getMember1().equals(currentMember) ?
+			currentCouple.getMember2() : currentCouple.getMember1();
 
-		// 약속 생성 푸시 알림 전송
+		// 약속 생성 푸시 알림 전송 (promiseId 포함)
 		fcmService.sendPushNotification(
 			partner.getId(),
 			"새로운 약속이 등록되었어요",
-			"새로운 약속이 등록되었어요",
+			"약속을 확인해주세요",
 			System.currentTimeMillis(),
-			savedPromise.getId()
+			savedPromise.getId() // 약속 ID 추가
 		);
-
 	}
 
 	@Override
