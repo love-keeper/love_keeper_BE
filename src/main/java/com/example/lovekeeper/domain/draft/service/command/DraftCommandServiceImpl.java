@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.lovekeeper.domain.draft.dto.request.SaveDraftRequest;
 import com.example.lovekeeper.domain.draft.exception.DraftErrorStatus;
 import com.example.lovekeeper.domain.draft.model.Draft;
+import com.example.lovekeeper.domain.draft.model.DraftType;
 import com.example.lovekeeper.domain.draft.repository.DraftRepository;
 import com.example.lovekeeper.domain.member.exception.MemberErrorStatus;
 import com.example.lovekeeper.domain.member.exception.MemberException;
@@ -38,13 +39,15 @@ public class DraftCommandServiceImpl implements DraftCommandService {
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// 저장되어 있는 임시 저장된 편지를 가져옴.
-		Draft existingDraft = draftRepository.findByMemberIdAndDraftOrder(memberId, request.getDraftOrder());
+		Draft existingDraft = draftRepository.findByMemberIdAndDraftOrderAndDraftType(memberId,
+			request.getDraftOrder(), request.getDraftType());
 
 		// 임시 저장된 편지가 있으면 업데이트, 없으면 새로 생성 및 저장.
 		if (existingDraft != null) {
 			existingDraft.updateContent(request.getContent());
 		} else {
-			draftRepository.save(Draft.createDraft(currentMember, request.getDraftOrder(), request.getContent()));
+			draftRepository.save(Draft.createDraft(currentMember, request.getDraftOrder(), request.getContent(),
+				request.getDraftType()));
 		}
 
 		log.info("saveDraft success");
@@ -52,9 +55,10 @@ public class DraftCommandServiceImpl implements DraftCommandService {
 	}
 
 	@Override
-	public void deleteDraft(Long memberId, int order) {
+	public void deleteDraft(Long memberId, int order, String draftType) {
 
-		Draft draft = draftRepository.findByMemberIdAndDraftOrder(memberId, order);
+		Draft draft = draftRepository.findByMemberIdAndDraftOrderAndDraftType(memberId, order,
+			DraftType.valueOf(draftType));
 		if (draft == null) {
 			throw new MemberException(DraftErrorStatus.DRAFT_NOT_FOUND);
 		}

@@ -55,13 +55,15 @@ public class DraftController {
 			content = @Content(mediaType = "application/json",
 				schema = @Schema(implementation = BaseResponse.class)))
 	})
-	@GetMapping("/{order}")
+	@GetMapping("/{order}/{draftType}")
 	public BaseResponse<DraftResponse> getDraft(
 		@Parameter(description = "조회할 임시 저장 편지의 순서 (1~4)", required = true, example = "1")
 		@PathVariable int order,
+		@Parameter(description = "편지 종류 (CONCILIATION, ANSWER)", required = true, example = "CONCILIATION")
+		@PathVariable String draftType,
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long memberId = userDetails.getMember().getId();
-		return BaseResponse.onSuccess(draftQueryService.getDraft(memberId, order));
+		return BaseResponse.onSuccess(draftQueryService.getDraft(memberId, order, draftType));
 	}
 
 	@Operation(summary = "편지 임시 저장",
@@ -107,13 +109,15 @@ public class DraftController {
 			content = @Content(mediaType = "application/json",
 				schema = @Schema(implementation = BaseResponse.class)))
 	})
-	@DeleteMapping("/{order}")
+	@DeleteMapping("/{order}/{draftType}")
 	public BaseResponse<String> deleteDraft(
 		@Parameter(description = "삭제할 임시 저장 편지의 순서 (1~4)", required = true, example = "1")
 		@PathVariable int order,
+		@Parameter(description = "편지 종류 (CONCILIATION, ANSWER)", required = true, example = "CONCILIATION")
+		@PathVariable String draftType,
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails) {
 		Long memberId = userDetails.getMember().getId();
-		draftCommandService.deleteDraft(memberId, order);
+		draftCommandService.deleteDraft(memberId, order, draftType);
 		return BaseResponse.onSuccess("편지가 삭제되었습니다.");
 	}
 }

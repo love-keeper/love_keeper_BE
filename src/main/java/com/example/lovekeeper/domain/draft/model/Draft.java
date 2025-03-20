@@ -52,11 +52,12 @@ public class Draft extends BaseEntity {
 	private String content;
 
 	//== 생성 메서드 ==//
-	public static Draft createDraft(Member member, int order, String content) {
+	public static Draft createDraft(Member member, int order, String content, DraftType draftType) {
 		return Draft.builder()
 			.member(member)
 			.draftOrder(order)
 			.content(content)
+			.draftType(draftType)
 			.build();
 	}
 

@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.draft.dto.request;
 
+import com.example.lovekeeper.domain.draft.model.DraftType;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -23,4 +25,7 @@ public class SaveDraftRequest {
 
 	@Schema(description = "편지 내용", example = "미안해...", required = true)
 	private String content;
+
+	@Schema(description = "편지 종류", example = "CONCILIATION", required = true)
+	private DraftType draftType;
 }
