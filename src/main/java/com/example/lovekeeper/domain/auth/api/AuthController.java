@@ -108,7 +108,7 @@ public class AuthController {
 			message = "비밀번호는 8~20자의 영문, 숫자, 특수문자를 포함해야 합니다.")
 		String password,
 		@Parameter(description = "닉네임 (2~10자)", required = true, example = "lover")
-		@RequestParam @Size(min = 2, max = 10) String nickname,
+		@RequestParam @Size(min = 1, max = 10) String nickname,
 		@Parameter(description = "생년월일 (yyyy-MM-dd 형식)", required = true, example = "1990-01-01")
 		@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthDate,
 		@Parameter(description = "프로필 이미지 파일 (선택 사항)", required = false)
