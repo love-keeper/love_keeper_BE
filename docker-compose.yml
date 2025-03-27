@@ -11,8 +11,8 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_REDIS_HOST=localhost
-      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_REDIS_HOST=redis  # localhost 대신 redis 서비스 이름 사용
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8  # localhost 대신 mysql 서비스 이름 사용
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=ehdfprl77
     restart: always
