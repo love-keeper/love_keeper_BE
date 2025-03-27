@@ -12,7 +12,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.lovekeeper.domain.auth.dto.response.LoginResponse;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
+import com.example.lovekeeper.domain.member.model.MemberStatus;
 import com.example.lovekeeper.domain.member.model.Provider;
+import com.example.lovekeeper.domain.member.service.command.MemberCommandService;
 import com.example.lovekeeper.global.common.BaseResponse;
 import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.jwt.JwtTokenProvider;
@@ -34,19 +36,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private final CustomUserDetailsService customUserDetailsService;
 	private final ObjectMapper objectMapper;
 	private final RefreshTokenRedisService refreshTokenRedisService;
+	private final MemberCommandService memberCommandService;
 
 	public LoginFilter(
 		AuthenticationManager authenticationManager,
 		JwtTokenProvider jwtTokenProvider,
 		CustomUserDetailsService customUserDetailsService,
 		ObjectMapper objectMapper,
-		RefreshTokenRedisService refreshTokenRedisService
+		RefreshTokenRedisService refreshTokenRedisService,
+		MemberCommandService memberCommandService
 	) {
 		this.authenticationManager = authenticationManager;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.customUserDetailsService = customUserDetailsService;
 		this.objectMapper = objectMapper;
 		this.refreshTokenRedisService = refreshTokenRedisService;
+		this.memberCommandService = memberCommandService;
 
 		setFilterProcessesUrl("/api/auth/login"); // 인증 처리 URL
 	}
@@ -131,6 +136,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 		long accessValidMs = 30 * 60 * 1000;            // 30분
 		long refreshValidMs = 7L * 24 * 60 * 60 * 1000; // 7일
+
+		if (member.isInactive() || member.getStatus() == MemberStatus.DELETED) {
+			memberCommandService.updateMemberStatus(member.getId(), MemberStatus.ACTIVE);
+		}
 
 		// 토큰 생성
 		String accessToken = jwtTokenProvider.createAccessToken(
