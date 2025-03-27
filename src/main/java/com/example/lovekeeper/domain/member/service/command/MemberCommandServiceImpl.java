@@ -190,7 +190,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		}
 
 		// 같으면 안됨
-		if (currentMember.getNickname().equals(partner.getNickname())) {
+		if (partner.getNickname().equals(nickname)) {
 			throw new CoupleException(CoupleErrorStatus.SAME_NICKNAME);
 		}
 
