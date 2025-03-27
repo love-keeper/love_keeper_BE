@@ -28,7 +28,7 @@ public class SignUpRequest {
 		example = "Password123!")
 	private String password;
 
-	@Schema(description = "닉네임 (2~10자)", required = true, example = "lover")
+	@Schema(description = "닉네임 (1~10자)", required = true, example = "lover")
 	private String nickname;
 
 	@Schema(description = "생년월일 (yyyy-MM-dd 형식)", required = true, example = "1990-01-01")
