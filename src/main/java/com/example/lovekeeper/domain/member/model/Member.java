@@ -220,4 +220,8 @@ public class Member extends BaseEntity {
 	public void changeEmail(String email) {
 		this.email = email;
 	}
+
+	public boolean isInactive() {
+		return status == MemberStatus.INACTIVE;
+	}
 }

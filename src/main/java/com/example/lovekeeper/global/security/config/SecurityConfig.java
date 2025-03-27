@@ -12,8 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -22,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.lovekeeper.domain.member.service.command.MemberCommandService;
 import com.example.lovekeeper.global.infrastructure.service.refreshredis.RefreshTokenRedisService;
 import com.example.lovekeeper.global.security.filter.JwtAuthenticationFilter;
 import com.example.lovekeeper.global.security.filter.LoginFilter;
@@ -45,6 +44,7 @@ public class SecurityConfig {
 	private final CustomUserDetailsService customUserDetailsService;
 	private final ObjectMapper objectMapper;
 	private final RefreshTokenRedisService refreshTokenRedisService;
+	private final MemberCommandService memberCommandService;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -58,7 +58,8 @@ public class SecurityConfig {
 			jwtTokenProvider,
 			customUserDetailsService,
 			objectMapper,
-			refreshTokenRedisService
+			refreshTokenRedisService,
+			memberCommandService
 		);
 
 		http
@@ -95,11 +96,6 @@ public class SecurityConfig {
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 		return configuration.getAuthenticationManager();
-	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 
 	/**
