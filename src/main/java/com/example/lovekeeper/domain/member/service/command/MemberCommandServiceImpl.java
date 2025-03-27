@@ -236,4 +236,14 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 		log.info("이메일 변경 완료 - memberId: {}, newEmail: {}", memberId, email);
 	}
+
+	public void updateMemberStatus(Long memberId, MemberStatus status) {
+		// 1) 사용자 조회
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
+		// 2) 사용자 상태 변경
+		currentMember.updateStatus(status);
+	}
+
 }

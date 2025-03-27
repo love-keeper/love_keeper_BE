@@ -23,6 +23,7 @@ public enum AuthErrorStatus implements BaseCodeInterface {
 	INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST, "AUTH014", "닉네임은 2~10자 이내여야 합니다."),
 	PROFILE_IMAGE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "AUTH015", "프로필 이미지 업로드에 실패했습니다."),
 	CONSENT_REQUIRED(HttpStatus.BAD_REQUEST, "AUTH016", "필수 동의 항목을 체크해주세요."),
+	INACTIVE_ACCOUNT(HttpStatus.FORBIDDEN, "AUTH017", "비활성화된 계정입니다."),
 
 	// 로그인 관련 에러 (AUTH021 ~ AUTH030)
 	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH021", "이메일 또는 비밀번호가 일치하지 않습니다."),

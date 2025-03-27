@@ -8,6 +8,7 @@ import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
 import com.example.lovekeeper.domain.member.dto.response.ChangeNicknameResponse;
 import com.example.lovekeeper.domain.member.dto.response.MyInfoResponse;
+import com.example.lovekeeper.domain.member.model.MemberStatus;
 
 public interface MemberCommandService {
 
@@ -40,4 +41,6 @@ public interface MemberCommandService {
 	ChangeBirthdayResponse changeBirthday(Long memberId, LocalDate birthday);
 
 	void changeEmailWithVerification(Long memberId, String email, String code);
+
+	void updateMemberStatus(Long memberId, MemberStatus status);
 }
