@@ -126,13 +126,16 @@ public class CoupleCommandServiceImpl implements CoupleCommandService {
 		Couple activeCouple = member.getActiveCouple()
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
-		// 3. 커플 연결 끊기
+		// 3. 커플 연결 상태 변경
 		activeCouple.disconnect();
 
 		// 4. 양쪽 회원의 상태 업데이트
 		Member partner = activeCouple.getPartner(member);
 		member.updateCoupleStatus(CoupleStatus.DISCONNECTED);
 		partner.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+
+		// 5. 커플 연결 해제 시간 설정
+		activeCouple.setEndedAt(LocalDate.now());
 
 		log.info("커플 연결 해제 완료 - coupleId: {}, member1Id: {}, member2Id: {}",
 			activeCouple.getId(), member.getId(), partner.getId());

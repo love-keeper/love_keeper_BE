@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CleanupScheduler {
 
-	private static final int DELETE_DAYS = 90;  // 90일 후 삭제
+	private static final int DELETE_DAYS = 15;  // 90일 후 삭제
 	private final MemberRepository memberRepository;
 	private final CoupleRepository coupleRepository;
 

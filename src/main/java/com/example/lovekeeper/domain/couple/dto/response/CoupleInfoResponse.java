@@ -2,6 +2,8 @@ package com.example.lovekeeper.domain.couple.dto.response;
 
 import java.time.LocalDate;
 
+import com.example.lovekeeper.domain.couple.model.CoupleStatus;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,9 +36,22 @@ public class CoupleInfoResponse {
 	@Schema(description = "커플 기간", example = "100")
 	private Long days;
 
+	@Schema(description = "커플 상태")
+	private CoupleStatus coupleStatus;
+
+	@Schema(description = "상대방 이메일")
+	private String partnerEmail;
+
+	@Schema(description = "내 이메일")
+	private String myEmail;
+
+	@Schema(description = "커플 종료일")
+	private LocalDate endedAt;
+
 	public static CoupleInfoResponse of(Long coupleId, String partnerNickname, String myProfileImageUrl,
 		String partnerProfileImageUrl,
-		LocalDate startedAt, Long days) {
+		LocalDate startedAt, Long days, CoupleStatus coupleStatus, String partnerEmail,
+		String myEmail, LocalDate endedAt) {
 		return CoupleInfoResponse.builder()
 			.coupleId(coupleId)
 			.partnerNickname(partnerNickname)
@@ -44,6 +59,10 @@ public class CoupleInfoResponse {
 			.partnerProfileImageUrl(partnerProfileImageUrl)
 			.startedAt(startedAt)
 			.days(days)
+			.coupleStatus(coupleStatus)
+			.partnerEmail(partnerEmail)
+			.myEmail(myEmail)
+			.endedAt(endedAt)
 			.build();
 	}
 }

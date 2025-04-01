@@ -81,7 +81,11 @@ public class CoupleQueryServiceImpl implements CoupleQueryService {
 			currentMember.getProfileImageUrl(),
 			partner.getProfileImageUrl(),
 			couple.getStartedAt(),
-			getDays(couple.getStartedAt())
+			getDays(couple.getStartedAt()),
+			couple.getStatus(),
+			partner.getEmail(),
+			currentMember.getEmail(),
+			couple.getEndedAt()
 		);
 	}
 
