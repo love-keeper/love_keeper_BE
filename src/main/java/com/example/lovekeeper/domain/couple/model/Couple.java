@@ -109,6 +109,10 @@ public class Couple extends BaseEntity {
 		this.promiseCount++;
 	}
 
+	public void setEndedAt(LocalDate endedAt) {
+		this.endedAt = endedAt;
+	}
+
 	//== 연관 관계 메서드 ==//
 
 	public void reconnect() {

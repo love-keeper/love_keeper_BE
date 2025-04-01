@@ -9,6 +9,8 @@ import com.example.lovekeeper.domain.member.model.Member;
 import com.example.lovekeeper.global.common.BaseEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,6 +45,9 @@ public class PushNotification extends BaseEntity {
 	private String title;
 
 	private String body;
+
+	@Enumerated(EnumType.STRING)
+	private NotificationType notificationType;
 
 	@Builder.Default
 	private LocalDateTime sentAt = LocalDateTime.now();

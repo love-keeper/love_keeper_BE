@@ -94,6 +94,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 	}
 
+	/**
+	 * 회원 탈퇴
+	 * @param memberId 탈퇴할 회원의 ID
+	 */
 	@Override
 	public void withdrawMember(Long memberId) {
 		// 1. 회원 조회
@@ -106,23 +110,23 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		}
 
 		// 3. 현재 활성화된 커플 관계가 있는지 확인하고 처리
-		member.getActiveCouple().ifPresent(couple -> {
-			// 3-1. 커플 연결 끊기
-			couple.disconnect();
+		Couple couple = member.getActiveCouple()
+			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 
-			// 3-2. 파트너의 상태도 업데이트
-			Member partner = couple.getPartner(member);
-			partner.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+		// 3-1. 커플 연결 끊기
+		couple.disconnect();
 
-			log.info("커플 연결 해제 - memberId: {}, partnerId: {}", memberId, partner.getId());
-		});
+		// 3-2. 파트너의 상태도 업데이트
+		Member partner = couple.getPartner(member);
+		partner.updateCoupleStatus(CoupleStatus.DISCONNECTED);
 
-		// 4. Soft Delete 처리
-		member.delete();  // BaseEntity의 delete() 메서드 호출하여 deletedAt 설정
+		// 4. 회원 Hard Delete
+		memberRepository.delete(member);
 
-		// 5. 회원 상태 변경
-		member.updateStatus(MemberStatus.DELETED);
-		member.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+		// 5. 커플 Hard Delete
+		coupleRepository.delete(couple);
+
+		log.info("커플 연결 해제 - memberId: {}, partnerId: {}", memberId, partner.getId());
 
 		log.info("회원 탈퇴 처리 완료 - memberId: {}", memberId);
 	}

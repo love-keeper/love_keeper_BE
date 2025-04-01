@@ -16,8 +16,8 @@ public interface CoupleRepository extends JpaRepository<Couple, Long> {
 	@Query("SELECT c FROM Couple c "
 		+ "LEFT JOIN FETCH c.member1 m1 "
 		+ "LEFT JOIN FETCH c.member2 m2 "
-		+ "WHERE (c.member1.id = :memberId OR c.member2.id = :memberId) "
-		+ "AND c.status = 'CONNECTED'")
+		+ "WHERE (c.member1.id = :memberId OR c.member2.id = :memberId)"
+	)
 	Optional<Couple> findByMemberId(@Param("memberId") Long memberId);
 
 	@Query("SELECT c FROM Couple c WHERE " +
