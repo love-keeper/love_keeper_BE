@@ -21,6 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	Optional<Member> findByInviteCode(String inviteCode);
 
 	// 삭제 대상 회원 조회를 위한 메서드 추가
-	List<Member> findByStatusAndDeletedAtBefore(MemberStatus status, LocalDateTime dateTime);
+	List<Member> findByMemberStatusAndUpdatedAt(MemberStatus status, LocalDateTime dateTime);
 
 }
