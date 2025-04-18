@@ -8,8 +8,7 @@ import lombok.Getter;
 public enum MemberStatus {
 
 	ACTIVE("활성화"),
-	INACTIVE("비활성화"),
-	DELETED("삭제");
+	INACTIVE("비활성화");
 
 	private final String description;
 
