@@ -1,6 +1,6 @@
 package com.example.lovekeeper.domain.letter.dto.response;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +65,7 @@ public class LetterResponse {
 		private String content;
 
 		@Schema(description = "보낸 날짜 (yyyy-MM-dd)", example = "2025-02-13", required = true)
-		private LocalDate sentDate;
+		private LocalDateTime sentDate;
 
 		public static LetterDetailResponse from(Letter letter) {
 			return LetterDetailResponse.builder()
