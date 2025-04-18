@@ -1,6 +1,6 @@
 package com.example.lovekeeper.domain.letter.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -56,7 +56,7 @@ public class Letter extends BaseEntity {
 	private String content;
 
 	@Builder.Default
-	private LocalDate sentDate = LocalDate.now();
+	private LocalDateTime sentDate = LocalDateTime.now();
 
 	//== 생성 메서드 ==//
 	public static Letter createLetter(Couple couple, Member sender,
