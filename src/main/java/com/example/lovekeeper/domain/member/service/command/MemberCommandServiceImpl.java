@@ -12,7 +12,6 @@ import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandServic
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
-import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
@@ -105,30 +104,18 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		// 2. 이미 탈퇴한 회원인지 확인
-		if (member.isDeleted() && member.getStatus() == MemberStatus.DELETED) {
+		// INACTIVE 상태이면 이미 회원탈퇴를 한 것이기 때문에
+		// 에러를 반환한다.
+		if (member.getMemberStatus() == MemberStatus.INACTIVE) {
 			throw new MemberException(MemberErrorStatus.MEMBER_ALREADY_DELETED);
 		}
 
 		// 3. 현재 활성화된 커플 관계가 있는지 확인하고 처리
-		Couple couple = member.getActiveCouple()
-			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
-
-		// 3-1. 커플 연결 끊기
-		couple.disconnect();
-
-		// 3-2. 파트너의 상태도 업데이트
-		Member partner = couple.getPartner(member);
-		partner.updateCoupleStatus(CoupleStatus.DISCONNECTED);
-
+		coupleRepository.deleteByMember1IdOrMember2Id(memberId, memberId);
+		
 		// 4. 회원 Hard Delete
 		memberRepository.delete(member);
 
-		// 5. 커플 Hard Delete
-		coupleRepository.delete(couple);
-
-		log.info("커플 연결 해제 - memberId: {}, partnerId: {}", memberId, partner.getId());
-
-		log.info("회원 탈퇴 처리 완료 - memberId: {}", memberId);
 	}
 
 	// Presigned URL 생성

@@ -30,7 +30,7 @@ public class CustomUserDetails implements UserDetails {
 	public Member getMember() {
 		return member;
 	}
-	
+
 	@Override
 	public String getPassword() {
 		return member.getPassword(); // DB에 저장된 해시 PW
@@ -59,6 +59,6 @@ public class CustomUserDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		// 예시로 member 상태가 ACTIVE인 경우 true, 아닌 경우 false 처리 가능
-		return !member.isDeleted() && member.getStatus().isActive();
+		return member.getMemberStatus().isActive();
 	}
 }

@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Where;
 
 import com.example.lovekeeper.domain.couple.model.Couple;
 import com.example.lovekeeper.domain.couple.model.CoupleStatus;
@@ -43,7 +42,6 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "member")
-@Where(clause = "deleted_at IS NULL")
 public class Member extends BaseEntity {
 
 	@Id
@@ -89,7 +87,7 @@ public class Member extends BaseEntity {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private MemberStatus status = MemberStatus.ACTIVE;
+	private MemberStatus memberStatus = MemberStatus.ACTIVE;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
@@ -182,7 +180,7 @@ public class Member extends BaseEntity {
 	}
 
 	public void updateStatus(MemberStatus status) {
-		this.status = status;
+		this.memberStatus = status;
 	}
 
 	public void updateCoupleStatus(CoupleStatus coupleStatus) {
@@ -221,7 +219,4 @@ public class Member extends BaseEntity {
 		this.email = email;
 	}
 
-	public boolean isInactive() {
-		return status == MemberStatus.INACTIVE;
-	}
 }

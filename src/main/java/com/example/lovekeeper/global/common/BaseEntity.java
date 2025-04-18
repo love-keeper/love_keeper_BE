@@ -22,16 +22,4 @@ public abstract class BaseEntity {            // AuditingEntityListener를 통�
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
-
-	private LocalDateTime deletedAt;
-
-	// 삭제 여부 확인 메서드
-	public boolean isDeleted() {
-		return deletedAt != null;
-	}
-
-	// 삭제 처리 메서드
-	public void delete() {
-		deletedAt = LocalDateTime.now();
-	}
 }
