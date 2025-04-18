@@ -29,6 +29,8 @@ public interface CoupleRepository extends JpaRepository<Couple, Long> {
 		@Param("member2Id") Long member2Id
 	);
 
+	void deleteByMember1IdOrMember2Id(Long member1Id, Long member2Id);
+
 	// 삭제 대상 커플 조회를 위한 메서드 추가
 	List<Couple> findByStatusAndEndedAtBefore(CoupleStatus status, LocalDate date);
 

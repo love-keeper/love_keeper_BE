@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.lovekeeper.domain.auth.dto.response.LoginResponse;
 import com.example.lovekeeper.domain.member.exception.MemberException;
 import com.example.lovekeeper.domain.member.model.Member;
-import com.example.lovekeeper.domain.member.model.MemberStatus;
 import com.example.lovekeeper.domain.member.model.Provider;
 import com.example.lovekeeper.domain.member.service.command.MemberCommandService;
 import com.example.lovekeeper.global.common.BaseResponse;
@@ -136,10 +135,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 		long accessValidMs = 30 * 60 * 1000;            // 30분
 		long refreshValidMs = 7L * 24 * 60 * 60 * 1000; // 7일
-
-		if (member.isInactive() || member.getStatus() == MemberStatus.DELETED) {
-			memberCommandService.updateMemberStatus(member.getId(), MemberStatus.ACTIVE);
-		}
 
 		// 토큰 생성
 		String accessToken = jwtTokenProvider.createAccessToken(
