@@ -138,8 +138,7 @@ https://lovekeeper.site/swagger-ui/index.html
 
 ## 👥 팀원
 
-- 홍길동 ([@honggildong](https://github.com/honggildong)) - 백엔드 개발
-- 김철수 ([@kimcheolsu](https://github.com/kimcheolsu)) - 인프라 설정
+- 박동규 ([@honggildong](https://github.com/dong99u)) - 백엔드 개발, 인프라 설정
 
 ## 📝 라이센스
 
