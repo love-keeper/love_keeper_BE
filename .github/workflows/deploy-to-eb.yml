@@ -37,7 +37,8 @@ jobs:
       - name: Create deployment package
         run: |
           mkdir -p build/dist
-          zip -r "build/dist/lovekeeper.zip" Procfile Dockerfile .ebextensions build/libs/*.jar
+          cp build/libs/*.jar build/libs/app.jar || echo "Copying JAR file failed"
+          zip -r "build/dist/lovekeeper.zip" Procfile Dockerfile .ebextensions build/libs/app.jar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -52,8 +53,9 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: love-keeper-dev
-          environment_name: Love-keeper-dev-env  # EB 환경 이름으로 변경하세요
-          version_label: lovekeeper-${{ github.run_number }}
-          region: ap-northeast-2  # 사용 중인 AWS 리전으로 변경하세요
+          environment_name: Love-keeper-dev-env
+          version_label: lovekeeper-${{ github.sha }}-${{ github.run_number }}
+          region: ap-northeast-2
           deployment_package: build/dist/lovekeeper.zip
-          wait_for_environment_recovery: 300
+          wait_for_deployment: false
+          # wait_for_environment_recovery: 300
