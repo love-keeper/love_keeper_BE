@@ -74,6 +74,19 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+task ebDeploy(type: Zip) {
+    from('build/libs/') {
+        include '*.jar'
+    }
+    from('.ebextensions/')
+    from('Procfile')
+    from('Dockerfile')
+    archiveFileName = "${rootProject.name}.zip"
+    destinationDirectory = file('build/dist')
+}
+
+ebDeploy.dependsOn(bootJar)
+
 def querydslDir = "src/main/generated"
 
 sourceSets {
