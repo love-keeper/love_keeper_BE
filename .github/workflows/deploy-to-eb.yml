@@ -1,0 +1,59 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - develop  # main 브랜치에 push될 때 실행됩니다. 필요에 따라 master나 다른 브랜치로 변경하세요.
+  pull_request:
+    types:
+      - closed
+    branches:
+      - develop  # main 브랜치로의 PR이 머지될 때 실행됩니다.
+
+jobs:
+  build_and_deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    # PR이 머지되었을 때만 실행
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar
+
+      - name: Create deployment package
+        run: |
+          mkdir -p build/dist
+          zip -r "build/dist/lovekeeper.zip" Procfile Dockerfile .ebextensions build/libs/*.jar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2  # 사용 중인 AWS 리전으로 변경하세요
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: love-keeper-dev
+          environment_name: Love-keeper-dev-env  # EB 환경 이름으로 변경하세요
+          version_label: lovekeeper-${{ github.run_number }}
+          region: ap-northeast-2  # 사용 중인 AWS 리전으로 변경하세요
+          deployment_package: build/dist/lovekeeper.zip
+          wait_for_environment_recovery: 300
