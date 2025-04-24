@@ -111,10 +111,12 @@ http://localhost:8080
 ## 🌐 배포
 
 애플리케이션은 GitHub Actions를 통한 CI/CD 파이프라인으로 자동 배포됩니다:
-1. `develop` 브랜치에 코드가 푸시되면 빌드 시작
+1. `main` 브랜치에 코드가 머지되면 빌드 시작
 2. 테스트 및 빌드 진행
-3. AWS EC2 인스턴스에 자동 배포
-4. Nginx를 통한 HTTPS 요청 처리
+3. AWS Elastic Beanstalk에 자동 배포
+4. 배포 상태 모니터링
+
+자세한 CI/CD 설정은 [GITHUB-CICD-SETUP.md](GITHUB-CICD-SETUP.md) 문서를 참조하세요.
 
 ## 📄 API 문서
 
