@@ -3,12 +3,12 @@ name: Deploy to AWS Elastic Beanstalk
 on:
   push:
     branches:
-      - main  # main 브랜치에 push될 때 실행됩니다.
+      - develop  # develop 브랜치에 push될 때 실행됩니다.
   pull_request:
     types:
       - closed
     branches:
-      - main  # main 브랜치로의 PR이 머지될 때 실행됩니다.
+      - develop  # develop 브랜치로의 PR이 머지될 때 실행됩니다.
 
 jobs:
   build_and_deploy:
