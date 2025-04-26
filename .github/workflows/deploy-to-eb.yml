@@ -3,12 +3,12 @@ name: Deploy to AWS Elastic Beanstalk
 on:
   push:
     branches:
-      - develop  # main 브랜치에 push될 때 실행됩니다. 필요에 따라 master나 다른 브랜치로 변경하세요.
+      - main  # main 브랜치에 push될 때 실행됩니다.
   pull_request:
     types:
       - closed
     branches:
-      - develop  # main 브랜치로의 PR이 머지될 때 실행됩니다.
+      - main  # main 브랜치로의 PR이 머지될 때 실행됩니다.
 
 jobs:
   build_and_deploy:
@@ -34,18 +34,31 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean bootJar
 
+      - name: Copy JAR file
+        run: cp build/libs/*.jar app.jar
+
       - name: Create deployment package
         run: |
           mkdir -p build/dist
-          cp build/libs/*.jar build/libs/app.jar || echo "Copying JAR file failed"
-          zip -r "build/dist/lovekeeper.zip" Procfile Dockerfile .ebextensions build/libs/app.jar
+          zip -r "build/dist/lovekeeper.zip" Procfile Dockerfile .ebextensions app.jar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2  # 사용 중인 AWS 리전으로 변경하세요
+          aws-region: ap-northeast-2
+
+      - name: Check EB Environment Status
+        run: |
+          aws elasticbeanstalk describe-environment-health --environment-name Love-keeper-dev-env --attribute-names Status
+          ENVIRONMENT_STATUS=$(aws elasticbeanstalk describe-environment-health --environment-name Love-keeper-dev-env --attribute-names Status --query 'Status' --output text)
+          if [ "$ENVIRONMENT_STATUS" != "Ready" ]; then
+            echo "Environment is not in Ready state. Current state: $ENVIRONMENT_STATUS"
+            echo "Waiting for environment to become Ready..."
+            aws elasticbeanstalk rebuild-environment --environment-name Love-keeper-dev-env
+            sleep 120
+          fi
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
@@ -58,4 +71,3 @@ jobs:
           region: ap-northeast-2
           deployment_package: build/dist/lovekeeper.zip
           wait_for_deployment: false
-          # wait_for_environment_recovery: 300
