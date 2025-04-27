@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.letter.repository;
 
+import static com.example.lovekeeper.domain.letter.model.QLetter.*;
+
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -33,7 +35,6 @@ public class LetterQueryRepository {
 	}
 
 	public List<DateCountResponse> findLetterCountByCoupleAndSpecificDate(Long coupleId, int year, int month, int day) {
-		QLetter letter = QLetter.letter;
 
 		return jpaQueryFactory
 			.select(Projections.constructor(DateCountResponse.class,
@@ -49,7 +50,6 @@ public class LetterQueryRepository {
 	}
 
 	public long findTotalLetterCountByCoupleAndYearMonth(Long coupleId, int year, int month) {
-		QLetter letter = QLetter.letter;
 
 		Long count = jpaQueryFactory
 			.select(letter.count())
@@ -63,8 +63,6 @@ public class LetterQueryRepository {
 	}
 
 	public long findTotalLetterCountByCoupleAndSpecificDate(Long coupleId, int year, int month, int day) {
-		QLetter letter = QLetter.letter;
-
 		Long count = jpaQueryFactory
 			.select(letter.count())
 			.from(letter)

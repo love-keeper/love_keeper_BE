@@ -74,29 +74,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-task ebDeploy(type: Zip) {
-    from('build/libs/') {
-        include '*.jar'
-    }
-    from('.ebextensions/')
-    from('Procfile')
-    from('Dockerfile')
-    archiveFileName = "${rootProject.name}.zip"
-    destinationDirectory = file('build/dist')
-}
-
-ebDeploy.dependsOn(bootJar)
-
-def querydslDir = "src/main/generated"
-
-sourceSets {
-    main.java.srcDirs += [querydslDir]
-}
-
-tasks.withType(JavaCompile) {
-    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
-}
-
-clean.doLast {
-    file(querydslDir).deleteDir()
+jar {
+    enabled = false
 }

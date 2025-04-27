@@ -39,12 +39,8 @@ out/
 /nbdist/
 /.nb-gradle/
 
-src/main/resources/application.yml
-
 ## QClass ##
 src/main/generated/
 
 ### VS Code ###
 .vscode/
-
-src/main/resources/firebase-service-account.json

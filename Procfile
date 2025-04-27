@@ -1,1 +1,1 @@
-web: java -Dspring.profiles.active=elb -Dserver.port=$PORT -jar app.jar
+web: appstart
