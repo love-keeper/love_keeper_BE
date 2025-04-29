@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.promise.repository;
 
+import static com.example.lovekeeper.domain.promise.model.QPromise.*;
+
 import java.util.List;
 
 import org.springframework.stereotype.Repository;

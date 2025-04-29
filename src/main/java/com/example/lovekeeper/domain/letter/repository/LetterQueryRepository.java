@@ -1,5 +1,7 @@
 package com.example.lovekeeper.domain.letter.repository;
 
+import static com.example.lovekeeper.domain.letter.model.QLetter.*;
+
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
