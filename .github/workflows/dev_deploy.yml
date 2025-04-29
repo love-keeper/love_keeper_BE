@@ -39,6 +39,24 @@ jobs:
         run: echo "CurrentTime=$"
         shell: bash # (9).확보한 시간 보여주기
 
+      - name: Create Firebase config file
+        run: |
+          cat > firebase-service-account.json << 'EOL'
+          {
+            "type": "service_account",
+            "project_id": "${{ secrets.FIREBASE_PROJECT_ID }}",
+            "private_key_id": "${{ secrets.FIREBASE_PRIVATE_KEY_ID }}",
+            "private_key": "${{ secrets.FIREBASE_PRIVATE_KEY }}",
+            "client_email": "${{ secrets.FIREBASE_CLIENT_EMAIL }}",
+            "client_id": "${{ secrets.FIREBASE_CLIENT_ID }}",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "${{ secrets.FIREBASE_CLIENT_CERT_URL }}",
+            "universe_domain": "googleapis.com"
+          }
+          EOL
+
       - name: Generate deployment package
         run: |
           mkdir -p deploy
@@ -46,6 +64,7 @@ jobs:
           cp docker-compose.yml deploy/docker-compose.yml
           cp Dockerfile deploy/Dockerfile
           cp Dockerrun.aws.json deploy/Dockerrun.aws.json
+          cp firebase-service-account.json deploy/firebase-service-account.json
           cp -r .ebextensions_dev deploy/.ebextensions
           cp -r .platform deploy/.platform
           cd deploy && zip -r deploy.zip .
