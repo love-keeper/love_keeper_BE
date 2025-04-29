@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 300MB
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-exception: false
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
