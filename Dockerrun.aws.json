@@ -1,0 +1,56 @@
+{
+  "AWSEBDockerrunVersion": "2",
+  "volumes": [
+    {
+      "name": "redis-data",
+      "host": {
+        "sourcePath": "/var/app/current/redis-data"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "app",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "hostPort": 8080,
+          "containerPort": 8080
+        }
+      ],
+      "links": [
+        "redis"
+      ],
+      "environment": [
+        {
+          "name": "SPRING_REDIS_HOST",
+          "value": "redis"
+        },
+        {
+          "name": "SPRING_REDIS_PORT",
+          "value": "6379"
+        }
+      ]
+    },
+    {
+      "name": "redis",
+      "image": "redis:latest",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "hostPort": 6379,
+          "containerPort": 6379
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "redis-data",
+          "containerPath": "/data"
+        }
+      ]
+    }
+  ]
+}

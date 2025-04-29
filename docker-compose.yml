@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  app:
+    image: love-keeper-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - DEV_REDIS_HOST=${DEV_REDIS_HOST}
+      - DEV_DB_USERNAME=${DEV_DB_USERNAME}
+      - DEV_DB_PASSWORD=${DEV_DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - JWT_SECRET=${JWT_SECRET}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    networks:
+      - lovekeeper-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - lovekeeper-network
+
+networks:
+  lovekeeper-network:
+    driver: bridge
+
+volumes:
+  redis-data:
