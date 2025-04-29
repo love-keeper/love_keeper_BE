@@ -44,3 +44,5 @@ src/main/generated/
 
 ### VS Code ###
 .vscode/
+
+src/main/resources/firebase-service-account.json
