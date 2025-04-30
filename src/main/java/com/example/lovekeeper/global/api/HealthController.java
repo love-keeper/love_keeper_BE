@@ -8,11 +8,9 @@ import com.example.lovekeeper.global.common.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Health Check", description = "서버 상태 체크 API")
 @RestController
-@RequiredArgsConstructor
 public class HealthController {
 
 	@Operation(summary = "서버 상태 확인", description = "서버가 정상적으로 동작하는지 확인합니다.")
