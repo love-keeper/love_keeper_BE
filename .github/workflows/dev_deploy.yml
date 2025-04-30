@@ -56,13 +56,13 @@ jobs:
             "universe_domain": "googleapis.com"
           }
           EOL
-                          
+
         shell: bash
 
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          
+
           # JAR 파일 찾기 및 복사
           JAR_FILE=$(find build -name "*.jar" -type f | head -n 1)
           if [ -n "$JAR_FILE" ]; then
@@ -72,16 +72,19 @@ jobs:
             echo "Error: No JAR file found after build"
             exit 1
           fi
-          
+
           # 필요한 파일 복사
           cp docker-compose.yml deploy/docker-compose.yml
           cp Dockerfile deploy/Dockerfile
+          cp Procfile deploy/Procfile  # Procfile 추가
           cp firebase-service-account.json deploy/firebase-service-account.json
-          
+
           # EB 설정 파일 복사
-          cp -r .ebextensions_dev deploy/.ebextensions
-          cp -r .platform deploy/.platform
-          
+          mkdir -p deploy/.ebextensions
+          cp -r .ebextensions_dev/* deploy/.ebextensions/
+          mkdir -p deploy/.platform/nginx
+          cp -r .platform/nginx/nginx.conf deploy/.platform/nginx/
+
           # 배포 패키지 생성
           cd deploy && zip -r deploy.zip .
         shell: bash
