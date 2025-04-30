@@ -83,7 +83,7 @@ jobs:
           mkdir -p deploy/.ebextensions
           cp -r .ebextensions_dev/* deploy/.ebextensions/
           mkdir -p deploy/.platform/nginx
-          cp -r .platform/nginx/nginx.conf deploy/.platform/nginx/
+          cp -r .platform/* deploy/.platform/
 
           # 배포 패키지 생성
           cd deploy && zip -r deploy.zip .
