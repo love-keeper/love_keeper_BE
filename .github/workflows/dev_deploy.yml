@@ -75,7 +75,6 @@ jobs:
           # 필요한 파일 복사
           cp docker-compose.yml deploy/docker-compose.yml
           cp Dockerfile deploy/Dockerfile
-          cp Dockerrun.aws.json deploy/Dockerrun.aws.json
           cp firebase-service-account.json deploy/firebase-service-account.json
           
           # EB 설정 파일 복사
