@@ -10,7 +10,6 @@ services:
       - "8082:8082"
     depends_on:
       - redis
-    # Elastic Beanstalk 환경 변수를 사용
     env_file: .env
     networks:
       - lovekeeper-network
