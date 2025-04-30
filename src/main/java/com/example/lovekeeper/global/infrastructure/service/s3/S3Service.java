@@ -2,27 +2,31 @@ package com.example.lovekeeper.global.infrastructure.service.s3;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
+import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
 
-	private final AmazonS3 amazonS3;
+	private final S3Client s3Client;
+	private final S3Presigner s3Presigner;
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
@@ -35,9 +39,23 @@ public class S3Service {
 		if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
 			deleteProfileImage(oldImageUrl);
 		}
+
 		String fileName = "profileImage/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
-		amazonS3.putObject(new PutObjectRequest(bucketName, fileName, file.getInputStream(), null));
-		String uploadedUrl = amazonS3.getUrl(bucketName, fileName).toString();
+
+		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+			.bucket(bucketName)
+			.key(fileName)
+			.build();
+
+		s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+		GetUrlRequest getUrlRequest = GetUrlRequest.builder()
+			.bucket(bucketName)
+			.key(fileName)
+			.build();
+
+		URL url = s3Client.utilities().getUrl(getUrlRequest);
+		String uploadedUrl = url.toString();
 
 		long endTime = System.currentTimeMillis();
 		long duration = endTime - startTime;
@@ -49,7 +67,13 @@ public class S3Service {
 	private void deleteProfileImage(String imageUrl) {
 		try {
 			String key = new java.net.URL(imageUrl).getPath().substring(1);
-			amazonS3.deleteObject(bucketName, key);
+
+			DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+				.bucket(bucketName)
+				.key(key)
+				.build();
+
+			s3Client.deleteObject(deleteRequest);
 		} catch (Exception e) {
 			log.warn("Failed to delete old profile image: {}", imageUrl, e);
 		}
@@ -62,26 +86,34 @@ public class S3Service {
 
 		String uniqueFileName = "profileImage/" + UUID.randomUUID() + "-" + fileName;
 
-		Date expiration = new Date();
-		long expTimeMillis = expiration.getTime() + (10 * 60 * 1000); // 10분 후 만료
-		expiration.setTime(expTimeMillis);
+		PutObjectRequest objectRequest = PutObjectRequest.builder()
+			.bucket(bucketName)
+			.key(uniqueFileName)
+			.build();
 
-		GeneratePresignedUrlRequest generatePresignedUrlRequest =
-			new GeneratePresignedUrlRequest(bucketName, uniqueFileName)
-				.withMethod(HttpMethod.PUT)
-				.withExpiration(expiration);
+		PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+			.signatureDuration(Duration.ofMinutes(10))
+			.putObjectRequest(objectRequest)
+			.build();
 
-		URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+		PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+		String url = presignedRequest.url().toString();
 
 		long endTime = System.currentTimeMillis();
 		long duration = endTime - startTime;
 		log.info("[S3Service] Presigned URL generation end - fileName: {}, Duration: {}ms", uniqueFileName, duration);
 
-		return url.toString();
+		return url;
 	}
 
 	// Presigned URL로 업로드 후 실제 URL 반환 (필요 시 사용)
 	public String getFileUrl(String fileName) {
-		return amazonS3.getUrl(bucketName, fileName).toString();
+		GetUrlRequest getUrlRequest = GetUrlRequest.builder()
+			.bucket(bucketName)
+			.key(fileName)
+			.build();
+
+		URL url = s3Client.utilities().getUrl(getUrlRequest);
+		return url.toString();
 	}
 }
