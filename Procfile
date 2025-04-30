@@ -1,1 +1,1 @@
-web: appstart
+web: docker-compose up -d
