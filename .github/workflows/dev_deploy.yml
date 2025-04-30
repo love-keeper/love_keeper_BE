@@ -56,13 +56,12 @@ jobs:
             "universe_domain": "googleapis.com"
           }
           EOL
-
         shell: bash
 
       - name: Generate deployment package
         run: |
-          mkdir -p deploy
-
+          mkdir -p deploy/.ebextensions
+          
           # JAR 파일 찾기 및 복사
           JAR_FILE=$(find build -name "*.jar" -type f | head -n 1)
           if [ -n "$JAR_FILE" ]; then
@@ -72,21 +71,27 @@ jobs:
             echo "Error: No JAR file found after build"
             exit 1
           fi
-
+          
           # 필요한 파일 복사
-          cp docker-compose.yml deploy/docker-compose.yml
-          cp Dockerfile deploy/Dockerfile
-          cp Procfile deploy/Procfile  # Procfile 추가
-          cp firebase-service-account.json deploy/firebase-service-account.json
-
+          cp docker-compose.yml deploy/
+          cp Dockerfile deploy/
+          cp Procfile deploy/
+          cp firebase-service-account.json deploy/
+          
           # EB 설정 파일 복사
-          mkdir -p deploy/.ebextensions
           cp -r .ebextensions_dev/* deploy/.ebextensions/
-          mkdir -p deploy/.platform/nginx
-          cp -r .platform/* deploy/.platform/
-
-          # 배포 패키지 생성
-          cd deploy && zip -r deploy.zip .
+          
+          # .platform 디렉토리 생성
+          mkdir -p deploy/.platform
+          cp .platform/nginx.conf deploy/.platform/
+          
+          # nginx/conf.d 디렉토리가 있다면 복사
+          if [ -d ".platform/nginx/conf.d" ]; then
+            mkdir -p deploy/.platform/nginx/conf.d
+            cp -r .platform/nginx/conf.d/* deploy/.platform/nginx/conf.d/
+          fi
+          
+          cd deploy && zip -r ../deploy.zip *
         shell: bash
 
       - name: Beanstalk Deploy
@@ -98,5 +103,5 @@ jobs:
           environment_name: Love-keeper-dev-env
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
-          deployment_package: deploy/deploy.zip
+          deployment_package: deploy.zip
           wait_for_deployment: false
