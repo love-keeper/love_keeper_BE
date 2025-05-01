@@ -74,13 +74,3 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
-
-// JAR 파일 생성을 명시적으로 지정
-bootJar {
-    archiveBaseName = 'application'
-    archiveVersion = ''  // 버전 없이 application.jar로 생성
-}
-
-jar {
-    enabled = false  // plain JAR 생성 비활성화
-}
