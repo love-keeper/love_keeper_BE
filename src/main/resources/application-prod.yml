@@ -1,0 +1,65 @@
+server:
+  port: 8082
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:mysql://${PROD_DB_HOST}:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${PROD_REDIS_HOST}
+      port: 6379
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: validate  # Changed from update for production safety
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        jdbc:
+          time_zone: Asia/Seoul
+        default_batch_fetch_size: 1000
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+fcm:
+  certification: firebase-service-account.json
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: ERROR
+    org.hibernate.type: ERROR
+    com.example.lovekeeper: INFO
