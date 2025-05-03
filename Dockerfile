@@ -1,6 +1,12 @@
-FROM amazoncorretto:17-alpine
-
+FROM --platform=linux/amd64 eclipse-temurin:17-jdk as builder
 WORKDIR /app
+COPY . .
+RUN chmod +x ./gradlew
+RUN ./gradlew bootJar
+
+FROM --platform=linux/amd64 eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 COPY application.jar application.jar
 
