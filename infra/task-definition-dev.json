@@ -1,0 +1,79 @@
+{
+  "family": "lovekeeper-dev",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "arn:aws:iam::065301655985:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "lovekeeper-app",
+      "image": "065301655985.dkr.ecr.ap-northeast-2.amazonaws.com/lovekeeper:dev",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8082,
+          "hostPort": 8082,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        },
+        {
+          "name": "DEV_DB_HOST",
+          "value": "love-keeper-dev-db.c1o2w0c24kkq.ap-northeast-2.rds.amazonaws.com"
+        },
+        {
+          "name": "DEV_DB_USERNAME",
+          "value": "loveKeeperDev"
+        },
+        {
+          "name": "DEV_DB_PASSWORD",
+          "value": "Lovekeeper1234"
+        },
+        {
+          "name": "DEV_REDIS_HOST",
+          "value": "master.love-keeper-redis-dev.futq6r.apn2.cache.amazonaws.com"
+        },
+        {
+          "name": "AWS_ACCESS_KEY",
+          "value": "AKIAQ6NCIGGYT3EJEBQV"
+        },
+        {
+          "name": "AWS_SECRET_KEY",
+          "value": "JmZKvn36U1GWjtKwGLMBeZhb2EqjH43T9qBqqkP"
+        },
+        {
+          "name": "AWS_S3_BUCKET",
+          "value": "lovekeeper-dev"
+        },
+        {
+          "name": "JWT_SECRET",
+          "value": "skdjflksdjflskdfjdfiwjeofijoiasjdfiajsvckmvxkcvmzkxcmvlmklkdgjasdjfoiwjoedifjwodifjasidfj"
+        },
+        {
+          "name": "MAIL_USERNAME",
+          "value": "lovekeepercompany@gmail.com"
+        },
+        {
+          "name": "MAIL_PASSWORD",
+          "value": "psgl ecra spsk hbwh"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lovekeeper-dev",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024"
+}
+
