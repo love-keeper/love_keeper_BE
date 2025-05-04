@@ -133,6 +133,14 @@ variable "db_password_arn" {
 variable "jwt_secret_arn" {
   description = "JWT 비밀키의 AWS Secrets Manager ARN"
   type        = string
+  default     = ""
+}
+
+variable "jwt_secret_value" {
+  description = "JWT 비밀키 값 (환경 변수로 사용)"
+  type        = string
+  sensitive   = true
+  default     = "skdjflksdjflskdfjdfiwjeofijoiasjdfiajsvckmvxkcvmzkxcmvlmklkdgjasdjfoiwjoedifjwodifjasidfj"
 }
 
 variable "redis_endpoint" {

@@ -75,25 +75,9 @@ resource "aws_secretsmanager_secret" "db_password" {
   }
 }
 
-# JWT Secret을 AWS Secrets Manager에 저장
-resource "aws_secretsmanager_secret" "jwt_secret" {
-  name = "${var.project_name}/${local.environment}/jwt-secret-new"
-  
-  tags = {
-    Name        = "${var.project_name}-${local.environment}-jwt-secret"
-    Environment = local.environment
-  }
-}
-
 resource "aws_secretsmanager_secret_version" "db_password" {
   secret_id     = aws_secretsmanager_secret.db_password.id
   secret_string = var.db_password
-}
-
-# 새로운 JWT 시크릿에 값 설정
-resource "aws_secretsmanager_secret_version" "jwt_secret" {
-  secret_id     = aws_secretsmanager_secret.jwt_secret.id
-  secret_string = var.jwt_secret
 }
 
 # 데이터베이스 모듈
@@ -137,7 +121,7 @@ module "compute" {
   db_name         = module.database.db_instance_name
   db_username     = var.db_username
   db_password_arn = aws_secretsmanager_secret.db_password.arn
-  jwt_secret_arn  = aws_secretsmanager_secret.jwt_secret.arn
+  jwt_secret_value = var.jwt_secret
 
   redis_endpoint = module.database.redis_endpoint
   redis_port     = module.database.redis_port

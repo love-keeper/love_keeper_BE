@@ -38,16 +38,16 @@
         {
           "name": "SERVER_PORT",
           "value": "8082"
+        },
+        {
+          "name": "JWT_SECRET",
+          "value": "skdjflksdjflskdfjdfiwjeofijoiasjdfiajsvckmvxkcvmzkxcmvlmklkdgjasdjfoiwjoedifjwodifjasidfj"
         }
       ],
       "secrets": [
         {
           "name": "SPRING_DATASOURCE_PASSWORD",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:065301655985:secret:lovekeeper/dev/db-password-Ea4nKU"
-        },
-        {
-          "name": "JWT_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:065301655985:secret:lovekeeper/dev/jwt-secret-new-2ttw6v"
         }
       ],
       "logConfiguration": {
