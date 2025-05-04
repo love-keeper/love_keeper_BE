@@ -184,19 +184,3 @@ jobs:
           aws ecs wait services-stable \
             --cluster ${{ steps.vars.outputs.ECS_CLUSTER }} \
             --services ${{ steps.vars.outputs.ECS_SERVICE }}
-
-  notify:
-    name: Notify Deployment Status
-    needs: deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Notify success
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_TITLE: Deployment Status
-          SLACK_MESSAGE: ':rocket: Successfully deployed ${{ github.ref }} to AWS ECS!'
-          SLACK_FOOTER: 'GitHub Actions'
