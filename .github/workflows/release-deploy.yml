@@ -1,9 +1,9 @@
-name: Deploy to Dev Environment
+name: Deploy to Release Environment
 
 on:
   push:
     branches:
-      - develop
+      - main
   workflow_dispatch:
 
 jobs:
@@ -41,15 +41,15 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: lovekeeper-app
-          IMAGE_TAG: dev
+          IMAGE_TAG: release
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
       - name: Update ECS service
         run: |
-          aws ecs update-service --cluster lovekeeper-dev --service lovekeeper-dev --force-new-deployment
+          aws ecs update-service --cluster lovekeeper-release --service lovekeeper-release --force-new-deployment
           
       - name: Wait for ECS deployment to complete
         run: |
-          aws ecs wait services-stable --cluster lovekeeper-dev --services lovekeeper-dev
+          aws ecs wait services-stable --cluster lovekeeper-release --services lovekeeper-release

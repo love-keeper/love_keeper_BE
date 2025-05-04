@@ -56,8 +56,8 @@ resource "aws_security_group" "ecs" {
 
   # ALB로부터의 인바운드 트래픽 허용
   ingress {
-    from_port       = 8080
-    to_port         = 8080
+    from_port       = 8082
+    to_port         = 8082
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
