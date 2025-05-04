@@ -8,8 +8,8 @@
         "cpu": 0,
         "portMappings": [
           {
-            "containerPort": 8080,
-            "hostPort": 8080,
+            "containerPort": 8082,
+            "hostPort": 8082,
             "protocol": "tcp"
           }
         ],
@@ -46,6 +46,10 @@
           {
             "name": "SPRING_DATASOURCE_PASSWORD",
             "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:065301655985:secret:lovekeeper/dev/db-password-Ea4nKU"
+          },
+          {
+            "name": "JWT_SECRET",
+            "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:065301655985:secret:lovekeeper/dev/jwt-secret-new-2ttw6v"
           }
         ],
         "logConfiguration": {
