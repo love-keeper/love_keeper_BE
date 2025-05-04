@@ -40,7 +40,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: lovekeeper
+          ECR_REPOSITORY: lovekeeper-app
           IMAGE_TAG: dev-${{ github.sha }}
         run: |
           cp build/libs/*.jar application.jar
@@ -49,6 +49,81 @@ jobs:
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:dev
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev
 
+      - name: Create new task definition with port 8082
+        run: |
+          cat > task-definition.json << 'EOF'
+          {
+            "family": "lovekeeper-dev",
+            "executionRoleArn": "arn:aws:iam::065301655985:role/lovekeeper-dev-ecs-execution-role",
+            "taskRoleArn": "arn:aws:iam::065301655985:role/lovekeeper-dev-ecs-task-role",
+            "networkMode": "awsvpc",
+            "containerDefinitions": [
+              {
+                "name": "app",
+                "image": "${ECR_REGISTRY}/${ECR_REPOSITORY}:dev",
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 8082,
+                    "hostPort": 8082
+                  }
+                ],
+                "environment": [
+                  {
+                    "name": "SPRING_PROFILES_ACTIVE",
+                    "value": "dev"
+                  },
+                  {
+                    "name": "SPRING_DATASOURCE_URL",
+                    "value": "jdbc:mysql://lovekeeper-dev-db.c1o2w0c24kkq.ap-northeast-2.rds.amazonaws.com:3306/lovekeeper_dev?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8"
+                  },
+                  {
+                    "name": "SPRING_DATASOURCE_USERNAME",
+                    "value": "admin"
+                  },
+                  {
+                    "name": "SPRING_REDIS_HOST",
+                    "value": "lovekeeper-dev-redis.futq6r.0001.apn2.cache.amazonaws.com"
+                  },
+                  {
+                    "name": "SPRING_REDIS_PORT",
+                    "value": "6379"
+                  },
+                  {
+                    "name": "SERVER_PORT",
+                    "value": "8082"
+                  }
+                ],
+                "secrets": [
+                  {
+                    "name": "SPRING_DATASOURCE_PASSWORD",
+                    "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:065301655985:secret:lovekeeper/dev/db-password-Ea4nKU"
+                  }
+                ],
+                "logConfiguration": {
+                  "logDriver": "awslogs",
+                  "options": {
+                    "awslogs-group": "/ecs/lovekeeper-dev",
+                    "awslogs-region": "ap-northeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                  }
+                }
+              }
+            ],
+            "requiresCompatibilities": [
+              "FARGATE"
+            ],
+            "cpu": "512",
+            "memory": "1024",
+            "runtimePlatform": {
+              "cpuArchitecture": "X86_64",
+              "operatingSystemFamily": "LINUX"
+            }
+          }
+          EOF
+          envsubst < task-definition.json > task-definition-final.json
+          aws ecs register-task-definition --cli-input-json file://task-definition-final.json
+
       - name: Update ECS service
         run: |
-          aws ecs update-service --cluster lovekeeper-dev --service lovekeeper-dev-service --force-new-deployment
+          aws ecs update-service --cluster lovekeeper-dev --service lovekeeper-dev --force-new-deployment
