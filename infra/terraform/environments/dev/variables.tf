@@ -68,6 +68,13 @@ variable "db_password" {
   default     = "changeme" # 실제 구현 시에는 안전한 비밀번호 사용 필요
 }
 
+variable "jwt_secret" {
+  description = "JWT 서명용 비밀키"
+  type        = string
+  sensitive   = true
+  default     = "skdjflksdjflskdfjdfiwjeofijoiasjdfiajsvckmvxkcvmzkxcmvlmklkdgjasdjfoiwjoedifjwodifjasidfj" # 실제 구현 시에는 랜덤 생성한 길고 복잡한 값 사용 필요
+}
+
 variable "db_instance_class" {
   description = "RDS 인스턴스 타입"
   type        = string

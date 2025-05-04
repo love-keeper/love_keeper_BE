@@ -120,6 +120,10 @@ resource "aws_ecs_task_definition" "app" {
         {
           name      = "SPRING_DATASOURCE_PASSWORD"
           valueFrom = var.db_password_arn
+        },
+        {
+          name      = "JWT_SECRET"
+          valueFrom = var.jwt_secret_arn
         }
       ]
 

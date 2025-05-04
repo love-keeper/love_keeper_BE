@@ -130,6 +130,11 @@ variable "db_password_arn" {
   type        = string
 }
 
+variable "jwt_secret_arn" {
+  description = "JWT 비밀키의 AWS Secrets Manager ARN"
+  type        = string
+}
+
 variable "redis_endpoint" {
   description = "Redis 엔드포인트"
   type        = string

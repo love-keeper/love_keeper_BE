@@ -48,29 +48,39 @@ module "networking" {
 module "security" {
   source = "../../modules/security"
 
-  project_name    = var.project_name
-  environment     = local.environment
-  vpc_id          = module.networking.vpc_id
-  create_bastion  = var.create_bastion
-  admin_cidrs     = var.admin_cidrs
-  s3_bucket_name  = "${var.project_name}-${local.environment}"
+  project_name   = var.project_name
+  environment    = local.environment
+  vpc_id         = module.networking.vpc_id
+  create_bastion = var.create_bastion
+  admin_cidrs    = var.admin_cidrs
+  s3_bucket_name = "${var.project_name}-${local.environment}"
 }
 
 # 스토리지 모듈
 module "storage" {
   source = "../../modules/storage"
 
-  project_name  = var.project_name
-  environment   = local.environment
+  project_name    = var.project_name
+  environment     = local.environment
   allowed_origins = var.allowed_origins
 }
 
 # DB 비밀번호를 AWS Secrets Manager에 저장
 resource "aws_secretsmanager_secret" "db_password" {
   name = "${var.project_name}/${local.environment}/db-password"
-  
+
   tags = {
     Name        = "${var.project_name}-${local.environment}-db-password"
+    Environment = local.environment
+  }
+}
+
+# JWT Secret을 AWS Secrets Manager에 저장
+resource "aws_secretsmanager_secret" "jwt_secret" {
+  name = "${var.project_name}/${local.environment}/jwt-secret-new"
+  
+  tags = {
+    Name        = "${var.project_name}-${local.environment}-jwt-secret"
     Environment = local.environment
   }
 }
@@ -80,16 +90,22 @@ resource "aws_secretsmanager_secret_version" "db_password" {
   secret_string = var.db_password
 }
 
+# 새로운 JWT 시크릿에 값 설정
+resource "aws_secretsmanager_secret_version" "jwt_secret" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = var.jwt_secret
+}
+
 # 데이터베이스 모듈
 module "database" {
   source = "../../modules/database"
 
-  project_name         = var.project_name
-  environment          = local.environment
-  subnet_ids           = module.networking.private_subnet_ids
-  security_group_id    = module.security.db_security_group_id
+  project_name            = var.project_name
+  environment             = local.environment
+  subnet_ids              = module.networking.private_subnet_ids
+  security_group_id       = module.security.db_security_group_id
   redis_security_group_id = module.security.redis_security_group_id
-  
+
   db_name              = var.db_name
   db_username          = var.db_username
   db_password          = var.db_password
@@ -110,30 +126,31 @@ module "compute" {
   private_subnet_ids    = module.networking.private_subnet_ids
   ecs_security_group_id = module.security.ecs_security_group_id
   alb_security_group_id = module.security.alb_security_group_id
-  
-  execution_role_arn    = module.security.ecs_execution_role_arn
-  task_role_arn         = module.security.ecs_task_role_arn
-  
-  create_ecr            = var.create_ecr
-  image_tag             = var.image_tag
-  
-  db_endpoint           = module.database.db_instance_endpoint
-  db_name               = module.database.db_instance_name
-  db_username           = var.db_username
-  db_password_arn       = aws_secretsmanager_secret.db_password.arn
-  
-  redis_endpoint        = module.database.redis_endpoint
-  redis_port            = module.database.redis_port
-  
-  task_cpu              = var.task_cpu
-  task_memory           = var.task_memory
-  desired_count         = var.desired_count
-  health_check_path     = var.health_check_path
-  
-  create_alb            = var.create_alb
-  ssl_certificate_arn   = var.ssl_certificate_arn
-  
-  create_bastion        = var.create_bastion
-  bastion_key_name      = var.bastion_key_name
+
+  execution_role_arn = module.security.ecs_execution_role_arn
+  task_role_arn      = module.security.ecs_task_role_arn
+
+  create_ecr = var.create_ecr
+  image_tag  = var.image_tag
+
+  db_endpoint     = module.database.db_instance_endpoint
+  db_name         = module.database.db_instance_name
+  db_username     = var.db_username
+  db_password_arn = aws_secretsmanager_secret.db_password.arn
+  jwt_secret_arn  = aws_secretsmanager_secret.jwt_secret.arn
+
+  redis_endpoint = module.database.redis_endpoint
+  redis_port     = module.database.redis_port
+
+  task_cpu          = var.task_cpu
+  task_memory       = var.task_memory
+  desired_count     = var.desired_count
+  health_check_path = var.health_check_path
+
+  create_alb          = var.create_alb
+  ssl_certificate_arn = var.ssl_certificate_arn
+
+  create_bastion            = var.create_bastion
+  bastion_key_name          = var.bastion_key_name
   bastion_security_group_id = module.security.bastion_security_group_id
 }
