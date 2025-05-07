@@ -33,7 +33,7 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           },
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:your-github-org/lovekeeper:*"
+            "token.actions.githubusercontent.com:sub" = "repo:love-keeper/love_keeper_BE:*"
           }
         }
       }
