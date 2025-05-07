@@ -89,17 +89,30 @@ jobs:
             echo "DynamoDB table already exists."
           fi
 
+      # 비밀값을 안전하게 처리하여 tfvars 파일 생성
       - name: Create tfvars file
         run: |
-          cat > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars << 'EOF'
-          db_username   = "${{ secrets.DB_USERNAME }}"
-          db_password   = "${{ secrets.DB_PASSWORD }}"
-          jwt_secret    = "${{ secrets.JWT_SECRET }}"
-          mail_username = "${{ secrets.MAIL_USERNAME }}"
-          mail_password = "${{ secrets.MAIL_PASSWORD }}"
-          aws_access_key = "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          aws_secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          EOF
+          # 각 비밀을 개별적으로 처리하고 이스케이프 처리
+          DB_USERNAME=$(echo '${{ secrets.DB_USERNAME }}' | sed 's/"/\\"/g')
+          DB_PASSWORD=$(echo '${{ secrets.DB_PASSWORD }}' | sed 's/"/\\"/g')
+          JWT_SECRET=$(echo '${{ secrets.JWT_SECRET }}' | sed 's/"/\\"/g') 
+          MAIL_USERNAME=$(echo '${{ secrets.MAIL_USERNAME }}' | sed 's/"/\\"/g')
+          MAIL_PASSWORD=$(echo '${{ secrets.MAIL_PASSWORD }}' | sed 's/"/\\"/g')
+          AWS_ACCESS_KEY=$(echo '${{ secrets.AWS_ACCESS_KEY_ID }}' | sed 's/"/\\"/g')
+          AWS_SECRET_KEY=$(echo '${{ secrets.AWS_SECRET_ACCESS_KEY }}' | sed 's/"/\\"/g')
+
+          # 파일에 라인별로 쓰기
+          echo 'db_username = "'$DB_USERNAME'"' > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'db_password = "'$DB_PASSWORD'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'jwt_secret = "'$JWT_SECRET'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'mail_username = "'$MAIL_USERNAME'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'mail_password = "'$MAIL_PASSWORD'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'aws_access_key = "'$AWS_ACCESS_KEY'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          echo 'aws_secret_key = "'$AWS_SECRET_KEY'"' >> terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          
+          # 디버깅용 (비밀값은 마스킹)
+          echo "Created tfvars file with the following variables:"
+          cat terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars | sed 's/".*"/"***"/g'
 
       - name: Terraform Init
         working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
