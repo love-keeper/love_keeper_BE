@@ -8,6 +8,14 @@ build/
 # Firebase 자격 증명 파일
 src/main/resources/firebase-service-account.json
 terraform/environments/*/firebase-credentials.json
+**/firebase-service-account.json
+
+# 암호화되지 않은 민감한 파일
+**/*.env
+**/*.key
+**/*.pem
+**/*.p12
+**/secrets.json
 
 ### STS ###
 .apt_generated
@@ -74,4 +82,7 @@ terraform.rc
 
 ### AWS ###
 *.pem
-*.pem.pubsrc/main/resources/firebase-service-account.json
+*.pem.pub
+
+# 암호화되지 않은 민감한 파일은 제외하되 암호화된 파일은 포함
+!*.encrypted

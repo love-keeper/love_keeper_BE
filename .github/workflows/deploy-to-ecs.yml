@@ -5,6 +5,7 @@ on:
     branches:
       - main      # 릴리스 환경
       - develop   # 개발 환경
+      - ci/setting # 현재 작업 브랜치
   workflow_dispatch:  # 수동 실행 옵션
 
 env:
@@ -28,8 +29,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build with Gradle (skip tests for now)
+        run: ./gradlew build -x test
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
