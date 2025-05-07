@@ -4,10 +4,10 @@ server:
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: release
 
   datasource:
-    url: jdbc:mysql://${DEV_DB_HOST}:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://${RELEASE_DB_HOST:localhost}:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DEV_DB_USERNAME}
     password: ${DEV_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -55,10 +55,10 @@ cloud:
       auto: false
 
 fcm:
-  secret-name: dev/lovekeeper/firebase-credentials
+  secret-name: release/lovekeeper/firebase-credentials
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
-    com.example.lovekeeper: debug
+    org.hibernate.SQL: info
+    org.hibernate.type: info
+    com.example.lovekeeper: info

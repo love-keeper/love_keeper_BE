@@ -1,0 +1,61 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Set environment based on branch
+        id: set-env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=release" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tfvars file
+        run: |
+          cat > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars << EOF
+          db_username   = "${{ secrets.DB_USERNAME }}"
+          db_password   = "${{ secrets.DB_PASSWORD }}"
+          jwt_secret    = "${{ secrets.JWT_SECRET }}"
+          mail_username = "${{ secrets.MAIL_USERNAME }}"
+          mail_password = "${{ secrets.MAIL_PASSWORD }}"
+          aws_access_key = "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws_secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          EOF
+
+      - name: Terraform Init
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform plan -var-file=secrets.tfvars
+
+      - name: Terraform Apply
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform apply -var-file=secrets.tfvars -auto-approve

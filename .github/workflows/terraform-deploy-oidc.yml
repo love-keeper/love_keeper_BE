@@ -1,0 +1,60 @@
+name: Terraform Deploy with OIDC
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  id-token: write # OIDC 인증에 필요
+  contents: read
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsOIDCRole
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Set environment based on branch
+        id: set-env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=release" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Retrieve secrets from AWS Secrets Manager
+        run: |
+          # AWS Secrets Manager에서 시크릿 가져오기
+          SECRETS=$(aws secretsmanager get-secret-value --secret-id ${{ steps.set-env.outputs.environment }}/lovekeeper/app-secrets --query SecretString --output text)
+          
+          # JSON을 tfvars 형식으로 변환하여 저장
+          echo "$SECRETS" | jq -r 'to_entries | map("\(.key) = \"\(.value)\"") | .[]' > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+
+      - name: Terraform Init
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform plan -var-file=secrets.tfvars
+
+      - name: Terraform Apply
+        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
+        run: terraform apply -var-file=secrets.tfvars -auto-approve
