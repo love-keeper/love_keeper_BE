@@ -83,6 +83,7 @@ module "ecs" {
   jwt_secret            = var.jwt_secret
   aws_access_key        = var.aws_access_key
   aws_secret_key        = var.aws_secret_key
+  firebase_credentials  = file("${path.module}/firebase-credentials.json")
 }
 
 module "route53" {

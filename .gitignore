@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# Firebase 자격 증명 파일
+src/main/resources/firebase-service-account.json
+terraform/environments/*/firebase-credentials.json
+
 ### STS ###
 .apt_generated
 .classpath
@@ -70,4 +74,4 @@ terraform.rc
 
 ### AWS ###
 *.pem
-*.pem.pub
+*.pem.pubsrc/main/resources/firebase-service-account.json

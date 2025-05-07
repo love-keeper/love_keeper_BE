@@ -68,7 +68,8 @@ resource "aws_ecs_task_definition" "main" {
         { name = "JWT_SECRET", valueFrom = "/${var.environment}/jwt/secret" },
         { name = "AWS_ACCESS_KEY", valueFrom = "/${var.environment}/aws/access_key" },
         { name = "AWS_SECRET_KEY", valueFrom = "/${var.environment}/aws/secret_key" },
-        { name = "AWS_S3_BUCKET", valueFrom = "/${var.environment}/aws/s3_bucket" }
+        { name = "AWS_S3_BUCKET", valueFrom = "/${var.environment}/aws/s3_bucket" },
+        { name = "FCM_CREDENTIALS", valueFrom = "/${var.environment}/firebase/credentials" }
       ]
     }
   ])
@@ -396,5 +397,32 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+}
+
+# Firebase 자격 증명을 AWS Secrets Manager에 저장
+resource "aws_secretsmanager_secret" "firebase_credentials" {
+  name        = "${var.environment}/lovekeeper/firebase-credentials"
+  description = "Firebase service account credentials for ${var.environment} environment"
+  
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "firebase_credentials" {
+  secret_id     = aws_secretsmanager_secret.firebase_credentials.id
+  secret_string = var.firebase_credentials
+}
+
+# Firebase 자격 증명을 SSM Parameter Store에도 저장
+resource "aws_ssm_parameter" "firebase_credentials" {
+  name        = "/${var.environment}/firebase/credentials"
+  description = "Firebase service account credentials for ${var.environment} environment"
+  type        = "SecureString"
+  value       = var.firebase_credentials
+
+  tags = {
+    Environment = var.environment
   }
 }

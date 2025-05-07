@@ -1,3 +1,9 @@
+variable "firebase_credentials" {
+  description = "Firebase service account credentials in JSON format"
+  type        = string
+  sensitive   = true
+}
+
 variable "environment" {
   description = "Environment (dev or release)"
   type        = string
