@@ -5,12 +5,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### Elastic Beanstalk ###
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-build/dist/
-
 ### STS ###
 .apt_generated
 .classpath
@@ -39,29 +33,41 @@ out/
 /nbdist/
 /.nb-gradle/
 
-
 ### VS Code ###
 .vscode/
 
-src/main/resources/firebase-service-account.json
-
-new-task-def.json
-task-definition.json
-
-# Terraform
+### Terraform ###
+# Local .terraform directories
 **/.terraform/*
+
+# .tfstate files
 *.tfstate
 *.tfstate.*
+
+# Crash log files
 crash.log
 crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data
 *.tfvars
 *.tfvars.json
+
+# Ignore override files as they are usually used to override resources locally
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan
+*tfplan*
+
+# Ignore CLI configuration files
 .terraformrc
 terraform.rc
 
-# Task definitions
-*task-definition*.json
+### AWS ###
+*.pem
+*.pem.pub
