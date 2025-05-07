@@ -92,13 +92,22 @@ jobs:
             echo "DynamoDB table already exists."
           fi
 
-      - name: Retrieve secrets from AWS Secrets Manager
+      - name: Retrieve and format secrets from AWS Secrets Manager
         run: |
           # AWS Secrets Manager에서 시크릿 가져오기
           SECRETS=$(aws secretsmanager get-secret-value --secret-id ${{ steps.set-env.outputs.environment }}/lovekeeper/app-secrets --query SecretString --output text)
           
-          # JSON을 tfvars 형식으로 변환하여 저장
-          echo "$SECRETS" | jq -r 'to_entries | map("\(.key) = \"\(.value)\"") | .[]' > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          # 시크릿을 안전하게 파싱 및 변환
+          echo "Creating tfvars file from secrets..."
+          # 파일 생성
+          touch terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          
+          # jq를 사용해 안전하게 JSON 파싱 및 각 항목을 개별적으로 처리
+          echo $SECRETS | jq -r 'to_entries[] | "\(.key) = \"\(.value)\""' > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          
+          # 디버깅용 (값은 마스킹)
+          echo "Created tfvars file with the following variables:"
+          cat terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars | sed 's/".*"/"***"/g'
 
       - name: Terraform Init
         working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
