@@ -92,22 +92,33 @@ jobs:
             echo "DynamoDB table already exists."
           fi
 
-      - name: Retrieve and format secrets from AWS Secrets Manager
+      # Secrets Manager에서 변수를 가져와 안전하게 tfvars 파일 생성
+      - name: Create tfvars file from Secrets Manager
         run: |
-          # AWS Secrets Manager에서 시크릿 가져오기
-          SECRETS=$(aws secretsmanager get-secret-value --secret-id ${{ steps.set-env.outputs.environment }}/lovekeeper/app-secrets --query SecretString --output text)
+          # 기존 파일이 있으면 삭제
+          rm -f terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
           
-          # 시크릿을 안전하게 파싱 및 변환
-          echo "Creating tfvars file from secrets..."
-          # 파일 생성
-          touch terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          # Secrets Manager에서 값을 가져오기
+          SECRET_STRING=$(aws secretsmanager get-secret-value \
+            --secret-id ${{ steps.set-env.outputs.environment }}/lovekeeper/app-secrets \
+            --query SecretString \
+            --output text)
           
-          # jq를 사용해 안전하게 JSON 파싱 및 각 항목을 개별적으로 처리
-          echo $SECRETS | jq -r 'to_entries[] | "\(.key) = \"\(.value)\""' > terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
+          # 임시 Python 스크립트를 사용하여 JSON을 tfvars로 변환
+          python3 -c "
+import json, sys
+secrets = json.loads('$SECRET_STRING')
+with open('terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars', 'w') as f:
+    for key, value in secrets.items():
+        # 값에 줄바꿈이나 특수 문자가 있을 경우 처리
+        if isinstance(value, str):
+            value = value.replace('\"', '\\\"').replace('\n', '\\n')
+        f.write(f'{key} = \"{value}\"\n')
+          "
           
-          # 디버깅용 (값은 마스킹)
+          # 디버깅을 위해 파일이 생성되었는지 확인 (값은 숨김)
           echo "Created tfvars file with the following variables:"
-          cat terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars | sed 's/".*"/"***"/g'
+          grep -o '^[^=]*' terraform/environments/${{ steps.set-env.outputs.environment }}/secrets.tfvars
 
       - name: Terraform Init
         working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
@@ -119,10 +130,11 @@ jobs:
             -backend-config="dynamodb_table=terraform-state-lock" \
             -backend-config="encrypt=true"
 
-      - name: Terraform Plan
+      - name: Terraform Plan and Apply
         working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
-        run: terraform plan -var-file=secrets.tfvars -input=false
-
-      - name: Terraform Apply
-        working-directory: terraform/environments/${{ steps.set-env.outputs.environment }}
-        run: terraform apply -var-file=secrets.tfvars -auto-approve -input=false
+        run: |
+          # 계획 파일 생성
+          terraform plan -var-file=secrets.tfvars -input=false -out=tfplan
+          
+          # 계획 적용
+          terraform apply -input=false -auto-approve tfplan
