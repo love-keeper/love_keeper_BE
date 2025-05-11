@@ -1,89 +1,78 @@
-variable "firebase_credentials" {
-  description = "Firebase service account credentials in JSON format"
+variable "vpc_id" {
+  description = "The ID of the VPC"
   type        = string
-  sensitive   = true
+}
+
+variable "private_subnet_ids" {
+  description = "The IDs of the private subnets"
+  type        = list(string)
+}
+
+variable "ecs_sg_id" {
+  description = "The ID of the ECS security group"
+  type        = string
+}
+
+variable "alb_target_group_arn" {
+  description = "The ARN of the ALB target group"
+  type        = string
+}
+
+variable "ecr_repository_url" {
+  description = "The URL of the ECR repository"
+  type        = string
+}
+
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
 }
 
 variable "environment" {
-  description = "Environment (dev or release)"
+  description = "The deployment environment"
   type        = string
 }
 
-variable "region" {
-  description = "AWS region"
-  type        = string
-  default     = "ap-northeast-2"
+variable "container_port" {
+  description = "The port exposed by the container"
+  type        = number
 }
 
-variable "private_subnet_1_id" {
-  description = "ID of private subnet 1"
-  type        = string
+variable "cpu" {
+  description = "The number of CPU units for the task"
+  type        = number
 }
 
-variable "private_subnet_2_id" {
-  description = "ID of private subnet 2"
-  type        = string
+variable "memory" {
+  description = "The amount of memory for the task (in MiB)"
+  type        = number
 }
 
-variable "ecs_security_group_id" {
-  description = "ID of ECS security group"
-  type        = string
-}
-
-variable "target_group_arn" {
-  description = "ARN of ALB target group"
-  type        = string
-}
-
-variable "task_cpu" {
-  description = "CPU units for the task (1 vCPU = 1024 CPU units)"
-  type        = string
-  default     = "256"
-}
-
-variable "task_memory" {
-  description = "Memory for the task (in MiB)"
-  type        = string
-  default     = "512"
-}
-
-variable "service_desired_count" {
-  description = "Desired count of task instances"
+variable "desired_count" {
+  description = "The desired number of tasks"
   type        = number
   default     = 1
 }
 
-variable "s3_bucket_name" {
-  description = "Name of the S3 bucket"
+variable "aws_region" {
+  description = "The AWS region"
   type        = string
 }
 
-variable "mail_username" {
-  description = "Mail username"
-  type        = string
-  sensitive   = true
+variable "environment_variables" {
+  description = "Environment variables for the container"
+  type        = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
 }
 
-variable "mail_password" {
-  description = "Mail password"
-  type        = string
-  sensitive   = true
-}
-
-variable "jwt_secret" {
-  description = "JWT secret"
-  type        = string
-  sensitive   = true
-}
-
-variable "aws_access_key" {
-  description = "AWS access key"
-  type        = string
-  sensitive   = true
-}
-
-variable "aws_secret_key" {
-  description = "AWS secret key"
-  type        = string
-  sensitive   = true
+variable "secrets" {
+  description = "Secrets for the container"
+  type        = list(object({
+    name      = string
+    valueFrom = string
+  }))
+  default     = []
 }

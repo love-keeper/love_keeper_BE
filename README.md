@@ -1,85 +1,70 @@
-# Lovekeeper Infrastructure
+# LoveKeeper
 
-This repository contains Terraform configuration for the Lovekeeper project infrastructure on AWS.
+A Spring Boot application for [brief description of your application].
 
 ## Architecture
 
-The infrastructure consists of:
+This project uses a multi-environment AWS architecture:
 
-- VPC with public and private subnets across two availability zones
-- Application Load Balancer in public subnets
-- NAT Gateways for outbound internet access from private subnets
-- Bastion host for secure administrative access
-- ECS Fargate clusters for dev and release environments
-- RDS MySQL databases for dev and release environments
-- ElastiCache Redis clusters for dev and release environments
-- S3 bucket for file storage
-- ECR repository for Docker images
+![Architecture Diagram](architecture-diagram.png)
 
-## Prerequisites
+Key components:
+- Spring Boot backend API
+- MySQL databases for persistence
+- Redis for caching
+- S3 for file storage
+- Firebase Cloud Messaging for notifications
+- AWS ECS for container orchestration
+- Application Load Balancer for traffic routing
+- GitHub Actions for CI/CD
 
-- AWS CLI configured with appropriate credentials
-- Terraform 1.0.0 or newer
-- A public SSH key for the bastion host
+## Development Environment
 
-## Setup Instructions
+- Java 17
+- Spring Boot
+- Gradle
+- MySQL
+- Redis
 
-1. Create a `terraform.tfvars` file with your variable values:
+## Project Structure
 
-```hcl
-aws_region             = "ap-northeast-2"
-db_username            = "admin"
-db_password            = "your-secure-password"
-fcm_api_key            = "your-fcm-api-key"
-terraform_state_bucket = "your-terraform-state-bucket"
-```
+- `src/main/java`: Java source code
+- `src/main/resources`: Configuration files and resources
+- `terraform`: Infrastructure as Code using Terraform
+- `.github/workflows`: CI/CD workflows using GitHub Actions
 
-2. Initialize Terraform:
+## Configuration Profiles
 
-```bash
-terraform init
-```
+- `application.yml`: Common configuration
+- `application-dev.yml`: Development environment configuration
+- `application-prod.yml`: Production environment configuration
 
-3. Create SSH key for bastion host:
+## Infrastructure Setup
 
-```bash
-ssh-keygen -t rsa -b 4096 -f ./bastion_key -C "bastion@lovekeeper"
-```
+The infrastructure is managed using Terraform. See [terraform/README.md](terraform/README.md) for details.
 
-4. Plan the infrastructure:
+## Deployment
 
-```bash
-terraform plan -out=tfplan
-```
+The application is deployed using GitHub Actions workflows:
 
-5. Apply the infrastructure:
+- `deploy-dev.yml`: Deploys to the development environment from the `develop` branch
+- `deploy-prod.yml`: Deploys to the production environment from the `main` branch
 
-```bash
-terraform apply tfplan
-```
+## Getting Started
 
-## CI/CD Integration
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/lovekeeper.git
+   ```
 
-This infrastructure supports a GitFlow-based CI/CD pipeline:
+2. Build the project:
+   ```bash
+   ./gradlew build
+   ```
 
-- Code pushed to the `develop` branch deploys to the dev environment
-- Code pushed to the `main` branch deploys to the release environment
+3. Run locally:
+   ```bash
+   ./gradlew bootRun --args='--spring.profiles.active=local'
+   ```
 
-## Network Architecture
-
-- VPC CIDR: 10.0.0.0/16
-- Public Subnet 1: 10.0.1.0/24
-- Public Subnet 2: 10.0.2.0/24
-- Private Subnet 1 (Dev): 10.0.3.0/24
-- Private Subnet 2 (Release): 10.0.4.0/24
-
-## Monitoring and Logging
-
-- ECS task logs are sent to CloudWatch
-- Container insights are enabled for ECS clusters
-
-## Security Notes
-
-- Production deployments should restrict access to the bastion host to specific IPs
-- ACM certificate should be properly configured for HTTPS
-- CORS settings should be restricted to specific origins
+4. For infrastructure setup, see [terraform/README.md](terraform/README.md).

@@ -1,15 +1,45 @@
 resource "aws_db_subnet_group" "main" {
-  name       = "${var.environment}-db-subnet-group"
-  subnet_ids = [var.private_subnet_1_id, var.private_subnet_2_id]
+  name       = "${var.project_name}-${var.environment}-db-subnet-group"
+  subnet_ids = var.subnet_ids
 
   tags = {
-    Name        = "${var.environment}-db-subnet-group"
+    Name        = "${var.project_name}-${var.environment}-db-subnet-group"
+    Project     = var.project_name
+    Environment = var.environment
+  }
+}
+
+resource "aws_db_instance" "main" {
+  identifier             = "${var.project_name}-${var.environment}-db"
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = var.db_instance_class
+  allocated_storage      = var.db_allocated_storage
+  storage_type           = "gp2"
+  storage_encrypted      = true
+  db_name                = var.db_name
+  username               = var.db_username
+  password               = var.db_password
+  port                   = 3306
+  publicly_accessible    = false
+  vpc_security_group_ids = [var.db_sg_id]
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+  parameter_group_name   = aws_db_parameter_group.main.name
+  skip_final_snapshot    = true
+  multi_az               = var.environment == "prod" ? true : false
+  backup_retention_period = var.environment == "prod" ? 7 : 1
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "Mon:04:00-Mon:05:00"
+  
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-db"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
 
 resource "aws_db_parameter_group" "main" {
-  name   = "${var.environment}-db-parameter-group"
+  name   = "${var.project_name}-${var.environment}-db-pg"
   family = "mysql8.0"
 
   parameter {
@@ -22,69 +52,14 @@ resource "aws_db_parameter_group" "main" {
     value = "utf8mb4"
   }
 
-  tags = {
-    Name        = "${var.environment}-db-parameter-group"
-    Environment = var.environment
+  parameter {
+    name  = "time_zone"
+    value = "Asia/Seoul"
   }
-}
-
-resource "aws_db_instance" "main" {
-  identifier              = "${var.environment}-db"
-  allocated_storage       = var.allocated_storage
-  storage_type            = "gp3"
-  engine                  = "mysql"
-  engine_version          = "8.0"
-  instance_class          = var.instance_class
-  db_name                 = "love_keeper"
-  username                = var.db_username
-  password                = var.db_password
-  parameter_group_name    = aws_db_parameter_group.main.name
-  db_subnet_group_name    = aws_db_subnet_group.main.name
-  vpc_security_group_ids  = [var.rds_security_group_id]
-  multi_az                = var.multi_az
-  backup_retention_period = 7
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "Mon:04:00-Mon:05:00"
-  skip_final_snapshot     = true
-  publicly_accessible     = false
-  apply_immediately       = true
 
   tags = {
-    Name        = "${var.environment}-db"
-    Environment = var.environment
-  }
-}
-
-# 비밀번호를 AWS SSM 파라미터 저장소에 저장
-resource "aws_ssm_parameter" "db_password" {
-  name        = "/${var.environment}/db/password"
-  description = "Database password for ${var.environment} environment"
-  type        = "SecureString"
-  value       = var.db_password
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
-resource "aws_ssm_parameter" "db_username" {
-  name        = "/${var.environment}/db/username"
-  description = "Database username for ${var.environment} environment"
-  type        = "SecureString"
-  value       = var.db_username
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
-resource "aws_ssm_parameter" "db_host" {
-  name        = "/${var.environment}/db/host"
-  description = "Database hostname for ${var.environment} environment"
-  type        = "String"
-  value       = aws_db_instance.main.address
-
-  tags = {
+    Name        = "${var.project_name}-${var.environment}-db-pg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
