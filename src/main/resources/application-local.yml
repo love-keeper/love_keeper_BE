@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   config:
@@ -7,9 +7,9 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:mysql://${DEV_DB_HOST}:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${DEV_DB_USERNAME}
-    password: ${DEV_DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/love_keeper?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: your_password
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
@@ -45,10 +45,10 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${PROD_AWS_ACCESS_KEY}
+      secret-key: ${PROD_AWS_SECRET_KEY}
     s3:
-      bucket: ${AWS_S3_BUCKET}
+      bucket: ${PROD_AWS_S3_BUCKET}
     region:
       static: ap-northeast-2
     stack:

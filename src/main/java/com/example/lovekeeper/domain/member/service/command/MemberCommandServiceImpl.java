@@ -12,6 +12,7 @@ import com.example.lovekeeper.domain.auth.service.command.EmailAuthCommandServic
 import com.example.lovekeeper.domain.couple.exception.CoupleErrorStatus;
 import com.example.lovekeeper.domain.couple.exception.CoupleException;
 import com.example.lovekeeper.domain.couple.model.Couple;
+import com.example.lovekeeper.domain.couple.model.CoupleStatus;
 import com.example.lovekeeper.domain.couple.repository.CoupleRepository;
 import com.example.lovekeeper.domain.member.dto.request.ChangePasswordRequest;
 import com.example.lovekeeper.domain.member.dto.response.ChangeBirthdayResponse;
@@ -110,9 +111,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 			throw new MemberException(MemberErrorStatus.MEMBER_ALREADY_DELETED);
 		}
 
+		// 커플 연결 끊기
+		member.updateCoupleStatus(CoupleStatus.DISCONNECTED);
+
 		// 3. 현재 활성화된 커플 관계가 있는지 확인하고 처리
 		coupleRepository.deleteByMember1IdOrMember2Id(memberId, memberId);
-		
+
 		// 4. 회원 Hard Delete
 		memberRepository.delete(member);
 
