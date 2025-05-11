@@ -74,11 +74,7 @@ dependencies {
 
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // AWS Secrets Manager 의존성
-    implementation 'io.awspring.cloud:spring-cloud-starter-aws-secrets-manager-config:2.4.4'
-
-
+    
 }
 
 tasks.named('test') {

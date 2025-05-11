@@ -55,7 +55,7 @@ cloud:
       auto: false
 
 fcm:
-  secret-name: ${project_name}/${environment}/firebase-credentials
+  certification: firebase-service-account.json
 
 logging:
   level:

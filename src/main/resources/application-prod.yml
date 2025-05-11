@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 5000
 
 spring:
   config:
@@ -18,7 +18,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: validate  # Changed from update for production safety
+      ddl-auto: create  # Changed from update for production safety
     properties:
       hibernate:
         format_sql: false
@@ -45,10 +45,10 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${PROD_AWS_ACCESS_KEY}
+      secret-key: ${PROD_AWS_SECRET_KEY}
     s3:
-      bucket: ${AWS_S3_BUCKET}
+      bucket: ${PROD_AWS_S3_BUCKET}
     region:
       static: ap-northeast-2
     stack:
