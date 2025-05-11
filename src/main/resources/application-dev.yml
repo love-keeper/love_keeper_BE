@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8080
 
 spring:
   config:
@@ -55,7 +55,7 @@ cloud:
       auto: false
 
 fcm:
-  secret-name: dev/lovekeeper/firebase-credentials
+  secret-name: ${project_name}/${environment}/firebase-credentials
 
 logging:
   level:

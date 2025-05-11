@@ -1,6 +1,6 @@
-# ALB 보안 그룹
+# ALB Security Group
 resource "aws_security_group" "alb" {
-  name        = "${var.environment}-alb-sg"
+  name        = "${var.project_name}-${var.environment}-alb-sg"
   description = "Security group for ALB"
   vpc_id      = var.vpc_id
 
@@ -9,6 +9,7 @@ resource "aws_security_group" "alb" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP from anywhere"
   }
 
   ingress {
@@ -16,6 +17,7 @@ resource "aws_security_group" "alb" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTPS from anywhere"
   }
 
   egress {
@@ -23,25 +25,28 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
-    Name        = "${var.environment}-alb-sg"
+    Name        = "${var.project_name}-${var.environment}-alb-sg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
 
-# ECS 보안 그룹
+# ECS Security Group
 resource "aws_security_group" "ecs" {
-  name        = "${var.environment}-ecs-sg"
+  name        = "${var.project_name}-${var.environment}-ecs-sg"
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = 8082
-    to_port         = 8082
+    from_port       = 8080
+    to_port         = 8080
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
+    description     = "Allow traffic from ALB on port 8080"
   }
 
   egress {
@@ -49,18 +54,20 @@ resource "aws_security_group" "ecs" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
-    Name        = "${var.environment}-ecs-sg"
+    Name        = "${var.project_name}-${var.environment}-ecs-sg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
 
-# RDS 보안 그룹
+# RDS Security Group
 resource "aws_security_group" "rds" {
-  name        = "${var.environment}-rds-sg"
-  description = "Security group for RDS instances"
+  name        = "${var.project_name}-${var.environment}-rds-sg"
+  description = "Security group for RDS"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -68,6 +75,7 @@ resource "aws_security_group" "rds" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.ecs.id, aws_security_group.bastion.id]
+    description     = "Allow MySQL from ECS and Bastion"
   }
 
   egress {
@@ -75,17 +83,19 @@ resource "aws_security_group" "rds" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
-    Name        = "${var.environment}-rds-sg"
+    Name        = "${var.project_name}-${var.environment}-rds-sg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
 
-# ElastiCache 보안 그룹
+# Redis Security Group
 resource "aws_security_group" "redis" {
-  name        = "${var.environment}-redis-sg"
+  name        = "${var.project_name}-${var.environment}-redis-sg"
   description = "Security group for ElastiCache Redis"
   vpc_id      = var.vpc_id
 
@@ -94,6 +104,7 @@ resource "aws_security_group" "redis" {
     to_port         = 6379
     protocol        = "tcp"
     security_groups = [aws_security_group.ecs.id]
+    description     = "Allow Redis from ECS"
   }
 
   egress {
@@ -101,17 +112,19 @@ resource "aws_security_group" "redis" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
-    Name        = "${var.environment}-redis-sg"
+    Name        = "${var.project_name}-${var.environment}-redis-sg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
 
-# Bastion 호스트 보안 그룹
+# Bastion Host Security Group
 resource "aws_security_group" "bastion" {
-  name        = "${var.environment}-bastion-sg"
+  name        = "${var.project_name}-${var.environment}-bastion-sg"
   description = "Security group for Bastion Host"
   vpc_id      = var.vpc_id
 
@@ -119,7 +132,8 @@ resource "aws_security_group" "bastion" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.bastion_allowed_ips
+    cidr_blocks = ["0.0.0.0/0"]  # In production, restrict to your IP
+    description = "Allow SSH from anywhere"
   }
 
   egress {
@@ -127,10 +141,12 @@ resource "aws_security_group" "bastion" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
-    Name        = "${var.environment}-bastion-sg"
+    Name        = "${var.project_name}-${var.environment}-bastion-sg"
+    Project     = var.project_name
     Environment = var.environment
   }
 }
