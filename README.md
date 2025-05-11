@@ -1,70 +1,73 @@
 # LoveKeeper
 
-A Spring Boot application for [brief description of your application].
-
 ## Architecture
 
-This project uses a multi-environment AWS architecture:
+The application is deployed on AWS with the following architecture:
 
-![Architecture Diagram](architecture-diagram.png)
-
-Key components:
-- Spring Boot backend API
-- MySQL databases for persistence
-- Redis for caching
+- VPC with 4 subnets (2 public, 2 private)
+- ECS Clusters for Dev and Release environments
+- RDS MySQL instances for each environment
+- ElastiCache Redis instances for each environment
+- Application Load Balancer for routing traffic
 - S3 for file storage
-- Firebase Cloud Messaging for notifications
-- AWS ECS for container orchestration
-- Application Load Balancer for traffic routing
-- GitHub Actions for CI/CD
+- Parameter Store for secrets and configuration
 
 ## Development Environment
 
+### Prerequisites
+
 - Java 17
-- Spring Boot
-- Gradle
-- MySQL
-- Redis
+- Docker
+- AWS CLI
+- Terraform (optional, for infrastructure provisioning)
 
-## Project Structure
+### Local Development
 
-- `src/main/java`: Java source code
-- `src/main/resources`: Configuration files and resources
-- `terraform`: Infrastructure as Code using Terraform
-- `.github/workflows`: CI/CD workflows using GitHub Actions
+1. Clone the repository
+2. Create an `application-local.yml` file based on the existing profiles
+3. Run the application locally with the `local` profile
 
-## Configuration Profiles
-
-- `application.yml`: Common configuration
-- `application-dev.yml`: Development environment configuration
-- `application-prod.yml`: Production environment configuration
-
-## Infrastructure Setup
-
-The infrastructure is managed using Terraform. See [terraform/README.md](terraform/README.md) for details.
+```shell
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
 
 ## Deployment
 
-The application is deployed using GitHub Actions workflows:
+### Infrastructure Setup
 
-- `deploy-dev.yml`: Deploys to the development environment from the `develop` branch
-- `deploy-prod.yml`: Deploys to the production environment from the `main` branch
+The infrastructure is managed with Terraform. To provision:
 
-## Getting Started
+1. Navigate to the `terraform` directory
+2. Copy `terraform.tfvars.example` to `terraform.tfvars` and fill in your values
+3. Initialize Terraform and apply the configuration
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/lovekeeper.git
-   ```
+```shell
+terraform init
+terraform plan
+terraform apply
+```
 
-2. Build the project:
-   ```bash
-   ./gradlew build
-   ```
+### CI/CD Pipeline
 
-3. Run locally:
-   ```bash
-   ./gradlew bootRun --args='--spring.profiles.active=local'
-   ```
+The application uses GitHub Actions for CI/CD:
 
-4. For infrastructure setup, see [terraform/README.md](terraform/README.md).
+- Pushing to the `develop` branch will build and deploy to the dev environment
+- Pushing to the `main` branch will build and deploy to the release environment
+
+Required GitHub Secrets:
+
+- `AWS_ROLE_ARN`: ARN of the IAM role for GitHub Actions
+
+## Configuration
+
+Environment variables are managed through AWS Parameter Store:
+
+- Dev environment: `/lovekeeper/dev/*`
+- Release environment: `/lovekeeper/prod/*`
+
+## Monitoring
+
+The application uses Spring Boot Actuator for monitoring, which is available at:
+
+- Dev: `https://dev.example.com/actuator`
+- Release: `https://example.com/actuator`
