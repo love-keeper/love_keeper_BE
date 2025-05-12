@@ -154,23 +154,23 @@ resource "aws_security_group" "alb_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -192,9 +192,9 @@ resource "aws_security_group" "bastion_sg" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -209,23 +209,23 @@ resource "aws_security_group" "app_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    protocol  = "tcp"
     security_groups = [aws_security_group.alb_sg.id]
   }
 
   ingress {
-    from_port       = 5000
-    to_port         = 5000
-    protocol        = "tcp"
+    from_port = 5000
+    to_port   = 5000
+    protocol  = "tcp"
     security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -240,16 +240,16 @@ resource "aws_security_group" "db_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
     security_groups = [aws_security_group.app_sg.id, aws_security_group.bastion_sg.id]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -264,16 +264,16 @@ resource "aws_security_group" "redis_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
+    from_port = 6379
+    to_port   = 6379
+    protocol  = "tcp"
     security_groups = [aws_security_group.app_sg.id]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -286,6 +286,7 @@ resource "aws_security_group" "redis_sg" {
 resource "aws_ecr_repository" "app_repo" {
   name                 = var.project_name
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -323,7 +324,7 @@ resource "aws_s3_bucket_public_access_block" "app_bucket_access" {
 
 # RDS - MySQL for Dev
 resource "aws_db_subnet_group" "db_subnet_group_dev" {
-  name       = "${var.project_name}-db-subnet-group-dev"
+  name = "${var.project_name}-db-subnet-group-dev"
   subnet_ids = [aws_subnet.private_subnet_dev.id, aws_subnet.private_subnet_release.id]
 
   tags = {
@@ -332,21 +333,21 @@ resource "aws_db_subnet_group" "db_subnet_group_dev" {
 }
 
 resource "aws_db_instance" "mysql_dev" {
-  identifier             = "${var.project_name}-mysql-dev"
-  allocated_storage      = 20
-  storage_type           = "gp2"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.micro"
-  db_name                = "love_keeper"
-  username               = var.db_username
-  password               = var.db_password
-  parameter_group_name   = "default.mysql8.0"
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group_dev.name
+  identifier           = "${var.project_name}-mysql-dev"
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = "db.t3.micro"
+  db_name              = "love_keeper"
+  username             = var.db_username
+  password             = var.db_password
+  parameter_group_name = "default.mysql8.0"
+  db_subnet_group_name = aws_db_subnet_group.db_subnet_group_dev.name
   vpc_security_group_ids = [aws_security_group.db_sg.id]
-  skip_final_snapshot    = true
-  multi_az               = false
-  publicly_accessible    = false
+  skip_final_snapshot  = true
+  multi_az             = false
+  publicly_accessible  = false
 
   tags = {
     Name = "${var.project_name}-mysql-dev"
@@ -355,7 +356,7 @@ resource "aws_db_instance" "mysql_dev" {
 
 # RDS - MySQL for Release
 resource "aws_db_subnet_group" "db_subnet_group_release" {
-  name       = "${var.project_name}-db-subnet-group-release"
+  name = "${var.project_name}-db-subnet-group-release"
   subnet_ids = [aws_subnet.private_subnet_dev.id, aws_subnet.private_subnet_release.id]
 
   tags = {
@@ -364,21 +365,21 @@ resource "aws_db_subnet_group" "db_subnet_group_release" {
 }
 
 resource "aws_db_instance" "mysql_release" {
-  identifier             = "${var.project_name}-mysql-release"
-  allocated_storage      = 50
-  storage_type           = "gp2"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.small"
-  db_name                = "love_keeper"
-  username               = var.db_username
-  password               = var.db_password
-  parameter_group_name   = "default.mysql8.0"
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group_release.name
+  identifier           = "${var.project_name}-mysql-release"
+  allocated_storage    = 50
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = "db.t3.small"
+  db_name              = "love_keeper"
+  username             = var.db_username
+  password             = var.db_password
+  parameter_group_name = "default.mysql8.0"
+  db_subnet_group_name = aws_db_subnet_group.db_subnet_group_release.name
   vpc_security_group_ids = [aws_security_group.db_sg.id]
-  skip_final_snapshot    = true
-  multi_az               = true
-  publicly_accessible    = false
+  skip_final_snapshot  = true
+  multi_az             = true
+  publicly_accessible  = false
 
   tags = {
     Name = "${var.project_name}-mysql-release"
@@ -387,7 +388,7 @@ resource "aws_db_instance" "mysql_release" {
 
 # ElastiCache Redis - Dev
 resource "aws_elasticache_subnet_group" "redis_subnet_group_dev" {
-  name       = "${var.project_name}-redis-subnet-group-dev"
+  name = "${var.project_name}-redis-subnet-group-dev"
   subnet_ids = [aws_subnet.private_subnet_dev.id, aws_subnet.private_subnet_release.id]
 
   tags = {
@@ -404,7 +405,7 @@ resource "aws_elasticache_cluster" "redis_dev" {
   engine_version       = "6.2"
   port                 = 6379
   subnet_group_name    = aws_elasticache_subnet_group.redis_subnet_group_dev.name
-  security_group_ids   = [aws_security_group.redis_sg.id]
+  security_group_ids = [aws_security_group.redis_sg.id]
 
   tags = {
     Name = "${var.project_name}-redis-dev"
@@ -413,7 +414,7 @@ resource "aws_elasticache_cluster" "redis_dev" {
 
 # ElastiCache Redis - Release
 resource "aws_elasticache_subnet_group" "redis_subnet_group_release" {
-  name       = "${var.project_name}-redis-subnet-group-release"
+  name = "${var.project_name}-redis-subnet-group-release"
   subnet_ids = [aws_subnet.private_subnet_dev.id, aws_subnet.private_subnet_release.id]
 
   tags = {
@@ -430,8 +431,8 @@ resource "aws_elasticache_replication_group" "redis_release" {
   automatic_failover_enabled = true
   engine_version             = "6.2"
   subnet_group_name          = aws_elasticache_subnet_group.redis_subnet_group_release.name
-  security_group_ids         = [aws_security_group.redis_sg.id]
-  
+  security_group_ids = [aws_security_group.redis_sg.id]
+
   num_node_groups         = 1
   replicas_per_node_group = 1
 
@@ -443,10 +444,10 @@ resource "aws_elasticache_replication_group" "redis_release" {
 # EC2 Bastion Host
 # EC2 Bastion Host
 resource "aws_instance" "bastion" {
-  ami                    = var.bastion_ami
-  instance_type          = "t3.micro"
-  key_name               = var.key_name
-  subnet_id              = aws_subnet.public_subnet_1.id
+  ami           = var.bastion_ami
+  instance_type = "t3.micro"
+  key_name      = var.key_name
+  subnet_id     = aws_subnet.public_subnet_1.id
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
 
   tags = {
@@ -459,8 +460,8 @@ resource "aws_lb" "app_lb" {
   name               = "${var.project_name}-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+  security_groups = [aws_security_group.alb_sg.id]
+  subnets = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 
   enable_deletion_protection = false
 
@@ -498,8 +499,8 @@ resource "aws_lb_target_group" "dev_tg" {
 }
 
 resource "aws_lb_target_group" "release_tg" {
-  name        = "${var.project_name}-release-tg-new"
-  port        = 5000
+  name        = "${var.project_name}-release-tg-8080"
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
@@ -676,7 +677,7 @@ resource "aws_iam_policy" "ecs_task_s3_policy" {
           "s3:DeleteObject",
           "s3:ListBucket"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "${aws_s3_bucket.app_bucket.arn}",
           "${aws_s3_bucket.app_bucket.arn}/*"
@@ -839,20 +840,20 @@ resource "aws_ssm_parameter" "prod_aws_s3_bucket" {
 
 # ECS Task Definition - Dev
 resource "aws_ecs_task_definition" "app_task_dev" {
-  family                   = "${var.project_name}-task-dev"
-  network_mode             = "awsvpc"
+  family             = "${var.project_name}-task-dev"
+  network_mode       = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "1024"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  cpu                = "512"
+  memory             = "1024"
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn      = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
-      name  = "${var.project_name}-container-dev"
-      image = "${aws_ecr_repository.app_repo.repository_url}:dev"
+      name      = "${var.project_name}-container-dev"
+      image     = "${aws_ecr_repository.app_repo.repository_url}:dev"
       essential = true
-      
+
       portMappings = [
         {
           containerPort = 8080
@@ -860,14 +861,14 @@ resource "aws_ecs_task_definition" "app_task_dev" {
           protocol      = "tcp"
         }
       ]
-      
+
       environment = [
         {
           name  = "SPRING_PROFILES_ACTIVE"
           value = "dev"
         }
       ]
-      
+
       secrets = [
         {
           name      = "DEV_DB_HOST"
@@ -910,7 +911,7 @@ resource "aws_ecs_task_definition" "app_task_dev" {
           valueFrom = aws_ssm_parameter.aws_s3_bucket.arn
         }
       ]
-      
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -929,35 +930,35 @@ resource "aws_ecs_task_definition" "app_task_dev" {
 
 # ECS Task Definition - Release
 resource "aws_ecs_task_definition" "app_task_release" {
-  family                   = "${var.project_name}-task-release"
-  network_mode             = "awsvpc"
+  family             = "${var.project_name}-task-release"
+  network_mode       = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "1024"
-  memory                   = "2048"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  cpu                = "1024"
+  memory             = "2048"
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn      = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
-      name  = "${var.project_name}-container-release"
-      image = "${aws_ecr_repository.app_repo.repository_url}:release"
+      name      = "${var.project_name}-container-release"
+      image     = "${aws_ecr_repository.app_repo.repository_url}:release"
       essential = true
-      
+
       portMappings = [
         {
-          containerPort = 5000
-          hostPort      = 5000
+          containerPort = 8080
+          hostPort      = 8080
           protocol      = "tcp"
         }
       ]
-      
+
       environment = [
         {
           name  = "SPRING_PROFILES_ACTIVE"
           value = "prod"
         }
       ]
-      
+
       secrets = [
         {
           name      = "PROD_DB_HOST"
@@ -1000,7 +1001,7 @@ resource "aws_ecs_task_definition" "app_task_release" {
           valueFrom = aws_ssm_parameter.prod_aws_s3_bucket.arn
         }
       ]
-      
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -1045,8 +1046,8 @@ resource "aws_ecs_service" "app_service_dev" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.private_subnet_dev.id]
-    security_groups  = [aws_security_group.app_sg.id]
+    subnets = [aws_subnet.private_subnet_dev.id]
+    security_groups = [aws_security_group.app_sg.id]
     assign_public_ip = false
   }
 
@@ -1076,15 +1077,15 @@ resource "aws_ecs_service" "app_service_release" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.private_subnet_release.id]
-    security_groups  = [aws_security_group.app_sg.id]
+    subnets = [aws_subnet.private_subnet_release.id]
+    security_groups = [aws_security_group.app_sg.id]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.release_tg.arn
     container_name   = "${var.project_name}-container-release"
-    container_port   = 5000
+    container_port   = 8080
   }
 
   deployment_circuit_breaker {
