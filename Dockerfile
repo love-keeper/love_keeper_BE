@@ -1,15 +1,10 @@
-FROM openjdk:17-jdk-slim AS builder
-WORKDIR /app
-COPY . .
-RUN ./gradlew bootJar --no-daemon
+FROM amazoncorretto:17
 
-FROM openjdk:17-jdk-slim
-WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
-COPY src/main/resources/firebase-service-account.json /app/firebase-service-account.json
-ENV FCM_CERTIFICATION_PATH=/app/firebase-service-account.json
+# 빌드된 JAR 파일 복사
+COPY ./build/libs/*.jar app.jar
 
-# Default to port 8080 for dev, will be overridden by Spring profile
+# 포트 노출 (Spring Boot 기본 포트)
 EXPOSE 8080
 
+# 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
