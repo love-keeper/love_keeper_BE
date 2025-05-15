@@ -86,3 +86,4 @@ terraform.rc
 
 # 암호화되지 않은 민감한 파일은 제외하되 암호화된 파일은 포함
 !*.encrypted
+task-definition.json
