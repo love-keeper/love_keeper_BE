@@ -55,6 +55,11 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      # Task Definition 파일 생성
+      - name: Create Task Definition file
+        run: |
+          echo '${{ secrets.TASK_DEFINITION_DEV }}' > task-definition.json
+
       # AWS 로그인
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
