@@ -1,18 +1,18 @@
-name: LOVEKEEPER-DEV CI CD
+name: LOVEKEEPER-RELEASE CI CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 permissions:
   id-token: write
   contents: read
 
 env:
-  ECR_REPOSITORY: dev/lovekeeper
-  ECS_SERVICE: lovekeeper-dev-task-service
-  ECS_CLUSTER: lovekeeper-dev-cluster
-  CONTAINER_NAME: lovekeeper-dev-container
+  ECR_REPOSITORY: release/lovekeeper
+  ECS_SERVICE: lovekeeper-release-task-service
+  ECS_CLUSTER: lovekeeper-release-cluster
+  CONTAINER_NAME: lovekeeper-release-container
   ECS_TASK_DEFINITION: ./task-definition.json
   AWS_REGION: ap-northeast-2
 
@@ -51,21 +51,21 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Gradle 빌드
+      # Gradle 빌드 (테스트 포함)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # Task Definition 파일 생성
-      - name: Create Task Definition file
-        run: |
-          echo '${{ secrets.TASK_DEFINITION_DEV }}' > task-definition.json
+      #      # Task Definition 파일 생성
+      #      - name: Create Task Definition file
+      #        run: |
+      #          echo '${{ secrets.TASK_DEFINITION_RELEASE }}' > task-definition.json
 
       # AWS 로그인
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: LoveKeeperDevSessionName
+          role-session-name: LoveKeeperReleaseSessionName
           aws-region: ${{ env.AWS_REGION }}
 
       # ECR 로그인
@@ -91,20 +91,20 @@ jobs:
           # 이미지 URI 출력
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      # Task Definition에 새 이미지 ID 설정
-      - name: Fill in the new image ID in the Amazon ECS Task Definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
-        with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-
-      # ECS에 태스크 정의 배포
-      - name: Deploy Amazon ECS Task Definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+#      # Task Definition에 새 이미지 ID 설정
+#      - name: Fill in the new image ID in the Amazon ECS Task Definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+#        with:
+#          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#          container-name: ${{ env.CONTAINER_NAME }}
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      # ECS에 태스크 정의 배포
+#      - name: Deploy Amazon ECS Task Definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: ${{ env.ECS_SERVICE }}
+#          cluster: ${{ env.ECS_CLUSTER }}
+#          wait-for-service-stability: true
