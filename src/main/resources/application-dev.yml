@@ -38,6 +38,7 @@ spring:
           timeout: 5000
           starttls:
             enable: true
+          localhost: lovekeeper-dev-cluster.lovekeeper.site
 
 jwt:
   secret: ${JWT_SECRET}
@@ -62,8 +63,3 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
     com.example.lovekeeper: debug
-
-management:
-  health:
-    mail:
-      enabled: false
