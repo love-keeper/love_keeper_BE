@@ -62,3 +62,8 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
     com.example.lovekeeper: debug
+
+management:
+  health:
+    mail:
+      enabled: false
