@@ -58,7 +58,7 @@ jobs:
       # Task Definition 파일 생성
       - name: Create Task Definition file
         run: |
-          echo '${{ secrets.TASK_DEFINITION_RELEASE }}' > task-definition-dev.json
+          echo '${{ secrets.TASK_DEFINITION_RELEASE }}' > task-definition.json
 
       # AWS 로그인
       - name: Configure AWS Credentials
