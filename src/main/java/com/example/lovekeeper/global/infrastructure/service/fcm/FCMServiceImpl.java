@@ -44,15 +44,11 @@ public class FCMServiceImpl implements FCMService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
-		fcmTokenRepository.findByMemberIdAndToken(memberId, token)
-			.ifPresentOrElse(
-				existingToken -> existingToken.updateToken(token),
-				() -> fcmTokenRepository.save(FCMToken.builder()
-					.member(member)
-					.token(token)
-					.build())
-			);
-
+		fcmTokenRepository.save(FCMToken.builder()
+			.member(member)
+			.token(token)
+			.build());
+		
 		log.info("FCM token saved/updated for member: {}", memberId);
 	}
 
