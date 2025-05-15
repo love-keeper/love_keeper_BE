@@ -34,10 +34,13 @@ spring:
     properties:
       mail:
         smtp:
+          connectiontimeout: 15000
           auth: true
           timeout: 5000
           starttls:
             enable: true
+          localhost: lovekeeper-releaes-cluster.lovekeeper.site
+          from: lovekeepercompany@gmail.com
 
 jwt:
   secret: ${JWT_SECRET}
@@ -45,10 +48,10 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ${PROD_AWS_ACCESS_KEY}
-      secret-key: ${PROD_AWS_SECRET_KEY}
+      access-key: ${AWS_BUCKET_ACCESS_KEY}
+      secret-key: ${AWS_BUCKET_SECRET_KEY}
     s3:
-      bucket: ${PROD_AWS_S3_BUCKET}
+      bucket: ${AWS_S3_BUCKET}
     region:
       static: ap-northeast-2
     stack:
