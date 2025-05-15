@@ -67,6 +67,7 @@ public class FCMServiceImpl implements FCMService {
 	}
 
 	@Override
+	@Transactional // 트랜잭션 추가
 	public void sendPushNotification(Long memberId, String title, String body, Long timestamp, Long entityId) {
 		List<FCMToken> tokens = fcmTokenRepository.findAllByMemberId(memberId);
 
@@ -75,12 +76,16 @@ public class FCMServiceImpl implements FCMService {
 			return;
 		}
 
+		// Member를 한 번만 조회하여 재사용
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+
 		for (FCMToken token : tokens) {
-			sendSingleNotification(token, memberId, title, body, timestamp, entityId);
+			sendSingleNotification(token, member, title, body, timestamp, entityId);
 		}
 	}
 
-	private void sendSingleNotification(FCMToken token, Long memberId, String title, String body, Long timestamp,
+	private void sendSingleNotification(FCMToken token, Member member, String title, String body, Long timestamp,
 		Long entityId) {
 		try {
 			Message message = Message.builder()
@@ -89,17 +94,16 @@ public class FCMServiceImpl implements FCMService {
 					.setTitle(title)
 					.setBody(body)
 					.build())
-				.putData("memberId", String.valueOf(memberId))
+				.putData("memberId", String.valueOf(member.getId()))
 				.putData("time", String.valueOf(timestamp))
-				.putData("entityId", String.valueOf(entityId)) // entityId로 변경 (일반화)
-				.putData("type", entityId != null && title.contains("약속") ? "promise" : "letter") // 타입 추가
+				.putData("entityId", String.valueOf(entityId))
+				.putData("type", determineNotificationType(title, entityId)) // 타입 결정 로직 분리
 				.build();
 
 			String response = FirebaseMessaging.getInstance().send(message);
 			log.info("Successfully sent message to token {}: {}", token.getToken(), response);
 
-			Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
+			// Member 객체를 재사용
 			PushNotification notification = PushNotification.builder()
 				.member(member)
 				.title(title)
@@ -116,13 +120,20 @@ public class FCMServiceImpl implements FCMService {
 		}
 	}
 
+	// 타입 결정 로직을 별도 메서드로 분리
+	private String determineNotificationType(String title, Long entityId) {
+		if (entityId != null && title.contains("약속")) {
+			return "promise";
+		}
+		return "letter";
+	}
+
 	private void handleMessagingException(FCMToken token, FirebaseMessagingException e) {
 		if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
 			log.warn("Token {} is no longer valid, removing it", token.getToken());
 			removeToken(token.getToken());
 		} else {
 			log.error("Failed to send message to token {}: {}", token.getToken(), e.getMessage());
-			// 추가적인 디버깅 정보 출력
 			log.error("Error details: {}", e.getCause() != null ? e.getCause().getMessage() : "No cause available");
 		}
 	}
@@ -139,7 +150,6 @@ public class FCMServiceImpl implements FCMService {
 			notif.isRead()
 		));
 
-		// 지금까지 가져온 총 데이터 수 계산 (페이지 번호와 크기를 기반으로 단순 계산)
 		long totalElementsFetched =
 			(long)pageable.getPageNumber() * pageable.getPageSize() + responseSlice.getNumberOfElements();
 
@@ -147,6 +157,7 @@ public class FCMServiceImpl implements FCMService {
 	}
 
 	@Override
+	@Transactional
 	public void readPushNotification(Long id, Long notificationId) {
 		PushNotification notification = pushNotificationRepository.findById(notificationId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.NOTIFICATION_NOT_FOUND));
@@ -159,7 +170,7 @@ public class FCMServiceImpl implements FCMService {
 		pushNotificationRepository.save(notification);
 	}
 
-	// 상대 시간 계산 메서드
+	// 더 정확한 상대 시간 계산 메서드
 	private String calculateRelativeTime(LocalDateTime sentAt) {
 		LocalDateTime now = LocalDateTime.now();
 		Duration duration = Duration.between(sentAt, now);
@@ -175,14 +186,22 @@ public class FCMServiceImpl implements FCMService {
 			return minutes + "분 전";
 		} else if (hours < 24) {
 			return hours + "시간 전";
-		} else if (days < 30) {
+		} else if (days < 7) {
 			return days + "일 전";
-		} else if (days < 365) {
-			long months = days / 30;
-			return months + "개월 전";
+		} else if (days < 30) {
+			long weeks = days / 7;
+			return weeks + "주 전";
 		} else {
-			long years = days / 365;
-			return years + "년 전";
+			// Period를 사용하여 더 정확한 월/년 계산
+			java.time.Period period = java.time.Period.between(sentAt.toLocalDate(), now.toLocalDate());
+
+			if (period.getYears() > 0) {
+				return period.getYears() + "년 전";
+			} else if (period.getMonths() > 0) {
+				return period.getMonths() + "개월 전";
+			} else {
+				return days + "일 전";
+			}
 		}
 	}
 }
