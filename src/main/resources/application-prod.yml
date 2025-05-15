@@ -1,6 +1,6 @@
 server:
   port: 8080
-  
+
 spring:
   config:
     activate:
@@ -18,7 +18,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: create  # Changed from update for production safety
+      ddl-auto: none  # Changed from update for production safety
     properties:
       hibernate:
         format_sql: false
