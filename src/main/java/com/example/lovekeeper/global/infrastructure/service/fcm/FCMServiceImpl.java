@@ -44,12 +44,19 @@ public class FCMServiceImpl implements FCMService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
+		// 해당 멤버의 토큰이 이미 존재하는지 확인
+		if (fcmTokenRepository.findByMemberIdAndToken(memberId, token).isPresent()) {
+			log.info("FCM token already exists for member: {} with token: {}", memberId, token);
+			return; // 이미 존재하면 저장하지 않고 종료
+		}
+
+		// 토큰이 존재하지 않으면 새로 저장
 		fcmTokenRepository.save(FCMToken.builder()
 			.member(member)
 			.token(token)
 			.build());
-		
-		log.info("FCM token saved/updated for member: {}", memberId);
+
+		log.info("FCM token saved for member: {} with token: {}", memberId, token);
 	}
 
 	@Override
