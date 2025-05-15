@@ -1,0 +1,139 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:065301655985:task-definition/lovekeeper-dev-task:6",
+  "containerDefinitions": [
+    {
+      "name": "lovekeeper-dev-container",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "name": "lovekeeper-dev-container-8080-tcp",
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "DEV_DB_PASSWORD",
+          "value": "lovekeeper1234"
+        },
+        {
+          "name": "DEV_REDIS_HOST",
+          "value": "lovekeeper-dev-redis.futq6r.ng.0001.apn2.cache.amazonaws.com"
+        },
+        {
+          "name": "DEV_DB_HOST",
+          "value": "lovekeeper-dev-db.c1o2w0c24kkq.ap-northeast-2.rds.amazonaws.com"
+        },
+        {
+          "name": "MAIL_USERNAME",
+          "value": "lovekeepercompany@gmail.com"
+        },
+        {
+          "name": "AWS_S3_BUCKET",
+          "value": "lovekeeper-bucket"
+        },
+        {
+          "name": "JWT_SECRET",
+          "value": "skdjflksdjflskdfjdfiwjeofijoiasjdfiajsvckmvxkcvmzkxcmvlmklkdgjasdjfoiwjoedifjwodifjasidfj"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        },
+        {
+          "name": "AWS_BUCKET_SECRET_KEY",
+          "value": "b5PPTkZbj2giNKRrPQ5XlLMpLDbUdvv2CtWlf5Lm"
+        },
+        {
+          "name": "AWS_BUCKET_ACCESS_KEY",
+          "value": "AKIAQ6NCIGGYZWBUN6WU"
+        },
+        {
+          "name": "DEV_DB_USERNAME",
+          "value": "lovekeeper"
+        },
+        {
+          "name": "MAIL_PASSWORD",
+          "value": "psgl ecra spsk hbwh"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lovekeeper-dev-task",
+          "mode": "non-blocking",
+          "awslogs-create-group": "true",
+          "max-buffer-size": "25m",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "lovekeeper-dev-task",
+  "taskRoleArn": "arn:aws:iam::065301655985:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::065301655985:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "revision": 6,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+    "EC2",
+    "FARGATE"
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "3072",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2025-05-15T04:24:54.054Z",
+  "registeredBy": "arn:aws:iam::065301655985:root",
+  "enableFaultInjection": false,
+  "tags": []
+}
