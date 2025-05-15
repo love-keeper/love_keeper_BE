@@ -17,27 +17,27 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class FCMConfig {
 
-    @Value("${fcm.certification:firebase-service-account.json}")
-    private String certificationPath;
+	@Value("${fcm.certification}")
+	private String certificationPath;
 
-    @PostConstruct
-    public void initialize() {
-        try {
-            if (FirebaseApp.getApps().isEmpty()) {
-                log.info("Initializing Firebase application");
-                
-                ClassPathResource resource = new ClassPathResource(certificationPath);
-                
-                FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
-                    .build();
-                
-                FirebaseApp.initializeApp(options);
-                log.info("Firebase application has been initialized successfully");
-            }
-        } catch (IOException e) {
-            log.error("Failed to initialize Firebase application: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to initialize Firebase", e);
-        }
-    }
+	@PostConstruct
+	public void initialize() {
+		try {
+			if (FirebaseApp.getApps().isEmpty()) {
+				log.info("Initializing Firebase application");
+
+				ClassPathResource resource = new ClassPathResource(certificationPath);
+
+				FirebaseOptions options = FirebaseOptions.builder()
+					.setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+					.build();
+
+				FirebaseApp.initializeApp(options);
+				log.info("Firebase application has been initialized successfully");
+			}
+		} catch (IOException e) {
+			log.error("Failed to initialize Firebase application: {}", e.getMessage(), e);
+			throw new RuntimeException("Failed to initialize Firebase", e);
+		}
+	}
 }

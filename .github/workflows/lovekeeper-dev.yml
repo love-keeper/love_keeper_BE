@@ -27,6 +27,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+                      
+      # Firebase 서비스 계정 파일 생성
+      - name: Create Firebase service account file
+        run: |
+          mkdir -p src/main/resources
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > src/main/resources/firebase-service-account.json
 
       # Gradle 캐시
       - name: Cache Gradle packages
