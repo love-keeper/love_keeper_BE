@@ -10,8 +10,8 @@ permissions:
 
 env:
   ECR_REPOSITORY: dev/lovekeeper
-  ECS_SERVICE: love-keeper-service
-  ECS_CLUSTER: love-keeper-cluster
+  ECS_SERVICE: lovekeeper-dev-task-service
+  ECS_CLUSTER: lovekeeper-dev-cluster
   CONTAINER_NAME: lovekeeper-dev-container
   ECS_TASK_DEFINITION: ./task-definition.json
   AWS_REGION: ap-northeast-2
