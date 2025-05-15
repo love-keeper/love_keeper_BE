@@ -1,0 +1,33 @@
+spring:
+  jpa:
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 300MB
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+
+server:
+  servlet:
+    context-path: /
+  error:
+    include-exception: false
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # 모든 엔드포인트 활성화
+        # include: "health"  # 또는 health 엔드포인트만 활성화
+      # base-path: /management  # 액추에이터 기본 경로 변경 (선택 사항)
+  endpoint:
+    health:
+      show-details: always  # 헬스 상세 정보 표시
