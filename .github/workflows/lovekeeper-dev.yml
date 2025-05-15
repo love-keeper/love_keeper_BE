@@ -12,7 +12,7 @@ env:
   ECR_REPOSITORY: dev/lovekeeper
   ECS_SERVICE: love-keeper-service
   ECS_CLUSTER: love-keeper-cluster
-  CONTAINER_NAME: love-keeper-container
+  CONTAINER_NAME: lovekeeper-dev-container
   ECS_TASK_DEFINITION: ./task-definition.json
   AWS_REGION: ap-northeast-2
 
