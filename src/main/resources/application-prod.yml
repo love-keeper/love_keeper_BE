@@ -15,6 +15,14 @@ spring:
     redis:
       host: ${PROD_REDIS_HOST}
       port: 6379
+      timeout: 10000ms
+
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+        shutdown-timeout: 100ms
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
