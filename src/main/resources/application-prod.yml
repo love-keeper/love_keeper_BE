@@ -26,7 +26,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: none  # Changed from update for production safety
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: false
@@ -47,7 +47,7 @@ spring:
           timeout: 5000
           starttls:
             enable: true
-          localhost: lovekeeper-releaes-cluster.lovekeeper.site
+          localhost: lovekeeper-release-cluster.lovekeeper.site
           from: lovekeepercompany@gmail.com
 
 jwt:
