@@ -23,7 +23,7 @@ public class RedisConfig {
 	@Bean
 	public LettuceConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-		redisConfig.setHostName(redisHost); // "localhost" from application.yml or env
+		redisConfig.setHostName(redisHost);
 		redisConfig.setPort(redisPort);
 
 		LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
@@ -41,6 +41,6 @@ public class RedisConfig {
 		template.setValueSerializer(new StringRedisSerializer());
 		template.afterPropertiesSet();
 		return template;
-		
+
 	}
 }
