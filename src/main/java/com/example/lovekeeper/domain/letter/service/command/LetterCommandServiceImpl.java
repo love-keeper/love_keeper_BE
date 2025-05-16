@@ -62,6 +62,7 @@ public class LetterCommandServiceImpl implements LetterCommandService {
 
 		// FCM 푸시 알림 전송
 		fcmService.sendPushNotification(receiver.getId(),
+			savedLetter.getId(),
 			"새로운 편지가 도착했어요!",
 			"편지함을 확인해주세요",
 			System.currentTimeMillis(),

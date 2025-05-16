@@ -15,10 +15,18 @@ spring:
     redis:
       host: ${PROD_REDIS_HOST}
       port: 6379
+      timeout: 10000ms
+
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+        shutdown-timeout: 100ms
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: none  # Changed from update for production safety
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: false
@@ -34,10 +42,13 @@ spring:
     properties:
       mail:
         smtp:
+          connectiontimeout: 15000
           auth: true
           timeout: 5000
           starttls:
             enable: true
+          localhost: lovekeeper-release-cluster.lovekeeper.site
+          from: lovekeepercompany@gmail.com
 
 jwt:
   secret: ${JWT_SECRET}
@@ -45,10 +56,10 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ${PROD_AWS_ACCESS_KEY}
-      secret-key: ${PROD_AWS_SECRET_KEY}
+      access-key: ${AWS_BUCKET_ACCESS_KEY}
+      secret-key: ${AWS_BUCKET_SECRET_KEY}
     s3:
-      bucket: ${PROD_AWS_S3_BUCKET}
+      bucket: ${AWS_S3_BUCKET}
     region:
       static: ap-northeast-2
     stack:
