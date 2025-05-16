@@ -68,7 +68,8 @@ public class FCMServiceImpl implements FCMService {
 
 	@Override
 	@Transactional // 트랜잭션 추가
-	public void sendPushNotification(Long memberId, String title, String body, Long timestamp, Long entityId) {
+	public void sendPushNotification(Long memberId, Long letterId, String title, String body, Long timestamp,
+		Long entityId) {
 		List<FCMToken> tokens = fcmTokenRepository.findAllByMemberId(memberId);
 
 		if (tokens.isEmpty()) {
@@ -81,11 +82,12 @@ public class FCMServiceImpl implements FCMService {
 			.orElseThrow(() -> new MemberException(MemberErrorStatus.MEMBER_NOT_FOUND));
 
 		for (FCMToken token : tokens) {
-			sendSingleNotification(token, member, title, body, timestamp, entityId);
+			sendSingleNotification(token, letterId, member, title, body, timestamp, entityId);
 		}
 	}
 
-	private void sendSingleNotification(FCMToken token, Member member, String title, String body, Long timestamp,
+	private void sendSingleNotification(FCMToken token, Long letterId, Member member, String title, String body,
+		Long timestamp,
 		Long entityId) {
 		try {
 			Message message = Message.builder()
@@ -95,6 +97,7 @@ public class FCMServiceImpl implements FCMService {
 					.setBody(body)
 					.build())
 				.putData("memberId", String.valueOf(member.getId()))
+				.putData("letterId", String.valueOf(letterId))
 				.putData("time", String.valueOf(timestamp))
 				.putData("entityId", String.valueOf(entityId))
 				.putData("type", determineNotificationType(title, entityId)) // 타입 결정 로직 분리

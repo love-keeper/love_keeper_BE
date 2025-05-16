@@ -59,6 +59,7 @@ public class PromiseCommandServiceImpl implements PromiseCommandService {
 
 		// 약속 생성 푸시 알림 전송 (promiseId 포함)
 		fcmService.sendPushNotification(
+			savedPromise.getId(),
 			partner.getId(),
 			"새로운 약속이 등록되었어요",
 			"약속을 확인해주세요",
