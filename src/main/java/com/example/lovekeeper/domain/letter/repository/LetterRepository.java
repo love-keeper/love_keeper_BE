@@ -20,6 +20,7 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
 	@Query("select count(l) from Letter l where l.couple.id = :coupleId")
 	long countByCoupleId(@Param("coupleId") Long coupleId);
 
+
 	@Query("SELECT * FROM LETTER e WHERE e.sentDate >= :start AND e.sentDate <= :end ORDER BY e.sentDate")
 	Slice<Letter> findByCoupleIdAndSentDate(Long coupleId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end,Pageable pageable);
 }

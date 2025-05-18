@@ -90,6 +90,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		LocalDateTime end = localDate.atTime(23, 59, 59);
 		Pageable pageable = PageRequest.of(page, size, Sort.by("sentDate", "createdAt").descending());
 		// 커플 정보 조회
+
 		Couple couple = coupleRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 		// 특정 날짜 편지 조회
