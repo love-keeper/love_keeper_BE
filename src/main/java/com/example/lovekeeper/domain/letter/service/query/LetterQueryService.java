@@ -18,5 +18,5 @@ public interface LetterQueryService {
 	/**
 	 * 특정 날짜 편지 리스트 조회
 	 */
-	LetterResponse.LetterListResponse getLettersByDate(Long memberId, LocalDate date, int page, int size);
+	LetterResponse.LetterListResponse getLettersByDate(Long memberId, String date, int page, int size);
 }

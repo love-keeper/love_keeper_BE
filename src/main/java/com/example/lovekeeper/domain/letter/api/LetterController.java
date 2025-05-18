@@ -151,7 +151,7 @@ public class LetterController {
 	public BaseResponse<LetterResponse.LetterListResponse> getLettersByDate(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails userDetails,
 		@Parameter(description = "조회할 날짜 (yyyy-MM-dd 형식)", required = true, example = "2025-02-13")
-		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+		@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") String date,
 		@Parameter(description = "페이지 번호 (0부터 시작)", required = true, example = "0")
 		@RequestParam int page,
 		@Parameter(description = "페이지당 데이터 수", required = true, example = "10")
