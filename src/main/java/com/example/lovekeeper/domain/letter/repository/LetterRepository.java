@@ -1,6 +1,6 @@
 package com.example.lovekeeper.domain.letter.repository;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,9 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
 	long countByCoupleId(@Param("coupleId") Long coupleId);
 
 
-	@Query("SELECT * FROM LETTER e WHERE e.sentDate >= :start AND e.sentDate <= :end ORDER BY e.sentDate")
-	Slice<Letter> findByCoupleIdAndSentDate(Long coupleId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end,Pageable pageable);
+
+	Slice<Letter> findByCoupleIdAndSentDateBetween(Long coupleId
+			, @Param("start") LocalDateTime startDateTime
+			, @Param("end") LocalDateTime endDateTime
+			,Pageable pageable);
 }

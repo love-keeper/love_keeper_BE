@@ -96,7 +96,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		// 특정 날짜 편지 조회
 
 
-		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), start,end, pageable);
+		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDateBetween(couple.getId(), start,end, pageable);
 		return LetterResponse.LetterListResponse.from(letters);
 	}
 }
