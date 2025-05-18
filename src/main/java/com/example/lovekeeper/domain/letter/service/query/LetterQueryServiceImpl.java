@@ -96,5 +96,4 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), dt, pageable);
 		return LetterResponse.LetterListResponse.from(letters);
 	}
-
 }
