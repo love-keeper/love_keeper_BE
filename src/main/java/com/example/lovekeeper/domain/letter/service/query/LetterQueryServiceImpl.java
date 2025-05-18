@@ -85,7 +85,9 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 
 	@Override
 	public LetterResponse.LetterListResponse getLettersByDate(Long memberId, String date, int page, int size) {
-		LocalDateTime dt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+		LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		LocalDateTime start = localDate.atStartOfDay();
+		LocalDateTime end = localDate.atTime(23, 59, 59);
 		Pageable pageable = PageRequest.of(page, size, Sort.by("sentDate", "createdAt").descending());
 		// 커플 정보 조회
 		Couple couple = coupleRepository.findByMemberId(memberId)
@@ -93,7 +95,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 		// 특정 날짜 편지 조회
 
 
-		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), dt, pageable);
+		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), start,end, pageable);
 		return LetterResponse.LetterListResponse.from(letters);
 	}
 }
