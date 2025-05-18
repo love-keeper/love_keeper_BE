@@ -92,6 +92,7 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
 		// 특정 날짜 편지 조회
 
+
 		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), dt, pageable);
 		return LetterResponse.LetterListResponse.from(letters);
 	}
