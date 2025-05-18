@@ -87,11 +87,9 @@ public class LetterQueryServiceImpl implements LetterQueryService {
 	public LetterResponse.LetterListResponse getLettersByDate(Long memberId, String date, int page, int size) {
 		LocalDateTime dt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 		Pageable pageable = PageRequest.of(page, size, Sort.by("sentDate", "createdAt").descending());
-
 		// 커플 정보 조회
 		Couple couple = coupleRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new CoupleException(CoupleErrorStatus.COUPLE_NOT_FOUND));
-
 		// 특정 날짜 편지 조회
 		Slice<Letter> letters = letterRepository.findByCoupleIdAndSentDate(couple.getId(), dt, pageable);
 		return LetterResponse.LetterListResponse.from(letters);
