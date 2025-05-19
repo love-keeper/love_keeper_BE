@@ -1,5 +1,8 @@
 package com.example.lovekeeper.domain.auth.api;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,6 +50,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.thymeleaf.context.Context;
 
 @Tag(name = "인증", description = "회원가입, 로그인, 로그아웃 등 인증 관련 API")
 @Slf4j
@@ -148,7 +152,42 @@ public class AuthController {
 		emailAuthcommandservice.sendPasswordChangeLink(request.getEmail());
 		return BaseResponse.onSuccess("비밀번호 변경 링크가 이메일로 발송되었습니다.");
 	}
+	@GetMapping("/password_change")
+	public void resetPasswordRedirect(@RequestParam("email") String email, @RequestParam("code") String code,HttpServletResponse response) throws IOException {
+		String passwordChangeUrl = "https://dev.lovekeeper.site/api/auth/password_change?email=" + email + "&code=" + code;
 
+		// 4. Thymeleaf Context 생성
+		String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+		String encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8);
+
+		String deepLink = "app://password-change?email=" + encodedEmail + "&code=" + encodedCode;
+		String fallbackUrl = "https://dev.lovekeeper.site/fallback"; // 또는 앱스토어 주소
+
+		String html = """
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+                <meta charset="UTF-8">
+                <title>앱으로 이동 중...</title>
+                <script>
+                    window.onload = function() {
+                        var link = '%s';
+                        window.location.href = link;
+                        setTimeout(function() {
+                            window.location.href = '%s';
+                        }, 1500);
+                    };
+                </script>
+            </head>
+            <body>
+                앱으로 이동 중입니다...
+            </body>
+            </html>
+            """.formatted(deepLink, fallbackUrl);
+
+		response.setContentType("text/html;charset=UTF-8");
+		response.getWriter().write(html);
+	}
 	/**
 	 * 비밀번호 초기화 후 변경
 	 */
