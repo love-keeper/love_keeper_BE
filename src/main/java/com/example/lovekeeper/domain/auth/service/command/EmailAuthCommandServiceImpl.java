@@ -91,7 +91,7 @@ public class EmailAuthCommandServiceImpl implements EmailAuthCommandService {
 		emailAuthRedisService.saveCode(email, code, CODE_EXPIRE_TIME_MS);
 
 		// 3. 비밀번호 변경 URL 생성 (앱에서 접근할 수 있는 URL)
-		String passwordChangeUrl = "https://dev.lovekeeper.site/api/auth/password_change?email=" + email + "&code=" + code;
+		String passwordChangeUrl = "app://password-change?email=" + email + "&code=" + code;
 
 		// 4. Thymeleaf Context 생성
 		Context context = new Context();
